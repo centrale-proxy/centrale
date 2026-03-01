@@ -24,4 +24,10 @@ pub enum CentraleError {
 
     #[error("Unauthorized")]
     Unauthorized,
+
+    #[error("Missing subdomain")]
+    MissingSubdomain,
+
+    #[error("Invalid subdomain")]
+    InvalidSubdomain,
 }
