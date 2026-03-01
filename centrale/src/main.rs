@@ -1,11 +1,10 @@
 mod config;
 mod db;
-mod db_error;
 mod error;
 mod request;
 mod server;
 
-use crate::{config::CentraleConfig, db_error::serve_db_error, server::start_server};
+use crate::{config::CentraleConfig, db::db_error::serve_db_error, server::start_server};
 use dir_and_db_pool::db::get_db::get_db;
 use log::error;
 
