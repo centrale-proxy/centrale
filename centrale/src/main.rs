@@ -1,14 +1,12 @@
 mod config;
 mod request;
+mod server;
 
-use crate::{config::CentraleConfig, request::handle_request};
-use actix_web::{App, HttpServer, web};
+use crate::{config::CentraleConfig, server::start_server};
+use dir_and_db_pool::db::get_db::get_db;
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+fn main() {
     env_logger::init();
-    HttpServer::new(|| App::new().route("/{_:.*}", web::get().to(handle_request)))
-        .bind(CentraleConfig::SERVER_ADDRESS)?
-        .run()
-        .await
+    let db = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
+    start_server(db);
 }

@@ -1,5 +1,5 @@
 [package]
-name = "dirsqlite_r2d2"
+name = "dir_and_db_pool"
 version = "0.1.0"
 edition = "2024"
 

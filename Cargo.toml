@@ -1,6 +1,6 @@
    [workspace]
    members = [
        "centrale",
-       "dirsqlite_r2d2",
+       "dir_and_db_pool",
    ]
    resolver = "2"
