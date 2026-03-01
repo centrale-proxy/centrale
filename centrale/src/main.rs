@@ -17,12 +17,8 @@ async fn wildcard_handler(req: HttpRequest) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
-        App::new()
-            // Register a wildcard route
-            .route("/{_:.*}", web::get().to(wildcard_handler))
-    })
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
+    HttpServer::new(|| App::new().route("/{_:.*}", web::get().to(wildcard_handler)))
+        .bind("127.0.0.1:8080")?
+        .run()
+        .await
 }

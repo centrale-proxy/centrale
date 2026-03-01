@@ -1,8 +1,6 @@
-[package]
-name = "centrale"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-actix-web = "4.13.0"
-serde_json = "1.0.149"
+   [workspace]
+   members = [
+       "centrale",
+       "dirsqlite_r2d2",
+   ]
+   resolver = "2"
