@@ -1,24 +1,14 @@
-use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, web};
+mod config;
+mod request;
 
-async fn wildcard_handler(req: HttpRequest) -> impl Responder {
-    let host = req.headers().get("Host");
-    let referer = req.headers().get("Referer");
-
-    if host.is_some() {
-        "OK"
-    } else if referer.is_some() {
-        // CLOUDFLARE HAS NO HOST, ONLY REFERRER
-        "OK"
-    } else {
-        HttpResponse::Unauthorized().json(serde_json::json!({ "error": "No authentication" }));
-        "No"
-    }
-}
+use crate::{config::CentraleConfig, request::handle_request};
+use actix_web::{App, HttpServer, web};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().route("/{_:.*}", web::get().to(wildcard_handler)))
-        .bind("127.0.0.1:8080")?
+    env_logger::init();
+    HttpServer::new(|| App::new().route("/{_:.*}", web::get().to(handle_request)))
+        .bind(CentraleConfig::SERVER_ADDRESS)?
         .run()
         .await
 }
