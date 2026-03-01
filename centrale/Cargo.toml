@@ -12,3 +12,4 @@ dir_and_db_pool = { path = "../dir_and_db_pool" }
 r2d2_sqlite = "0.31.0"
 r2d2 = "0.8.10"
 actix-rt = "2.11.0"
+thiserror = "2.0.12"

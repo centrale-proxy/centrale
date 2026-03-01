@@ -1,16 +1,15 @@
 use actix_web::HttpRequest;
 
 pub async fn handle_request(req: HttpRequest) -> impl Responder {
-    let host = req.headers().get("Host").and_then(|h| h.to_str().ok());
+    let host = req.headers().get("Host");
     let referer = req.headers().get("Referer");
     if host.is_some() {
-        "yes"
+        HttpResponse::Ok().json(serde_json::json!({ "Ok": true }))
     } else if referer.is_some() {
         // CLOUDFLARE HAS NO HOST, ONLY REFERRER
-        "yes"
+        HttpResponse::Ok().json(serde_json::json!({ "Ok": true }))
     } else {
-        HttpResponse::Unauthorized().json(serde_json::json!({ "error": "No authentication" }));
-        "No"
+        HttpResponse::Unauthorized().json(serde_json::json!({ "error": "Not authenticated" }))
     }
 }
 
@@ -30,5 +29,7 @@ async fn test_empty_host_header() {
 
     //assert!(resp.status().is_client_error());
     let body = test::read_body(resp).await;
-    assert_eq!(body, "No");
+    let expected_body =
+        serde_json::to_string(&serde_json::json!({ "error": "Not authenticated" })).unwrap();
+    assert_eq!(body, expected_body);
 }

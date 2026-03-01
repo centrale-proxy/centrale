@@ -1,5 +1,7 @@
 mod config;
+mod db;
 mod db_error;
+mod error;
 mod request;
 mod server;
 
