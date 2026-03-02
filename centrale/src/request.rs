@@ -3,10 +3,28 @@ use actix_web::HttpRequest;
 pub async fn handle_request(req: HttpRequest) -> impl Responder {
     let host = req.headers().get("Host");
     let referer = req.headers().get("Referer");
+    // TBD RATE LIMIT BY IP
+    // TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
+    // TBD BROADCAST LOG
     if host.is_some() {
         let subdomain = get_subdomain(host.unwrap());
         match subdomain {
-            Ok(subdomain) => HttpResponse::Ok().json(serde_json::json!({ "Ok": subdomain })),
+            Ok(subdomain) => {
+                // GET COOKIE
+                // GET BEARER TOKEN
+                // AUTHENTICATE
+                // AUTHORIZE
+                // SET HEADERS Access-Control-Allow-Origin
+                // PROXY:
+                // // ADD TO REQ HEADERS
+                // // MAKE REQUEST
+                // // AWAIT
+                // // RESPOND TO CLIENT
+                // BROADCAST LOG
+                //
+                // // DELETE SUBDOMAIN
+                HttpResponse::Ok().json(serde_json::json!({ "Ok": subdomain }))
+            }
             Err(err) => {
                 error!("{err}");
                 HttpResponse::Unauthorized()
