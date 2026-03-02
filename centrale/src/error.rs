@@ -32,6 +32,9 @@ pub enum CentraleError {
     #[error("Missing host")]
     MissingHost,
 
+    #[error("Unable to parse URL")]
+    UnableToParseUrl,
+
     #[error("Invalid subdomain")]
     InvalidSubdomain,
 
