@@ -63,7 +63,7 @@ async fn has_host_ok() {
 
     let req = test::TestRequest::get()
         .uri("/")
-        .insert_header(("Host", "Some"))
+        .insert_header(("Host", "https://hello.hello.ee"))
         .to_request();
 
     let resp = test::call_service(&app, req).await;
@@ -71,14 +71,14 @@ async fn has_host_ok() {
 }
 
 #[actix_rt::test]
-async fn empty_subdomain_error() {
+async fn has_one_work_host_err() {
     //
     use actix_web::{App, test, web};
     let app = test::init_service(App::new().route("/", web::get().to(handle_request))).await;
 
     let req = test::TestRequest::get()
         .uri("/")
-        .insert_header(("Host", ""))
+        .insert_header(("Host", "Some"))
         .to_request();
 
     let resp = test::call_service(&app, req).await;

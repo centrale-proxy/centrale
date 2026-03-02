@@ -1,5 +1,6 @@
 use std::error::Error as StdError;
 use thiserror::Error;
+use url::ParseError;
 
 //
 #[derive(Error, Debug)]
@@ -28,6 +29,12 @@ pub enum CentraleError {
     #[error("Missing subdomain")]
     MissingSubdomain,
 
+    #[error("Missing host")]
+    MissingHost,
+
     #[error("Invalid subdomain")]
     InvalidSubdomain,
+
+    #[error("URL parse error: {0}")]
+    UrlParseError(#[from] ParseError),
 }
