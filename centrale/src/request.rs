@@ -1,20 +1,7 @@
 use actix_web::HttpRequest;
 
-pub fn get_subdomain(value: &HeaderValue) -> Result<String, CentraleError> {
-    if let Ok(subdomain) = value.to_str() {
-        if subdomain.is_empty() {
-            Err(CentraleError::MissingSubdomain)
-        } else {
-            Ok(subdomain.to_string())
-        }
-    } else {
-        Err(CentraleError::InvalidSubdomain)
-    }
-}
-
 pub async fn handle_request(req: HttpRequest) -> impl Responder {
     let host = req.headers().get("Host");
-    println!("host {:?}", host);
     let referer = req.headers().get("Referer");
     if host.is_some() {
         let subdomain = get_subdomain(host.unwrap());
@@ -35,11 +22,9 @@ pub async fn handle_request(req: HttpRequest) -> impl Responder {
     }
 }
 
-use actix_web::http::header::HeaderValue;
+use crate::subdomain::get_subdomain;
 use actix_web::{HttpResponse, Responder};
 use log::error;
-
-use crate::error::CentraleError;
 
 #[actix_rt::test]
 async fn test_empty_host_header() {
