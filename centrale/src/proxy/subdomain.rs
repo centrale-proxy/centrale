@@ -25,9 +25,9 @@ pub fn get_subdomain(input_url: &HeaderValue) -> Result<String, CentraleError> {
 
 #[actix_rt::test]
 async fn empty_subdomain_error() {
-    use crate::request::handle_request;
+    use crate::request::handle_wildcard;
     use actix_web::{App, test, web};
-    let app = test::init_service(App::new().route("/", web::get().to(handle_request))).await;
+    let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
 
     let req = test::TestRequest::get()
         .uri("/")
@@ -41,9 +41,9 @@ async fn empty_subdomain_error() {
 
 #[actix_rt::test]
 async fn normal_subdomain() {
-    use crate::request::handle_request;
+    use crate::request::handle_wildcard;
     use actix_web::{App, test, web};
-    let app = test::init_service(App::new().route("/", web::get().to(handle_request))).await;
+    let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
 
     let req = test::TestRequest::get()
         .uri("/")
@@ -56,9 +56,9 @@ async fn normal_subdomain() {
 
 #[actix_rt::test]
 async fn domain_with_two_subdomains_fails() {
-    use crate::request::handle_request;
+    use crate::request::handle_wildcard;
     use actix_web::{App, test, web};
-    let app = test::init_service(App::new().route("/", web::get().to(handle_request))).await;
+    let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
 
     let req = test::TestRequest::get()
         .uri("/")

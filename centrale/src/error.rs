@@ -38,6 +38,9 @@ pub enum CentraleError {
     #[error("Invalid subdomain")]
     InvalidSubdomain,
 
+    #[error("No host or referer present")]
+    NoHostNoReferer,
+
     #[error("URL parse error: {0}")]
     UrlParseError(#[from] ParseError),
 }

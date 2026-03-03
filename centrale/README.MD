@@ -4,12 +4,31 @@ Upstream proxy for subdomains.
 Authenticates + authorizes with subodamain + cookie / bearer token.
 2 user roles: admin and user 
 
-# API
+
+# TBD
+// TBD RATE LIMIT BY IP
+// TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
+// TBD BROADCAST LOG
+// GET COOKIE
+// GET BEARER TOKEN
+// AUTHENTICATE
+// AUTHORIZE
+// SET HEADERS Access-Control-Allow-Origin
+// PROXY:
+// // ADD TO REQ HEADERS
+// // MAKE REQUEST
+// // AWAIT
+// // RESPOND TO CLIENT
+// BROADCAST LOG
+//
+// // DELETE SUBDOMAIN
 
 ## DB
 user
 subdomain
 subdomain_user
+
+# API
 
 ## NO AUTH:
 
@@ -33,7 +52,7 @@ DELETE /api/user - delete user
 GET /api/test-subdomain - see if subdomain is available
 GET /api/subdomain - get user subdomains
 POST /api/subdomain - add subdomain
-DELETE /api/subdomain
+DELETE /api/subdomain - delete subdomain
 
 Subdomain specific:
 GET /api/users - users for subdomain
@@ -86,6 +105,7 @@ Accept registrations
 curl http://localhost:8080
 
 curl -H "Referer: http://localhost:8080" http://localhost:8080
+curl -H "Referer: http://hello.hello.ee" http://localhost:8080
 
 curl -H "Host:" http://localhost:8080
 
