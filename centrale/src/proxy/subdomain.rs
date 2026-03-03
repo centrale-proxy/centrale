@@ -68,3 +68,18 @@ async fn domain_with_two_subdomains_fails() {
     let resp = test::call_service(&app, req).await;
     assert!(resp.status().is_client_error());
 }
+
+#[actix_rt::test]
+async fn just_domain_without_wildcard_fails() {
+    use crate::request::handle_wildcard;
+    use actix_web::{App, test, web};
+    let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
+
+    let req = test::TestRequest::get()
+        .uri("/")
+        .insert_header(("Host", "https://hello.ee"))
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert!(resp.status().is_client_error());
+}

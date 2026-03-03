@@ -73,6 +73,7 @@ PUT /api/remove-user-admin - remove user admin
 // user_meta
 // /api/redirect/:subdomain
 // robots.txt
+// does not anser to just "domain.com".
 
 # Workspaces?
 Proxy
