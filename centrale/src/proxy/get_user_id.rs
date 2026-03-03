@@ -1,10 +1,12 @@
 use crate::error::CentraleError;
-use actix_web::{cookie::Cookie, http::header::HeaderValue};
+use actix_web::{
+    cookie::Cookie,
+    http::header::{AUTHORIZATION, HeaderMap},
+};
 
-pub fn get_user_id(
-    token: Option<&HeaderValue>,
-    cookie: Option<Cookie<'_>>,
-) -> Result<i64, CentraleError> {
+pub fn get_user_id(headers: &HeaderMap, cookie: Option<Cookie<'_>>) -> Result<i64, CentraleError> {
+    //
+    let token = headers.get(AUTHORIZATION);
     // PREFER TOKEN
     if token.is_some() {
         Ok(1)
@@ -36,7 +38,7 @@ async fn fails_without_cookie_and_token() {
 async fn works_with_token() {
     use crate::request::handle_wildcard;
     use actix_web::http::header::AUTHORIZATION;
-    use actix_web::{App, test, web};
+    use actix_web::{App, http::header::HeaderValue, test, web};
 
     let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
 

@@ -31,7 +31,6 @@ pub async fn handle_wildcard(req: HttpRequest) -> impl Responder {
 //
 // // DELETE SUBDOMAIN
 
-use actix_web::http::header::{AUTHORIZATION, HeaderValue};
 use actix_web::{HttpResponse, Responder};
 use log::error;
 
@@ -52,6 +51,8 @@ async fn test_empty_host_header() {
 
 #[actix_rt::test]
 async fn has_referrer_ok() {
+    use actix_web::http::header::{AUTHORIZATION, HeaderValue};
+
     //
     use actix_web::{App, test, web};
     let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
@@ -70,6 +71,8 @@ async fn has_referrer_ok() {
 
 #[actix_rt::test]
 async fn has_host_ok() {
+    use actix_web::http::header::{AUTHORIZATION, HeaderValue};
+
     //
     use actix_web::{App, test, web};
     let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
@@ -89,6 +92,8 @@ async fn has_host_ok() {
 
 #[actix_rt::test]
 async fn has_one_work_host_err() {
+    use actix_web::http::header::{AUTHORIZATION, HeaderValue};
+
     //
     use actix_web::{App, test, web};
     let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;

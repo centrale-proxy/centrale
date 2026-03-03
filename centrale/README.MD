@@ -38,7 +38,7 @@ GET /login /login/
 POST /login /login/
 
 GET /register /register/
-POST /register /register/
+POST /api/user - register user 
 
 GET /logout
 
@@ -104,10 +104,16 @@ Accept registrations
 
 # CURL
 curl http://localhost:8080
-
 curl -H "Referer: http://localhost:8080" http://localhost:8080
 curl -H "Referer: http://hello.hello.ee" http://localhost:8080
-
 curl -H "Host:" http://localhost:8080
-
 curl -H "Host: http://hello.wello.ee" http://localhost:8080
+curl -H "Host: http://hello.wello.ee" http://localhost:8080 -H "Authorization: Bearer _token"
+curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:8080
+
+curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/register
+
+
+
+
+Subdomainer.com
