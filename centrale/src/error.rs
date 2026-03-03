@@ -43,4 +43,7 @@ pub enum CentraleError {
 
     #[error("URL parse error: {0}")]
     UrlParseError(#[from] ParseError),
+
+    #[error("No token or cookie present")]
+    NoTokenOrCookiePresent,
 }

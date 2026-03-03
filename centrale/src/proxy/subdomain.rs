@@ -28,10 +28,14 @@ async fn empty_subdomain_error() {
     use crate::request::handle_wildcard;
     use actix_web::{App, test, web};
     let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
-
+    use actix_web::http::header::AUTHORIZATION;
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header(("Host", ""))
+        .insert_header((
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", "token")).unwrap(),
+        ))
         .to_request();
 
     let resp = test::call_service(&app, req).await;
@@ -42,12 +46,17 @@ async fn empty_subdomain_error() {
 #[actix_rt::test]
 async fn normal_subdomain() {
     use crate::request::handle_wildcard;
+    use actix_web::http::header::AUTHORIZATION;
     use actix_web::{App, test, web};
     let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
 
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header(("Host", "https://hello.hello.ee"))
+        .insert_header((
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", "token")).unwrap(),
+        ))
         .to_request();
 
     let resp = test::call_service(&app, req).await;
@@ -57,12 +66,17 @@ async fn normal_subdomain() {
 #[actix_rt::test]
 async fn domain_with_two_subdomains_fails() {
     use crate::request::handle_wildcard;
+    use actix_web::http::header::AUTHORIZATION;
     use actix_web::{App, test, web};
     let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
 
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header(("Host", "https://hello.hello.hello.ee"))
+        .insert_header((
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", "token")).unwrap(),
+        ))
         .to_request();
 
     let resp = test::call_service(&app, req).await;
@@ -71,6 +85,8 @@ async fn domain_with_two_subdomains_fails() {
 
 #[actix_rt::test]
 async fn just_domain_without_wildcard_fails() {
+    use actix_web::http::header::AUTHORIZATION;
+
     use crate::request::handle_wildcard;
     use actix_web::{App, test, web};
     let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
@@ -78,6 +94,10 @@ async fn just_domain_without_wildcard_fails() {
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header(("Host", "https://hello.ee"))
+        .insert_header((
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", "token")).unwrap(),
+        ))
         .to_request();
 
     let resp = test::call_service(&app, req).await;

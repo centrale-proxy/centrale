@@ -31,6 +31,7 @@ pub async fn handle_wildcard(req: HttpRequest) -> impl Responder {
 //
 // // DELETE SUBDOMAIN
 
+use actix_web::http::header::{AUTHORIZATION, HeaderValue};
 use actix_web::{HttpResponse, Responder};
 use log::error;
 
@@ -57,6 +58,10 @@ async fn has_referrer_ok() {
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header(("Referer", "https://hello.hello.ee"))
+        .insert_header((
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", "token")).unwrap(),
+        ))
         .to_request();
 
     let resp = test::call_service(&app, req).await;
@@ -72,6 +77,10 @@ async fn has_host_ok() {
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header(("Host", "https://hello.hello.ee"))
+        .insert_header((
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", "token")).unwrap(),
+        ))
         .to_request();
 
     let resp = test::call_service(&app, req).await;
@@ -87,6 +96,10 @@ async fn has_one_work_host_err() {
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header(("Host", "Some"))
+        .insert_header((
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", "token")).unwrap(),
+        ))
         .to_request();
 
     let resp = test::call_service(&app, req).await;
