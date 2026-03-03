@@ -2,7 +2,7 @@ use crate::user::register::{RegisterUser, handle_register};
 use actix_web::{HttpResponse, Responder, web};
 use log::error;
 
-pub async fn add_user(json: web::Json<RegisterUser>) -> impl Responder {
+pub async fn post_user(json: web::Json<RegisterUser>) -> impl Responder {
     match handle_register(json) {
         Ok(result) => HttpResponse::Ok().body(result),
         Err(err) => {

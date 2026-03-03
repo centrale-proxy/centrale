@@ -18,10 +18,10 @@ pub fn handle_register(json: web::Json<RegisterUser>) -> Result<String, Centrale
 
 #[actix_rt::test]
 async fn post_new_user() {
-    use crate::user::add::add_user;
+    use crate::user::post::post_user;
     use actix_web::{App, test, web};
 
-    let app = test::init_service(App::new().route("/api/user", web::post().to(add_user))).await;
+    let app = test::init_service(App::new().route("/api/user", web::post().to(post_user))).await;
     use serde_json::json;
 
     let payload = json!({
