@@ -1,5 +1,7 @@
-use crate::error::CentraleError;
+use crate::{error::CentraleError, user::add::add_user};
 use actix_web::web;
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -8,12 +10,23 @@ pub struct RegisterUser {
     pub password: String,
 }
 
-pub fn handle_register(json: web::Json<RegisterUser>) -> Result<String, CentraleError> {
-    // Extract the data from the JSON payload
+pub fn handle_register(
+    pool: web::Data<Pool<SqliteConnectionManager>>,
+    json: web::Json<RegisterUser>,
+) -> Result<String, CentraleError> {
     let register_request = json.into_inner();
     let username = register_request.username;
-    let _password = register_request.password;
-    Ok(format!("User {} registered successfully!", username))
+    let password = register_request.password;
+
+    let db = pool.get().expect("Couldn't get db connection from pool");
+
+    let user_id = add_user(&db, &username, &password)?;
+
+    // return user id
+    Ok(format!(
+        "User {} ({}) registered successfully!",
+        username, user_id
+    ))
 }
 
 #[actix_rt::test]

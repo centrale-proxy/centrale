@@ -74,6 +74,7 @@ PUT /api/remove-user-admin - remove user admin
 // /api/redirect/:subdomain
 // robots.txt
 // does not anser to just "domain.com".
+// not private by default should also be possible for blog sites. Perhaps should be all the same type - private or public 
 
 # Workspaces?
 Proxy
@@ -112,6 +113,10 @@ curl -H "Host: http://hello.wello.ee" http://localhost:8080 -H "Authorization: B
 curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:8080
 
 curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/register
+
+
+
+sqlite3 "/Users/martin/Library/Application Support/centrale/sergeant.db"
 
 
 

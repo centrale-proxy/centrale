@@ -1,3 +1,5 @@
+use r2d2::Error as R2d2Error;
+use r2d2_sqlite::rusqlite;
 use std::error::Error as StdError;
 use thiserror::Error;
 use url::ParseError;
@@ -46,4 +48,18 @@ pub enum CentraleError {
 
     #[error("No token or cookie present")]
     NoTokenOrCookiePresent,
+
+    #[error("Database error: {0}")]
+    DatabaseError(#[from] rusqlite::Error),
+
+    #[error("Database pool error: {0}")]
+    PoolError(#[from] R2d2Error),
+
+    #[error("Such user exists")]
+    SuchUserExists,
+
+    #[error("Unable to hash")]
+    UnableToHash,
+    //#[error("Argon2 error: {0}")]
+    //Argon2Error(#[from] argon2::Error),
 }
