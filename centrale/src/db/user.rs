@@ -13,6 +13,8 @@ pub fn create_user_table(
             password TEXT NOT NULL CHECK(password <> ''),
             salt TEXT NOT NULL CHECK(salt <> ''),
             name TEXT,
+            first_name TEXT,
+            last_name TEXT,
             personal_code TEXT,
             email TEXT
         )
@@ -54,6 +56,7 @@ pub fn create_cookie_table(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             cookie TEXT,
             user_id INTEGER,
+            timeout INTEGER,
             FOREIGN KEY(user_id) REFERENCES user(id)
         );
 

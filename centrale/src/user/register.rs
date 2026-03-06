@@ -1,5 +1,13 @@
-use crate::{error::CentraleError, user::add::add_user};
-use actix_web::web;
+use crate::{
+    config::CentraleConfig,
+    error::CentraleError,
+    user::{add::add_user, cookie::add_cookie},
+};
+use actix_web::{
+    HttpResponse,
+    cookie::{Cookie, time::Duration},
+    web,
+};
 use dir_and_db_pool::db::DbBool;
 use serde::Deserialize;
 
@@ -12,12 +20,26 @@ pub struct RegisterUser {
 pub fn handle_register(
     pool: web::Data<DbBool>,
     json: web::Json<RegisterUser>,
-) -> Result<i64, CentraleError> {
+) -> Result<HttpResponse, CentraleError> {
     let register_request = json.into_inner();
     let username = register_request.username;
     let password = register_request.password;
     let db = pool.get().expect("Couldn't get db connection from pool");
-    add_user(&db, &username, &password)
+    let user_id = add_user(&db, &username, &password)?;
+    let cookie_value = add_cookie(&db, user_id)?;
+    let cookie = Cookie::build("centrale", cookie_value)
+        .domain(CentraleConfig::DOMAIN)
+        .max_age(Duration::new(CentraleConfig::COOKIE_TIMEOUT, 0))
+        .secure(CentraleConfig::COOKIE_SECURE) // Only send over HTTPS
+        .http_only(CentraleConfig::COOKIE_HTTP_ONLY) // Not accessible via JavaScript
+        // .path("/")
+        .finish();
+
+    let resp = HttpResponse::Ok()
+        .cookie(cookie)
+        .json(serde_json::json!({ "user_id": user_id.to_string() }));
+
+    Ok(resp)
 }
 
 #[actix_rt::test]
@@ -52,6 +74,7 @@ async fn post_new_user() {
         .to_request();
 
     let resp = test::call_service(&app, req).await;
-    // println!("{:?}", resp);
+    println!("{:?}", resp);
     assert!(resp.status().is_success());
+    //assert!(resp.headers().contains_key("set-cookie"));
 }

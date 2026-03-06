@@ -1,6 +1,8 @@
 use crate::{error::CentraleError, user::hash::hash_password};
+use argon2::password_hash::SaltString;
 use dir_and_db_pool::db::DbConnection;
 use r2d2_sqlite::rusqlite::params;
+use rand::rngs::OsRng;
 
 pub fn add_user(
     db: &DbConnection,
@@ -14,11 +16,12 @@ pub fn add_user(
         // USERS(s) EXIST. CANNOT HAVE MORE
         return Err(CentraleError::SuchUserExists);
     } else {
-        let (hash, salt) = hash_password(&password)?;
+        let salt = SaltString::generate(&mut OsRng);
+        let hash = hash_password(&password, &salt)?;
         // INSERT TO DB
         db.execute(
             "INSERT INTO user (username, password, salt) VALUES (?1, ?2, ?3)",
-            params![username, hash, salt],
+            params![username, hash, salt.as_str()],
         )?;
         let last_id = db.last_insert_rowid();
         Ok(last_id)
