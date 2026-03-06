@@ -1,10 +1,11 @@
+use crate::db::DbBool;
 use crate::db::db_file::db_file;
 use crate::error::DirsqlError;
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 // use std::time::Duration;
 
-pub fn get_db(file: &str, folder: &str) -> Result<Pool<SqliteConnectionManager>, DirsqlError> {
+pub fn get_db(file: &str, folder: &str) -> Result<DbBool, DirsqlError> {
     let file_path = db_file(file, folder)?;
     let manager = SqliteConnectionManager::file(file_path);
     //  let pool = Pool::new(manager).expect("Failed to create pool.");

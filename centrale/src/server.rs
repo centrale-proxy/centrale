@@ -1,10 +1,9 @@
 use crate::{config::CentraleConfig, request::handle_wildcard, user::post::post_user};
 use actix_web::{App, HttpServer, web};
-use r2d2::Pool;
-use r2d2_sqlite::SqliteConnectionManager;
+use dir_and_db_pool::db::DbBool;
 
 #[actix_web::main]
-pub async fn start_server(db: Pool<SqliteConnectionManager>) -> std::io::Result<()> {
+pub async fn start_server(db: DbBool) -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db.clone()))

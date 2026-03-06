@@ -116,7 +116,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password
 
 
 
-sqlite3 "/Users/martin/Library/Application Support/centrale/sergeant.db"
+sqlite3 "/Users/martin/Library/Application Support/centrale/centrale.db"
 
 
 

@@ -1,7 +1,6 @@
-use crate::{db::init::init_db, error::CentraleError, user::add::add_user};
+use crate::{error::CentraleError, user::add::add_user};
 use actix_web::web;
-use r2d2::Pool;
-use r2d2_sqlite::SqliteConnectionManager;
+use dir_and_db_pool::db::DbBool;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -11,30 +10,28 @@ pub struct RegisterUser {
 }
 
 pub fn handle_register(
-    pool: web::Data<Pool<SqliteConnectionManager>>,
+    pool: web::Data<DbBool>,
     json: web::Json<RegisterUser>,
-) -> Result<String, CentraleError> {
+) -> Result<i64, CentraleError> {
     let register_request = json.into_inner();
     let username = register_request.username;
     let password = register_request.password;
-    init_db(&pool).unwrap();
     let db = pool.get().expect("Couldn't get db connection from pool");
-    let user_id = add_user(&db, &username, &password);
-    // return user id
-    Ok(format!(
-        "User {} ({:?}) registered successfully!",
-        username, user_id
-    ))
+    add_user(&db, &username, &password)
 }
 
 #[actix_rt::test]
 async fn post_new_user() {
+    use crate::db::init::init_db;
     use crate::user::post::post_user;
     use actix_web::{App, test, web};
+    use r2d2::Pool;
+    use r2d2_sqlite::SqliteConnectionManager;
     use serde_json::json;
 
     let manager = SqliteConnectionManager::memory();
     let pool = Pool::new(manager).expect("Failed to create pool.");
+    init_db(&pool).unwrap();
 
     let app = test::init_service(
         App::new()
