@@ -3,9 +3,11 @@ use crate::{
     error::CentraleError,
     user::{add::add_user, cookie::add_cookie},
 };
+use actix_http::Request;
 use actix_web::{
-    HttpResponse,
+    Error, HttpResponse,
     cookie::{Cookie, time::Duration},
+    dev::{Service, ServiceResponse},
     web,
 };
 use dir_and_db_pool::db::DbBool;
@@ -27,6 +29,7 @@ pub fn handle_register(
     let db = pool.get().expect("Couldn't get db connection from pool");
     let user_id = add_user(&db, &username, &password)?;
     let cookie_value = add_cookie(&db, user_id)?;
+    // DO COOKIE
     let cookie = Cookie::build("centrale", cookie_value)
         .domain(CentraleConfig::DOMAIN)
         .max_age(Duration::new(CentraleConfig::COOKIE_TIMEOUT, 0))
@@ -34,7 +37,7 @@ pub fn handle_register(
         .http_only(CentraleConfig::COOKIE_HTTP_ONLY) // Not accessible via JavaScript
         // .path("/")
         .finish();
-
+    // ADD COOKIE
     let resp = HttpResponse::Ok()
         .cookie(cookie)
         .json(serde_json::json!({ "user_id": user_id.to_string() }));
@@ -42,31 +45,36 @@ pub fn handle_register(
     Ok(resp)
 }
 
-#[actix_rt::test]
-async fn post_new_user() {
-    use crate::db::init::init_db;
-    use crate::user::post::post_user;
-    use actix_web::{App, test, web};
-    use r2d2::Pool;
-    use r2d2_sqlite::SqliteConnectionManager;
-    use serde_json::json;
+use crate::db::init::init_db;
+use crate::user::post::post_user;
+use actix_web::{App, test};
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
+use serde_json::{Value, json};
 
+pub fn _create_test_pool() -> Pool<SqliteConnectionManager> {
     let manager = SqliteConnectionManager::memory();
     let pool = Pool::new(manager).expect("Failed to create pool.");
     init_db(&pool).unwrap();
+    pool
+}
 
+pub async fn _create_test_user_register_app(
+    pool: Pool<SqliteConnectionManager>,
+) -> impl Service<Request, Response = ServiceResponse, Error = Error> {
     let app = test::init_service(
         App::new()
             .app_data(web::Data::new(pool))
             .route("/api/user", web::post().to(post_user)),
     )
     .await;
+    app
+}
 
-    let payload = json!({
-        "username": "testuser",
-        "password": "testpassword"
-    });
-
+pub async fn _make_user_register_test_request(
+    payload: Value,
+    app: impl Service<Request, Response = ServiceResponse, Error = Error>,
+) -> ServiceResponse {
     let req = test::TestRequest::post()
         .uri("/api/user")
         .insert_header(("Content-Type", "application/json"))
@@ -74,7 +82,19 @@ async fn post_new_user() {
         .to_request();
 
     let resp = test::call_service(&app, req).await;
-    println!("{:?}", resp);
+    resp
+}
+
+#[actix_rt::test]
+async fn post_new_user() {
+    let pool = _create_test_pool();
+    let app = _create_test_user_register_app(pool).await;
+    let payload = json!({
+        "username": "testuser",
+        "password": "testpassword"
+    });
+    let resp = _make_user_register_test_request(payload, app).await;
+    // println!("{:?}", resp);
     assert!(resp.status().is_success());
-    //assert!(resp.headers().contains_key("set-cookie"));
+    assert!(resp.headers().contains_key("set-cookie"));
 }
