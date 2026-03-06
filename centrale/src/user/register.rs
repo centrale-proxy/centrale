@@ -50,7 +50,7 @@ use crate::user::post::post_user;
 use actix_web::{App, test};
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
-use serde_json::{Value, json};
+use serde_json::Value;
 
 pub fn _create_test_pool() -> Pool<SqliteConnectionManager> {
     let manager = SqliteConnectionManager::memory();
@@ -87,6 +87,7 @@ pub async fn _make_user_register_test_request(
 
 #[actix_rt::test]
 async fn post_new_user() {
+    use serde_json::json;
     let pool = _create_test_pool();
     let app = _create_test_user_register_app(pool).await;
     let payload = json!({
