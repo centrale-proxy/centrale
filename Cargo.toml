@@ -2,5 +2,6 @@
    members = [
        "centrale",
        "dir_and_db_pool",
+       "app"
    ]
    resolver = "2"
