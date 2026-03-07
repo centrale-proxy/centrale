@@ -1,4 +1,4 @@
-use crate::{error::CentraleError, user::register::_create_test_pool};
+use crate::error::CentraleError;
 use actix_web::http::header::HeaderValue;
 use url::Url;
 
@@ -26,6 +26,7 @@ pub fn get_subdomain(input_url: &HeaderValue) -> Result<String, CentraleError> {
 #[actix_rt::test]
 async fn empty_subdomain_error() {
     use crate::request::handle_wildcard;
+    use crate::user::register::_create_test_pool;
     use actix_web::{App, test, web};
 
     let db = _create_test_pool();
@@ -54,8 +55,10 @@ async fn empty_subdomain_error() {
 #[actix_rt::test]
 async fn normal_subdomain() {
     use crate::request::handle_wildcard;
+    use crate::user::register::_create_test_pool;
     use actix_web::http::header::AUTHORIZATION;
     use actix_web::{App, test, web};
+
     let db = _create_test_pool();
 
     let app = test::init_service(
@@ -81,8 +84,10 @@ async fn normal_subdomain() {
 #[actix_rt::test]
 async fn domain_with_two_subdomains_fails() {
     use crate::request::handle_wildcard;
+    use crate::user::register::_create_test_pool;
     use actix_web::http::header::AUTHORIZATION;
     use actix_web::{App, test, web};
+
     let db = _create_test_pool();
     let app = test::init_service(
         App::new()
@@ -106,10 +111,11 @@ async fn domain_with_two_subdomains_fails() {
 
 #[actix_rt::test]
 async fn just_domain_without_wildcard_fails() {
-    use actix_web::http::header::AUTHORIZATION;
-
     use crate::request::handle_wildcard;
+    use crate::user::register::_create_test_pool;
+    use actix_web::http::header::AUTHORIZATION;
     use actix_web::{App, test, web};
+
     let db = _create_test_pool();
     let app = test::init_service(
         App::new()

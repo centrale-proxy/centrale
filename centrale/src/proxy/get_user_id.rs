@@ -1,4 +1,7 @@
-use crate::{error::CentraleError, user::find_by_cookie::find_user_by_cookie};
+use crate::{
+    error::CentraleError,
+    user::{find_by_cookie::find_user_by_cookie, find_by_token::find_user_by_token},
+};
 use actix_web::{
     cookie::Cookie,
     http::header::{AUTHORIZATION, HeaderMap},
@@ -15,20 +18,12 @@ pub fn get_user_id(
     let token = headers.get(AUTHORIZATION);
     // PREFER TOKEN
     if token.is_some() {
-        let token_str = token.unwrap().to_str();
-        /*
-        match token_str {
-            Ok(token_string) => {
-                //
-            }
-            Err(err) => {
-                //
-            }
-        }
-        // let user = find_user_by_token(pool, &token_string)?;
-        // */
-        Ok(1)
+        // BEARER TOKEN
+        let token_string = token.unwrap().to_str()?;
+        let user = find_user_by_token(&pool, &token_string.to_string())?;
+        Ok(user)
     } else if cookie.is_some() {
+        // COOKIE
         let cookie_string = cookie.unwrap().to_string();
         let user = find_user_by_cookie(&pool, &cookie_string)?;
         Ok(user)
@@ -62,7 +57,7 @@ async fn fails_without_cookie_and_token() {
 }
 
 #[actix_rt::test]
-async fn works_with_token() {
+async fn random_token_does_not_work() {
     use crate::request::handle_wildcard;
     use crate::user::register::_create_test_pool;
     use actix_web::http::header::AUTHORIZATION;
@@ -87,7 +82,7 @@ async fn works_with_token() {
         .to_request();
 
     let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_success());
+    assert!(resp.status().is_client_error());
 }
 
 #[actix_rt::test]

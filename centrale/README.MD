@@ -37,12 +37,22 @@ GET /api/test
 GET /login /login/
 POST /login /login/
 
+
 GET /register /register/
 POST /api/user - register user 
+GET /api/user
 
 GET /logout
 
 + OPTIONS FOR ALL
+
+
+# POST /api/user
+Creates user, add's cookie to the session.
+
+# GET /api/user/generate/bearer-token
+# GET /api/user/view/bearer-token
+# DELETE /api/user/delete/bearer-token
 
 ## APP
 GET /api/user - my user data
