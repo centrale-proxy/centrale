@@ -1,7 +1,7 @@
 use crate::{
     config::CentraleConfig,
     error::CentraleError,
-    user::{add::add_user, cookie::add_cookie},
+    user::{add::add_user, cookie::add_cookie, get::get_user},
 };
 use actix_http::Request;
 use actix_web::{
@@ -65,7 +65,8 @@ pub async fn _create_test_user_register_app(
     let app = test::init_service(
         App::new()
             .app_data(web::Data::new(pool))
-            .route("/api/user", web::post().to(post_user)),
+            .route("/api/user", web::post().to(post_user))
+            .route("/api/user", web::get().to(get_user)),
     )
     .await;
     app
@@ -73,12 +74,26 @@ pub async fn _create_test_user_register_app(
 
 pub async fn _make_user_register_test_request(
     payload: Value,
-    app: impl Service<Request, Response = ServiceResponse, Error = Error>,
+    app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
 ) -> ServiceResponse {
     let req = test::TestRequest::post()
         .uri("/api/user")
         .insert_header(("Content-Type", "application/json"))
         .set_json(&payload)
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    resp
+}
+
+pub async fn _make_request_with_cookie(
+    app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
+    cookie: &str,
+) -> ServiceResponse {
+    let req = test::TestRequest::get()
+        .uri("/api/user")
+        //  .insert_header(("Content-Type", "application/json"))
+        .insert_header(("Cookie", cookie))
         .to_request();
 
     let resp = test::call_service(&app, req).await;
@@ -94,8 +109,29 @@ async fn post_new_user() {
         "username": "testuser",
         "password": "testpassword"
     });
-    let resp = _make_user_register_test_request(payload, app).await;
+    let resp = _make_user_register_test_request(payload, &app).await;
     // println!("{:?}", resp);
     assert!(resp.status().is_success());
     assert!(resp.headers().contains_key("set-cookie"));
+}
+
+#[actix_rt::test]
+async fn post_user_get_user_with_cookie() {
+    use serde_json::json;
+    let pool = _create_test_pool();
+    let app = _create_test_user_register_app(pool).await;
+    let payload = json!({
+        "username": "testuser",
+        "password": "testpassword"
+    });
+    let resp = _make_user_register_test_request(payload, &app).await;
+
+    assert!(resp.status().is_success());
+    assert!(resp.headers().contains_key("set-cookie"));
+
+    let cookie_header = resp.headers().get("set-cookie").unwrap();
+    let cookie = cookie_header.to_str().unwrap();
+
+    let auth_resp = _make_request_with_cookie(&app, cookie).await;
+    assert!(auth_resp.status().is_success());
 }

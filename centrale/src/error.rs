@@ -1,6 +1,6 @@
 use r2d2::Error as R2d2Error;
 use r2d2_sqlite::rusqlite;
-use std::error::Error as StdError;
+use std::{error::Error as StdError, str::Utf8Error};
 use thiserror::Error;
 use url::ParseError;
 
@@ -62,4 +62,6 @@ pub enum CentraleError {
     UnableToHash,
     //#[error("Argon2 error: {0}")]
     //Argon2Error(#[from] argon2::Error),
+    #[error("UTF-8 conversion error: {0}")]
+    Utf8Error(#[from] Utf8Error),
 }

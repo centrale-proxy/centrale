@@ -1,4 +1,4 @@
-use crate::config::CentraleConfig;
+use crate::{config::CentraleConfig, user::register::_create_test_user_register_app};
 use actix_http::Request;
 use actix_web::{
     App, Error, HttpResponse, Responder,
@@ -7,7 +7,7 @@ use actix_web::{
     web,
 };
 use dir_and_db_pool::db::DbBool;
-
+//
 pub async fn get_user(_pool: web::Data<DbBool>) -> impl Responder {
     HttpResponse::Ok().body("OK")
 }
@@ -32,7 +32,7 @@ pub async fn _make_get_user_request(
     let resp = test::call_service(&app, req).await;
     resp
 }
-
+/*
 pub async fn _create_get_user_app(
     pool: DbBool,
 ) -> impl Service<Request, Response = ServiceResponse, Error = Error> {
@@ -44,12 +44,12 @@ pub async fn _create_get_user_app(
     .await;
     app
 }
-
+ */
 #[actix_rt::test]
 async fn get_user_not_authenticated() {
     use crate::user::register::_create_test_pool;
     let pool = _create_test_pool();
-    let app = _create_get_user_app(pool).await;
+    let app = _create_test_user_register_app(pool).await;
     // let resp = _make_user_register_test_request(payload, app).await;
     let resp = _make_get_user_request(&"cookie".to_string(), app).await;
 

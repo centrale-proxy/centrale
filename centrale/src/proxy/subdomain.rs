@@ -1,4 +1,4 @@
-use crate::error::CentraleError;
+use crate::{error::CentraleError, user::register::_create_test_pool};
 use actix_web::http::header::HeaderValue;
 use url::Url;
 
@@ -27,7 +27,15 @@ pub fn get_subdomain(input_url: &HeaderValue) -> Result<String, CentraleError> {
 async fn empty_subdomain_error() {
     use crate::request::handle_wildcard;
     use actix_web::{App, test, web};
-    let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
+
+    let db = _create_test_pool();
+
+    let app = test::init_service(
+        App::new()
+            .app_data(web::Data::new(db.clone()))
+            .route("/", web::get().to(handle_wildcard)),
+    )
+    .await;
     use actix_web::http::header::AUTHORIZATION;
     let req = test::TestRequest::get()
         .uri("/")
@@ -48,7 +56,14 @@ async fn normal_subdomain() {
     use crate::request::handle_wildcard;
     use actix_web::http::header::AUTHORIZATION;
     use actix_web::{App, test, web};
-    let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
+    let db = _create_test_pool();
+
+    let app = test::init_service(
+        App::new()
+            .app_data(web::Data::new(db.clone()))
+            .route("/", web::get().to(handle_wildcard)),
+    )
+    .await;
 
     let req = test::TestRequest::get()
         .uri("/")
@@ -68,7 +83,13 @@ async fn domain_with_two_subdomains_fails() {
     use crate::request::handle_wildcard;
     use actix_web::http::header::AUTHORIZATION;
     use actix_web::{App, test, web};
-    let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
+    let db = _create_test_pool();
+    let app = test::init_service(
+        App::new()
+            .app_data(web::Data::new(db.clone()))
+            .route("/", web::get().to(handle_wildcard)),
+    )
+    .await;
 
     let req = test::TestRequest::get()
         .uri("/")
@@ -89,7 +110,13 @@ async fn just_domain_without_wildcard_fails() {
 
     use crate::request::handle_wildcard;
     use actix_web::{App, test, web};
-    let app = test::init_service(App::new().route("/", web::get().to(handle_wildcard))).await;
+    let db = _create_test_pool();
+    let app = test::init_service(
+        App::new()
+            .app_data(web::Data::new(db.clone()))
+            .route("/", web::get().to(handle_wildcard)),
+    )
+    .await;
 
     let req = test::TestRequest::get()
         .uri("/")
