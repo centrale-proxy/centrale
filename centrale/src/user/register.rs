@@ -1,5 +1,4 @@
 use crate::{
-    config::CentraleConfig,
     error::CentraleError,
     request::handle_wildcard,
     user::{add::add_user, cookie::add_cookie, get::get_user},
@@ -12,6 +11,7 @@ use actix_web::{
     http::header,
     web,
 };
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
 use serde::Deserialize;
 

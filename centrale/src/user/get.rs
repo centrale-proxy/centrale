@@ -1,4 +1,3 @@
-use crate::config::CentraleConfig;
 use actix_http::Request;
 use actix_web::{
     Error, HttpResponse, Responder,
@@ -6,6 +5,7 @@ use actix_web::{
     dev::{Service, ServiceResponse},
     web,
 };
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
 //
 pub async fn get_user(_pool: web::Data<DbBool>) -> impl Responder {

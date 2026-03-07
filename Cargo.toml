@@ -2,6 +2,7 @@
    members = [
        "centrale",
        "dir_and_db_pool",
-       "app"
+       "app",
+       "config"
    ]
    resolver = "2"
