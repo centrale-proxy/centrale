@@ -1,6 +1,7 @@
-use crate::{config::CentraleConfig, error::CentraleError};
+use crate::error::CentraleError;
 use argon2::password_hash::SaltString;
 use chrono::Utc;
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbConnection;
 use r2d2_sqlite::rusqlite::params;
 use rand::rngs::OsRng;

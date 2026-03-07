@@ -290,6 +290,7 @@ dependencies = [
  "actix-web",
  "argon2",
  "chrono",
+ "config",
  "dir_and_db_pool",
  "env_logger",
  "log",

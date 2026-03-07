@@ -1,7 +1,6 @@
 use crate::{
-    config::CentraleConfig,
     error::CentraleError,
-    request::handle_wildcard,
+    //   request::handle_wildcard,
     user::{add::add_user, cookie::add_cookie, get::get_user},
 };
 use actix_http::Request;
@@ -12,6 +11,7 @@ use actix_web::{
     http::header,
     web,
 };
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
 use serde::Deserialize;
 
@@ -68,8 +68,9 @@ pub async fn _create_test_user_register_app(
         App::new()
             .app_data(web::Data::new(pool))
             .route("/api/user", web::post().to(post_user))
-            .route("/api/user", web::get().to(get_user))
-            .route("/{_:.*}", web::get().to(handle_wildcard)),
+            .route("/api/user", web::get().to(get_user)),
+        //   .route("/{_:.*}", web::get().to(handle_wildcard)),
+        //
     )
     .await;
     app

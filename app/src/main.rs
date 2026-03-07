@@ -1,16 +1,13 @@
-mod config;
 mod db;
 mod error;
-mod proxy;
-mod request;
 mod server;
 mod user;
 
 use crate::{
-    config::CentraleConfig,
     db::{db_error::serve_db_error, init::init_db},
     server::start_server,
 };
+use config::CentraleConfig;
 use dir_and_db_pool::db::get_db::get_db;
 use log::error;
 

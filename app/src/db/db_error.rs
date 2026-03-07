@@ -1,5 +1,5 @@
-use crate::config::CentraleConfig;
 use actix_web::{App, HttpResponse, HttpServer, Responder, web};
+use config::CentraleConfig;
 
 async fn handle_db_error() -> impl Responder {
     HttpResponse::Ok().body("unable to db")
