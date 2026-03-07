@@ -12,11 +12,8 @@ pub fn process_one_request(
 ) -> Result<HttpResponse, CentraleError> {
     let headers = req.headers();
     let host = get_host(headers)?;
-    println!(" host: {:?}", &host);
     let subdomain = get_subdomain(host)?;
-    println!(" subdomain: {:?}", &subdomain);
     let user_id = get_user_id(pool, headers, req.cookie("centrale"))?;
-    println!(" user_id: {:?}", &user_id);
     let res = HttpResponse::Ok().json(serde_json::json!({ "Ok": subdomain, "user": user_id }));
     Ok(res)
 }
