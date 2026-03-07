@@ -25,7 +25,11 @@ pub fn get_user_id(
     } else if cookie.is_some() {
         // COOKIE
         let cookie_string = cookie.unwrap().to_string();
-        let user = find_user_by_cookie(&pool, &cookie_string)?;
+        println!(" cookie_string: {:?}", &cookie_string);
+        let cookie = cookie_string.split(';').next().unwrap(); // Split by ';' and take the first part
+        let cookie_value = cookie.split('=').nth(1).unwrap().to_string(); // Split by '=' and take the second part
+        println!("cookie_value: {:?}", &cookie_value);
+        let user = find_user_by_cookie(&pool, &cookie_value)?;
         Ok(user)
     } else {
         // NO AUTH

@@ -1,6 +1,7 @@
 use crate::{
     config::CentraleConfig,
     error::CentraleError,
+    request::handle_wildcard,
     user::{add::add_user, cookie::add_cookie, get::get_user},
 };
 use actix_http::Request;
@@ -8,6 +9,7 @@ use actix_web::{
     Error, HttpResponse,
     cookie::{Cookie, time::Duration},
     dev::{Service, ServiceResponse},
+    http::header,
     web,
 };
 use dir_and_db_pool::db::DbBool;
@@ -66,7 +68,8 @@ pub async fn _create_test_user_register_app(
         App::new()
             .app_data(web::Data::new(pool))
             .route("/api/user", web::post().to(post_user))
-            .route("/api/user", web::get().to(get_user)),
+            .route("/api/user", web::get().to(get_user))
+            .route("/{_:.*}", web::get().to(handle_wildcard)),
     )
     .await;
     app
@@ -82,7 +85,23 @@ pub async fn _make_user_register_test_request(
         .set_json(&payload)
         .to_request();
 
-    let resp = test::call_service(&app, req).await;
+    let resp = test::call_service(app, req).await;
+    resp
+}
+
+pub async fn _make_request_with_cookie_to_wildcard(
+    app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
+    cookie: &str,
+) -> ServiceResponse {
+    println!("cookie {:?}", &cookie);
+    let req = test::TestRequest::get()
+        .uri("/")
+        .insert_header((header::COOKIE, cookie))
+        .insert_header(("Referer", "http://subdomain.localhost.com"))
+        .insert_header(("Content-Type", "application/json"))
+        .to_request();
+
+    let resp = test::call_service(app, req).await;
     resp
 }
 

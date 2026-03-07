@@ -73,6 +73,14 @@ Subdomain specific admin:
 PUT /api/make-user-admin - make user admin
 PUT /api/remove-user-admin - remove user admin
 
+# LOCALHOST
+
+sudo nano /etc/hosts
+
+127.0.0.1   subdomain.localhost.com
+127.0.0.1   another.subdomain.localhost.com
+
+
 # Questions?
 // app.
 // // is it you or is it proxy?
@@ -122,8 +130,8 @@ curl -H "Host: http://hello.wello.ee" http://localhost:8080
 curl -H "Host: http://hello.wello.ee" http://localhost:8080 -H "Authorization: Bearer _token"
 curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:8080
 
-curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/register
-
+curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/user -vvv
+curl -b "centrale=xvYQefoahRbOeQnmRfXNIA" -H "Host: http://hello.wello.ee" http://localhost:8080
 
 
 sqlite3 "/Users/martin/Library/Application Support/centrale/centrale.db"
