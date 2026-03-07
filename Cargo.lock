@@ -412,28 +412,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "centrale"
-version = "0.1.0"
-dependencies = [
- "actix-http",
- "actix-rt",
- "actix-web",
- "argon2",
- "chrono",
- "config",
- "dir_and_db_pool",
- "env_logger",
- "log",
- "r2d2",
- "r2d2_sqlite",
- "rand 0.8.5",
- "serde",
- "serde_json",
- "thiserror",
- "url",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1304,6 +1282,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "proxy"
+version = "0.1.0"
+dependencies = [
+ "actix-http",
+ "actix-rt",
+ "actix-web",
+ "argon2",
+ "chrono",
+ "config",
+ "dir_and_db_pool",
+ "env_logger",
+ "log",
+ "r2d2",
+ "r2d2_sqlite",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "url",
 ]
 
 [[package]]

@@ -2,5 +2,5 @@
 .DS_Store
 /centrale/ask.sh
 /centrale/repomix-output.xml
-/app/ask.sh
-/app/repomix-output.xml
+/*/ask.sh
+/*/repomix-output.xml

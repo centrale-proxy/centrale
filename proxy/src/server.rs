@@ -8,6 +8,7 @@ use dir_and_db_pool::db::DbBool;
 
 #[actix_web::main]
 pub async fn start_server(db: DbBool) -> std::io::Result<()> {
+    println!("aaa");
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db.clone()))
