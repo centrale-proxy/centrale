@@ -95,10 +95,15 @@ pub fn _create_wildcard_request(cookie: String) -> Request {
 }
 
 use actix_web::test;
-use serde_json::Value;
+//use serde_json::Value;
 use serde_json::json;
 
-pub fn _user_create_request(payload: Value) -> Request {
+pub fn _user_create_request() -> Request {
+    let payload = json!({
+        "username": "testuser",
+        "password": "testpassword"
+    });
+
     test::TestRequest::post()
         .uri("/api/user")
         .insert_header(("Content-Type", "application/json"))
@@ -111,13 +116,8 @@ async fn has_referrer_ok() {
     // START POOL AND DB
     let pool = _create_test_pool();
     let app = _create_test_user_register_app(pool).await;
-    // PAYLOAD
-    let payload = json!({
-        "username": "testuser",
-        "password": "testpassword"
-    });
     // CREATE USER
-    let req = _user_create_request(payload);
+    let req = _user_create_request();
     let resp = test::call_service(&app, req).await;
     // ASSERT REGISTRATION
     assert!(resp.status().is_success());
@@ -133,18 +133,12 @@ async fn has_referrer_ok() {
 
 #[actix_rt::test]
 async fn has_host_ok() {
-    use actix_web::http::header::{AUTHORIZATION, HeaderValue};
-    use actix_web::{App, test, web};
-
+    use actix_web::test;
+    // DB AND SERVER
     let db = _create_test_pool();
     let app = _create_test_user_register_app(db).await;
-
-    let payload = json!({
-        "username": "testuser",
-        "password": "testpassword"
-    });
     // CREATE USER
-    let req = _user_create_request(payload);
+    let req = _user_create_request();
     let resp = test::call_service(&app, req).await;
     // ASSERT REGISTRATION
     assert!(resp.status().is_success());
