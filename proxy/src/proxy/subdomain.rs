@@ -80,8 +80,8 @@ pub async fn _one_wildcard_test_case_with_host(host: &str) -> ServiceResponse {
 
 pub async fn _one_wildcard_test_case_with_referer(referer: &str) -> ServiceResponse {
     use crate::request::_user_create_request;
-    use crate::user::post::process::_create_test_pool;
-    use crate::user::post::process::_create_test_user_register_app;
+    use crate::user::post::test::_create_test_pool;
+    use crate::user::post::test::_create_test_user_register_app;
     use actix_web::test;
 
     // DB AND SERVER
