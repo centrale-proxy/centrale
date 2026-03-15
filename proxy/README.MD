@@ -133,15 +133,17 @@ curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:808
 curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/user -vvv
 curl -b "centrale=9yu8eGtLVSafWpuMbR0sTw" -H "Host: http://hello.wello.ee" http://localhost:8080
 
-curl -b "centrale=NO7sEugmOMzRoymVkrv3eA" -H "Host: http://hello.wello.ee" -H "Content-Type: application/json" -d '{"subdomain": "a"}'  http://localhost:8080 -vvv
+curl -b "centrale=NO7sEugmOMzRoymVkrv3eA" -H "Content-Type: application/json" -d '{"subdomain": "test1"}'  http://localhost:8080/api/subdomain -vvv
 
 
 
 
 # CURL
-oha -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
 
-oha -F '{username: "aaba", password: "b"}' http://localhost:8080/api/user
+oha http://localhost:8080/api/user
+
+
+oha -h "Cookie: centrale=NO7sEugmOMzRoymVkrv3eA" http://localhost:8080/api/user
 
 oha -m POST -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
 

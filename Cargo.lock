@@ -282,28 +282,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "actix-http",
- "actix-rt",
- "actix-web",
- "argon2",
- "chrono",
- "config",
- "dir_and_db_pool",
- "env_logger",
- "log",
- "r2d2",
- "r2d2_sqlite",
- "rand 0.8.5",
- "serde",
- "serde_json",
- "thiserror",
- "url",
-]
-
-[[package]]
 name = "argon2"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"

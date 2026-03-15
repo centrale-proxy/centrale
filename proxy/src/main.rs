@@ -3,6 +3,7 @@ mod db;
 mod error;
 mod proxy;
 mod request;
+mod routes;
 mod server;
 mod subdomain;
 mod user;

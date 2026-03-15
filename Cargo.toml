@@ -2,7 +2,6 @@
    members = [
        "proxy",
        "dir_and_db_pool",
-       "app",
        "config"
    ]
    resolver = "2"

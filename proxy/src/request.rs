@@ -1,4 +1,5 @@
 use crate::proxy::one_request::process_one_request;
+use crate::routes::routes;
 use actix_http::Request;
 use actix_web::http::header;
 use actix_web::{HttpRequest, web};
@@ -46,8 +47,8 @@ async fn test_empty_host_header() {
 
     let app = test::init_service(
         App::new()
-            .app_data(web::Data::new(db.clone()))
-            .route("/", web::get().to(handle_wildcard)),
+            .configure(routes)
+            .app_data(web::Data::new(db.clone())),
     )
     .await;
     let req = test::TestRequest::get().uri("/").to_request();

@@ -18,6 +18,7 @@ pub fn post_subdomain(
         return Err(CentraleError::SuchSubdomainExists);
     } else {
         let password = SaltString::generate(&mut OsRng);
+        // "INSERT INTO subdomain (subdomain, password, user_id, admin) VALUES (?1, ?2, ?3, ?4)",
         db.execute(
             "INSERT INTO subdomain (subdomain, password, user_id) VALUES (?1, ?2, ?3)",
             params![subdomain, password.as_str(), user_id],

@@ -1,6 +1,7 @@
 use crate::{
     error::CentraleError,
     request::handle_wildcard,
+    routes::routes,
     subdomain::respond_post::respond_subdomain,
     user::{add::add_user, cookie::add_cookie, get::get_user},
 };
@@ -65,15 +66,7 @@ pub fn _create_test_pool() -> Pool<SqliteConnectionManager> {
 pub async fn _create_test_user_register_app(
     pool: Pool<SqliteConnectionManager>,
 ) -> impl Service<Request, Response = ServiceResponse, Error = Error> {
-    let app = test::init_service(
-        App::new()
-            .app_data(web::Data::new(pool))
-            .route("/api/user", web::post().to(post_user))
-            .route("/api/user", web::get().to(get_user))
-            .route("/api/subdomain", web::post().to(respond_subdomain))
-            .route("/{_:.*}", web::get().to(handle_wildcard)),
-    )
-    .await;
+    let app = test::init_service(App::new().configure(routes).app_data(web::Data::new(pool))).await;
     app
 }
 
