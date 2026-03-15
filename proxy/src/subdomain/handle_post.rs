@@ -63,7 +63,9 @@ pub async fn _make_register_subdomain_request(
 
 #[actix_rt::test]
 async fn post_subdomain_normal() {
-    use crate::user::register::{_make_request_with_cookie, _make_user_register_test_request};
+    use crate::user::post::register::{
+        _make_request_with_cookie, _make_user_register_test_request,
+    };
     use serde_json::json;
 
     use crate::proxy::create_test_app::_create_test_app;

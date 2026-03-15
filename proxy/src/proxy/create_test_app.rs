@@ -6,7 +6,7 @@ use actix_web::{
 };
 
 use crate::routes::routes;
-use crate::user::register::_create_test_pool;
+use crate::user::post::register::_create_test_pool;
 use actix_web::{App, test};
 
 pub async fn _create_test_app() -> impl Service<Request, Response = ServiceResponse, Error = Error>

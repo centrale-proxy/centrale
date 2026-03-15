@@ -58,8 +58,6 @@ pub fn _get_centrale_cookie(headers: &HeaderMap) -> Result<String, CentraleError
 
 pub async fn _one_wildcard_test_case_with_host(host: &str) -> ServiceResponse {
     use crate::request::{_create_wildcard_request_with_host, _user_create_request};
-    use crate::user::register::_create_test_pool;
-    use crate::user::register::_create_test_user_register_app;
     use actix_web::test;
     // DB AND SERVER
     use crate::proxy::create_test_app::_create_test_app;
@@ -82,9 +80,10 @@ pub async fn _one_wildcard_test_case_with_host(host: &str) -> ServiceResponse {
 
 pub async fn _one_wildcard_test_case_with_referer(referer: &str) -> ServiceResponse {
     use crate::request::_user_create_request;
-    use crate::user::register::_create_test_pool;
-    use crate::user::register::_create_test_user_register_app;
+    use crate::user::post::register::_create_test_pool;
+    use crate::user::post::register::_create_test_user_register_app;
     use actix_web::test;
+
     // DB AND SERVER
     let db = _create_test_pool();
     let app = _create_test_user_register_app(db).await;

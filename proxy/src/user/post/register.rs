@@ -1,7 +1,7 @@
 use crate::{
     error::CentraleError,
     routes::routes,
-    user::{add::add_user, cookie::add_cookie},
+    user::{cookie::save_cookie::save_cookie, post::add::add_user},
 };
 use actix_http::Request;
 use actix_web::{
@@ -21,6 +21,7 @@ pub struct RegisterUser {
     pub password: String,
 }
 
+/// Main worker for user posting
 pub fn handle_register(
     pool: web::Data<DbBool>,
     json: web::Json<RegisterUser>,
@@ -30,7 +31,7 @@ pub fn handle_register(
     let password = register_request.password;
     let db = pool.get().expect("Couldn't get db connection from pool");
     let user_id = add_user(&db, &username, &password)?;
-    let cookie_value = add_cookie(&db, user_id)?;
+    let cookie_value = save_cookie(&db, user_id)?;
     // DO COOKIE
     let cookie = Cookie::build("centrale", cookie_value)
         .domain(CentraleConfig::DOMAIN)

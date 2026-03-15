@@ -35,18 +35,14 @@ subdomain_user
 
 GET /api/test
 
-GET /login /login/
-POST /login /login/
-
-
-GET /register /register/
 POST /api/user - register user 
 GET /api/user
 
-GET /logout
+GET /login /login/
+POST /login /login/
 
 + OPTIONS FOR ALL
-
++ GET /register /register/ - html
 
 # POST /api/user
 Creates user, add's cookie to the session.
@@ -56,13 +52,19 @@ Creates user, add's cookie to the session.
 # DELETE /api/user/delete/bearer-token
 
 ## APP
+
+GET /logout
+
 GET /api/user - my user data
 PUT /api/user - put user
 DELETE /api/user - delete user
 
 GET /api/test-subdomain - see if subdomain is available
+
 GET /api/subdomain - get user subdomains
+
 POST /api/subdomain - add subdomain
+
 DELETE /api/subdomain - delete subdomain
 
 Subdomain specific:

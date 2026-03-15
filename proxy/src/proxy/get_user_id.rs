@@ -1,6 +1,6 @@
 use crate::{
     error::CentraleError,
-    user::{find_by_cookie::find_user_by_cookie, find_by_token::find_user_by_token},
+    user::{cookie::find_by_cookie::find_user_by_cookie, find_by_token::find_user_by_token},
 };
 use actix_web::{
     cookie::Cookie,
