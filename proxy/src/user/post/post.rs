@@ -2,7 +2,7 @@ use actix_web::{HttpResponse, Responder, web};
 use dir_and_db_pool::db::DbBool;
 use log::error;
 
-use crate::user::post::register::{RegisterUser, handle_register};
+use crate::user::post::process::{RegisterUser, handle_register};
 /// Post user responsder
 pub async fn post_user(pool: web::Data<DbBool>, json: web::Json<RegisterUser>) -> impl Responder {
     match handle_register(pool, json) {

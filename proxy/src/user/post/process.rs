@@ -1,7 +1,7 @@
 use crate::{
     error::CentraleError,
     routes::routes,
-    user::{cookie::save_cookie::save_cookie, post::add::add_user},
+    user::{cookie::save_cookie::save_cookie, post::add_to_db::add_user},
 };
 use actix_http::Request;
 use actix_web::{
