@@ -57,11 +57,10 @@ pub async fn _make_get_user_request(
 }
 #[actix_rt::test]
 async fn get_user_not_authenticated() {
-    use crate::user::register::_create_test_pool;
-    use crate::user::register::_create_test_user_register_app;
+    use crate::proxy::create_test_app::_create_test_app;
 
-    let pool = _create_test_pool();
-    let app = _create_test_user_register_app(pool).await;
+    let app = _create_test_app().await;
+
     let resp = _make_get_user_request(&"cookie".to_string(), app).await;
     assert!(resp.status().is_client_error());
 }

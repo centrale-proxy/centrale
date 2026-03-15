@@ -7,7 +7,6 @@ pub async fn handle_test(pool: web::Data<DbBool>) -> impl Responder {
     match api_test(pool) {
         Ok(result) => result,
         Err(err) => {
-            println!("aa {:?}", err);
             error!("/api/test error: {}", err);
             HttpResponse::Unauthorized().json(serde_json::json!({ "error": "Test not Ok" }))
         }
@@ -16,17 +15,10 @@ pub async fn handle_test(pool: web::Data<DbBool>) -> impl Responder {
 
 #[actix_rt::test]
 async fn api_test_ok() {
-    use crate::routes::routes;
-    use crate::user::register::_create_test_pool;
-    use actix_web::{App, test, web};
+    use crate::proxy::create_test_app::_create_test_app;
+    use actix_web::test;
 
-    let db = _create_test_pool();
-    let app = test::init_service(
-        App::new()
-            .configure(routes)
-            .app_data(web::Data::new(db.clone())),
-    )
-    .await;
+    let app = _create_test_app().await;
 
     let req = test::TestRequest::get().uri("/api/test").to_request();
 

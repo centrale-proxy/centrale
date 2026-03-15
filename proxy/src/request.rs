@@ -1,5 +1,4 @@
 use crate::proxy::one_request::process_one_request;
-use crate::routes::routes;
 use actix_http::Request;
 use actix_web::http::header;
 use actix_web::{HttpRequest, web};
@@ -40,17 +39,11 @@ use log::error;
 
 #[actix_rt::test]
 async fn test_empty_host_header() {
-    use crate::user::register::_create_test_pool;
+    use crate::proxy::create_test_app::_create_test_app;
+    use actix_web::test;
 
-    use actix_web::{App, test, web};
-    let db = _create_test_pool();
+    let app = _create_test_app().await;
 
-    let app = test::init_service(
-        App::new()
-            .configure(routes)
-            .app_data(web::Data::new(db.clone())),
-    )
-    .await;
     let req = test::TestRequest::get().uri("/").to_request();
     let resp = test::call_service(&app, req).await;
     println!("{:?}", &resp.status());

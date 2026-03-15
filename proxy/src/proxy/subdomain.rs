@@ -62,8 +62,10 @@ pub async fn _one_wildcard_test_case_with_host(host: &str) -> ServiceResponse {
     use crate::user::register::_create_test_user_register_app;
     use actix_web::test;
     // DB AND SERVER
-    let db = _create_test_pool();
-    let app = _create_test_user_register_app(db).await;
+    use crate::proxy::create_test_app::_create_test_app;
+
+    let app = _create_test_app().await;
+
     // CREATE USER
     let req = _user_create_request();
     let resp = test::call_service(&app, req).await;

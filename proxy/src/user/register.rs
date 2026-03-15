@@ -1,9 +1,7 @@
 use crate::{
     error::CentraleError,
-    request::handle_wildcard,
     routes::routes,
-    subdomain::respond_post::respond_subdomain,
-    user::{add::add_user, cookie::add_cookie, get::get_user},
+    user::{add::add_user, cookie::add_cookie},
 };
 use actix_http::Request;
 use actix_web::{
@@ -50,7 +48,6 @@ pub fn handle_register(
 }
 
 use crate::db::init::init_db;
-use crate::user::post::post_user;
 use actix_web::{App, test};
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
@@ -116,9 +113,10 @@ pub async fn _make_request_with_cookie(
 
 #[actix_rt::test]
 async fn post_new_user() {
+    use crate::proxy::create_test_app::_create_test_app;
     use serde_json::json;
-    let pool = _create_test_pool();
-    let app = _create_test_user_register_app(pool).await;
+
+    let app = _create_test_app().await;
     let payload = json!({
         "username": "testuser",
         "password": "testpassword"
@@ -131,9 +129,10 @@ async fn post_new_user() {
 
 #[actix_rt::test]
 async fn post_user_get_user_with_cookie() {
+    use crate::proxy::create_test_app::_create_test_app;
     use serde_json::json;
-    let pool = _create_test_pool();
-    let app = _create_test_user_register_app(pool).await;
+
+    let app = _create_test_app().await;
     let payload = json!({
         "username": "testuser",
         "password": "testpassword"

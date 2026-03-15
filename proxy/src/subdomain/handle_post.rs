@@ -63,14 +63,13 @@ pub async fn _make_register_subdomain_request(
 
 #[actix_rt::test]
 async fn post_subdomain_normal() {
-    use crate::user::register::{
-        _create_test_pool, _create_test_user_register_app, _make_request_with_cookie,
-        _make_user_register_test_request,
-    };
+    use crate::user::register::{_make_request_with_cookie, _make_user_register_test_request};
     use serde_json::json;
 
-    let pool = _create_test_pool();
-    let app = _create_test_user_register_app(pool).await;
+    use crate::proxy::create_test_app::_create_test_app;
+
+    let app = _create_test_app().await;
+
     let payload = json!({
         "username": "testuser",
         "password": "testpassword"
