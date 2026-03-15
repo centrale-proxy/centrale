@@ -32,10 +32,7 @@ pub async fn get_user(pool: web::Data<DbBool>, req: HttpRequest) -> impl Respond
 use actix_web::test;
 use log::error;
 
-use crate::{
-    error::{self, CentraleError},
-    proxy::get_user_id::get_user_id,
-};
+use crate::{error::CentraleError, proxy::get_user_id::get_user_id};
 
 pub async fn _make_get_user_request(
     cookie: &String,
