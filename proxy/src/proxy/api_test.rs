@@ -1,0 +1,13 @@
+use crate::error::CentraleError;
+use actix_web::{HttpResponse, web};
+use dir_and_db_pool::db::DbBool;
+use r2d2_sqlite::rusqlite::params;
+
+/// Query, if server is up
+pub fn api_test(pool: web::Data<DbBool>) -> Result<HttpResponse, CentraleError> {
+    let db = pool.get()?;
+    let mut stmt = db.prepare(&"SELECT COUNT(*) FROM subdomain LIMIT 1")?;
+    let _subdomain: i64 = stmt.query_row(params![], |row| row.get(0))?;
+    let res = HttpResponse::Ok().json(serde_json::json!({ "Ok": true }));
+    Ok(res)
+}

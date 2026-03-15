@@ -32,6 +32,7 @@ subdomain_user
 
 ## NO AUTH:
 
+
 GET /api/test
 
 GET /login /login/
@@ -143,7 +144,7 @@ curl -b "centrale=NO7sEugmOMzRoymVkrv3eA" -H "Content-Type: application/json" -d
 oha http://localhost:8080/api/user
 
 
-oha -h "Cookie: centrale=NO7sEugmOMzRoymVkrv3eA" http://localhost:8080/api/user
+oha -H "Cookie: centrale=NO7sEugmOMzRoymVkrv3eA" http://localhost:8080/api/user
 
 oha -m POST -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
 
