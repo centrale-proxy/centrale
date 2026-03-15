@@ -131,12 +131,26 @@ curl -H "Host: http://hello.wello.ee" http://localhost:8080 -H "Authorization: B
 curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:8080
 
 curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/user -vvv
-curl -b "centrale=xvYQefoahRbOeQnmRfXNIA" -H "Host: http://hello.wello.ee" http://localhost:8080
+curl -b "centrale=9yu8eGtLVSafWpuMbR0sTw" -H "Host: http://hello.wello.ee" http://localhost:8080
 
+curl -b "centrale=NO7sEugmOMzRoymVkrv3eA" -H "Host: http://hello.wello.ee" -H "Content-Type: application/json" -d '{"subdomain": "a"}'  http://localhost:8080 -vvv
+
+
+
+
+# CURL
+oha -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
+
+oha -F '{username: "aaba", password: "b"}' http://localhost:8080/api/user
+
+oha -m POST -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
+
+
+# FILES
 
 sqlite3 "/Users/martin/Library/Application Support/centrale/centrale.db"
 
-
+cd /Users/martin/Library/Application\ Support/centrale/
 
 
 Subdomainer.com

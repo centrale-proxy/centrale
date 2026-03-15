@@ -59,6 +59,9 @@ pub enum CentraleError {
     #[error("Such user exists")]
     SuchUserExists,
 
+    #[error("Such subdomain exists")]
+    SuchSubdomainExists,
+
     #[error("Unable to hash")]
     UnableToHash,
     //#[error("Argon2 error: {0}")]

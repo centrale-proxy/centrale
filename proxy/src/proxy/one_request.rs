@@ -14,6 +14,7 @@ pub fn process_one_request(
     let host = get_host(headers)?;
     let subdomain = get_subdomain(host)?;
     let user_id = get_user_id(pool, headers, req.cookie("centrale"))?;
+    // TBD PROXY TO NODE
     let res = HttpResponse::Ok().json(serde_json::json!({ "Ok": subdomain, "user": user_id }));
     Ok(res)
 }

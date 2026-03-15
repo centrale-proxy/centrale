@@ -1,6 +1,7 @@
 use crate::{
     error::CentraleError,
     request::handle_wildcard,
+    subdomain::respond_post::respond_subdomain,
     user::{add::add_user, cookie::add_cookie, get::get_user},
 };
 use actix_http::Request;
@@ -69,6 +70,7 @@ pub async fn _create_test_user_register_app(
             .app_data(web::Data::new(pool))
             .route("/api/user", web::post().to(post_user))
             .route("/api/user", web::get().to(get_user))
+            .route("/api/subdomain", web::post().to(respond_subdomain))
             .route("/{_:.*}", web::get().to(handle_wildcard)),
     )
     .await;

@@ -4,6 +4,7 @@ mod error;
 mod proxy;
 mod request;
 mod server;
+mod subdomain;
 mod user;
 
 use crate::{
