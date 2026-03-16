@@ -1,37 +1,27 @@
-use crate::{error::CentraleError, user::hash::hash_password};
-use argon2::password_hash::SaltString;
+use crate::error::CentraleError;
 use dir_and_db_pool::db::DbConnection;
 use r2d2_sqlite::rusqlite::params;
-use rand::rngs::OsRng;
 
-pub fn add_user(
+/// Add user to db
+pub fn add_user_to_db(
     db: &DbConnection,
     username: &String,
-    password: &String,
+    hash: &String,
+    salt: &str,
 ) -> Result<i64, CentraleError> {
-    let mut stmt = db.prepare(&"SELECT COUNT(*) FROM user WHERE username = ?1")?;
-    let count: i64 = stmt.query_row(params![username], |row| row.get(0))?;
+    db.execute(
+        "INSERT INTO user (username, password, salt) VALUES (?1, ?2, ?3)",
+        params![username, hash, salt],
+    )?;
 
-    if count > 0 {
-        // USERS(s) EXIST. CANNOT HAVE MORE
-        return Err(CentraleError::SuchUserExists);
-    } else {
-        let salt = SaltString::generate(&mut OsRng);
-        let hash = hash_password(&password, &salt)?;
-        // INSERT TO DB
-        db.execute(
-            "INSERT INTO user (username, password, salt) VALUES (?1, ?2, ?3)",
-            params![username, hash, salt.as_str()],
-        )?;
-        let last_id = db.last_insert_rowid();
-        Ok(last_id)
-    }
+    let last_id = db.last_insert_rowid();
+    Ok(last_id)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::db::init::init_db;
+    use crate::{db::init::init_db, user::post::hash_and_salt::hash_and_salt};
     use r2d2::Pool;
     use r2d2_sqlite::SqliteConnectionManager;
 
@@ -41,8 +31,10 @@ mod tests {
         let pool = Pool::new(manager).expect("Failed to create pool.");
         init_db(&pool).unwrap();
         let db = pool.get().expect("Couldn't get db connection from pool");
-        let id = add_user(&db, &"username".to_string(), &"password".to_string()).unwrap();
-        assert!(id == 1)
+
+        let (hash, salt) = hash_and_salt(&"password".to_string()).unwrap();
+        let user_id = add_user_to_db(&db, &"username".to_string(), &hash, salt.as_str()).unwrap();
+        assert!(user_id == 1)
     }
 
     #[test]
@@ -51,8 +43,9 @@ mod tests {
         let pool = Pool::new(manager).expect("Failed to create pool.");
         init_db(&pool).unwrap();
         let db = pool.get().expect("Couldn't get db connection from pool");
-        let _id = add_user(&db, &"username".to_string(), &"password".to_string()).unwrap();
-        let second = add_user(&db, &"username".to_string(), &"password".to_string());
+        let (hash, salt) = hash_and_salt(&"password".to_string()).unwrap();
+        let _user_id = add_user_to_db(&db, &"username".to_string(), &hash, salt.as_str()).unwrap();
+        let second = add_user_to_db(&db, &"username".to_string(), &hash, salt.as_str());
         assert!(second.is_err());
     }
 }

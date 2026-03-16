@@ -121,3 +121,45 @@ async fn post_user_get_user_with_cookie() {
     let auth_resp = _make_request_with_cookie(&app, cookie).await;
     assert!(auth_resp.status().is_success());
 }
+
+// #[actix_rt::test]
+async fn million_users() {
+    use crate::proxy::create_test_app::_create_test_app;
+
+    let app = _create_test_app().await;
+
+    let mut last_cookie = String::new();
+    for i in 0..100 {
+        let username = i.to_string();
+        let payload = json!({
+            "username": username,
+            "password": "testpassword"
+        });
+
+        let req = test::TestRequest::post()
+            .uri("/api/user")
+            .insert_header(("Content-Type", "application/json"))
+            .set_json(&payload)
+            .to_request();
+
+        let resp = test::call_service(&app, req).await;
+
+        // let resp = _make_user_register_test_request(payload, &app).await;
+
+        // assert!(resp.status().is_success());
+        // assert!(resp.headers().contains_key("set-cookie"));
+
+        let cookie_header = resp.headers().get("set-cookie").unwrap();
+        let cookie = cookie_header.to_str().unwrap();
+        last_cookie = cookie.to_string();
+        println!("{:?}", last_cookie);
+        // let auth_resp = _make_request_with_cookie(&app, cookie).await;
+        // assert!(auth_resp.status().is_success());
+    }
+    /*
+         for i in 0..1000 {
+        let auth_resp = _make_request_with_cookie(&app, &last_cookie).await;
+        assert!(auth_resp.status().is_success());
+    }
+    */
+}

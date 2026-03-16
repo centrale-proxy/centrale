@@ -1,13 +1,13 @@
 use crate::{
     error::CentraleError,
-    user::{cookie::save_cookie::save_cookie, post::add_to_db::add_user},
+    user::{
+        cookie::save_cookie::save_cookie,
+        post::{
+            add_to_db::add_user_to_db, cookie::create_and_set_cookie, hash_and_salt::hash_and_salt,
+        },
+    },
 };
-use actix_web::{
-    HttpResponse,
-    cookie::{Cookie, time::Duration},
-    web,
-};
-use config::CentraleConfig;
+use actix_web::{HttpResponse, web};
 use dir_and_db_pool::db::DbBool;
 use serde::Deserialize;
 
@@ -26,20 +26,13 @@ pub fn handle_register(
     let username = register_request.username;
     let password = register_request.password;
     let db = pool.get().expect("Couldn't get db connection from pool");
-    let user_id = add_user(&db, &username, &password)?;
+    // CREATE HASH AND SALT
+    let (hash, salt) = hash_and_salt(&password)?;
+    // SAVE USER TO DB
+    let user_id = add_user_to_db(&db, &username, &hash, salt.as_str())?;
+    // SAVE COOKIE
     let cookie_value = save_cookie(&db, user_id)?;
-    // DO COOKIE
-    let cookie = Cookie::build("centrale", cookie_value)
-        .domain(CentraleConfig::DOMAIN)
-        .max_age(Duration::new(CentraleConfig::COOKIE_TIMEOUT, 0))
-        .secure(CentraleConfig::COOKIE_SECURE) // Only send over HTTPS
-        .http_only(CentraleConfig::COOKIE_HTTP_ONLY) // Not accessible via JavaScript
-        // .path("/")
-        .finish();
     // ADD COOKIE
-    let resp = HttpResponse::Ok()
-        .cookie(cookie)
-        .json(serde_json::json!({ "user_id": user_id.to_string() }));
-
+    let resp = create_and_set_cookie(cookie_value, user_id)?;
     Ok(resp)
 }

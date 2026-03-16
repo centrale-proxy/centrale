@@ -17,7 +17,10 @@ pub fn create_user_table(
             last_name TEXT,
             personal_code TEXT,
             email TEXT
-        )
+        );
+
+        CREATE INDEX IF NOT EXISTS index_user_username ON user (username);
+
         ",
     )?;
 

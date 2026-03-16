@@ -144,14 +144,8 @@ curl -b "centrale=TZ60kfstI4OZefZ36rKbPQ" -H "Content-Type: application/json" -d
 
 oha http://localhost:8080/api/user
 
-oha -H "Cookie: centrale=NO7sEugmOMzRoymVkrv3eA" http://localhost:8080/api/user
+oha -n 1 --insecure -H "Cookie: centrale=TZ60kfstI4OZefZ36rKbPQ; Domain=subdomain.localhost.com; Max-Age=86400"  http://subdomain.localhost.com:8080/api/user
 
-oha -z 10s -c 20 http://localhost:8080/api/user --insecure -w -H "Cookie:centrale=TZ60kfstI4OZefZ36rKbPQ" --stats-success-breakdown -r 1
-oha -z 10s --insecure -H "Cookie:centrale=TZ60kfstI4OZefZ36rKbPQ" http://localhost:8080/api/user
-
-oha -z 10s -H "Cookie:centrale=TZ60kfstI4OZefZ36rKbPQ" http://localhost:8080/api/user
-
-oha -n 1 --insecure -H "Cookie: centrale=TZ60kfstI4OZefZ36rKbPQ;" -H "Host: http://hello.wello.ee" http://localhost:8080/api/user
 
 ---
 oha -m POST -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
