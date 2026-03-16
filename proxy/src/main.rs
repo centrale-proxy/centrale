@@ -2,16 +2,14 @@
 mod db;
 mod error;
 mod proxy;
-mod rate_limiter;
 mod request;
-mod routes;
 mod server;
 mod subdomain;
 mod user;
 
 use crate::{
     db::{db_error::serve_db_error, init::init_db},
-    server::start_server,
+    server::start::start_server,
 };
 use config::CentraleConfig;
 use dir_and_db_pool::db::get_db::get_db;

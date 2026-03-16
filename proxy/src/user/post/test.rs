@@ -1,5 +1,5 @@
 use crate::db::init::init_db;
-use crate::routes::routes;
+use crate::server::routes::routes;
 use actix_http::Request;
 use actix_web::{App, test};
 use actix_web::{
