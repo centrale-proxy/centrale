@@ -10,7 +10,7 @@ use actix_web::{
 };
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
-use serde_json::Value;
+use serde_json::{Value, json};
 
 pub fn _create_test_pool() -> Pool<SqliteConnectionManager> {
     let manager = SqliteConnectionManager::memory();
@@ -70,16 +70,20 @@ pub async fn _make_request_with_cookie(
     resp
 }
 
-#[actix_rt::test]
-async fn post_new_user() {
-    use crate::proxy::create_test_app::_create_test_app;
-    use serde_json::json;
-
-    let app = _create_test_app().await;
+pub fn _create_payload() -> Value {
     let payload = json!({
         "username": "testuser",
         "password": "testpassword"
     });
+    payload
+}
+
+#[actix_rt::test]
+async fn post_new_user() {
+    use crate::proxy::create_test_app::_create_test_app;
+
+    let app = _create_test_app().await;
+    let payload = _create_payload();
     let resp = _make_user_register_test_request(payload, &app).await;
     // println!("{:?}", resp);
     assert!(resp.status().is_success());
@@ -87,15 +91,25 @@ async fn post_new_user() {
 }
 
 #[actix_rt::test]
-async fn post_user_get_user_with_cookie() {
+async fn same_username_twice_errors() {
     use crate::proxy::create_test_app::_create_test_app;
-    use serde_json::json;
 
     let app = _create_test_app().await;
-    let payload = json!({
-        "username": "testuser",
-        "password": "testpassword"
-    });
+    let payload = _create_payload();
+    let resp = _make_user_register_test_request(payload.clone(), &app).await;
+    // FIRST SUCCESS
+    assert!(resp.status().is_success());
+    // SECOND ERRORS
+    let resp = _make_user_register_test_request(payload, &app).await;
+    assert!(resp.status().is_client_error());
+}
+
+#[actix_rt::test]
+async fn post_user_get_user_with_cookie() {
+    use crate::proxy::create_test_app::_create_test_app;
+
+    let app = _create_test_app().await;
+    let payload = _create_payload();
     let resp = _make_user_register_test_request(payload, &app).await;
 
     assert!(resp.status().is_success());
