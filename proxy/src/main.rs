@@ -2,6 +2,7 @@
 mod db;
 mod error;
 mod proxy;
+mod rate_limiter;
 mod request;
 mod routes;
 mod server;

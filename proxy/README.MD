@@ -2,11 +2,13 @@
 Upstream proxy for subdomains. 
 
 Authenticates + authorizes with subodamain + cookie / bearer token.
+
+Has a rate limiter. 
+
 2 user roles: admin and user 
 
 
 # TBD
-// TBD RATE LIMIT BY IP
 // TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
 // TBD BROADCAST LOG
 // GET COOKIE
@@ -134,7 +136,10 @@ curl -H "Host: http://hello.wello.ee" http://localhost:8080 -H "Authorization: B
 curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:8080
 
 curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/user -vvv
+
 curl -b "centrale=TZ60kfstI4OZefZ36rKbPQ" -H "Host: http://hello.wello.ee" http://localhost:8080
+
+curl -b "centrale=TZ60kfstI4OZefZ36rKbPQ" -H "Host: http://hello.wello.ee" http://localhost:8080/api/user
 
 curl -b "centrale=TZ60kfstI4OZefZ36rKbPQ" -H "Content-Type: application/json" -d '{"subdomain": "test"}'  http://localhost:8080/api/subdomain -vvv
 
@@ -145,6 +150,11 @@ curl -b "centrale=TZ60kfstI4OZefZ36rKbPQ" -H "Content-Type: application/json" -d
 oha http://localhost:8080/api/user
 
 oha -n 1 --insecure -H "Cookie: centrale=TZ60kfstI4OZefZ36rKbPQ; Domain=subdomain.localhost.com; Max-Age=86400"  http://subdomain.localhost.com:8080/api/user
+
+oha -n 1000000 --insecure -H "Cookie: centrale=TZ60kfstI4OZefZ36rKbPQ; Domain=subdomain.localhost.com; Max-Age=86400"  http://subdomain.localhost.com:8080/api/user
+
+oha -n 1000000 --insecure -H "Cookie: centrale=TZ60kfstI4OZefZ36rKbPQ;"  http://subdomain.localhost.com:8080/api/user
+
 
 
 ---
