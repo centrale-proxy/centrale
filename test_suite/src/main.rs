@@ -1,6 +1,8 @@
 mod error;
 
 use crate::error::TestSuiteError;
+use chrono::Utc;
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbConnection;
 use dir_and_db_pool::db::get_db::get_db;
 use fake::faker::creditcard::en::CreditCardNumber;
@@ -61,14 +63,39 @@ pub fn add_user_to_db(db: &DbConnection, user: User, id: i64) -> Result<i64, Tes
     Ok(last_id)
 }
 
+/// Add cookie to db
+pub fn save_cookie(
+    db: &DbConnection,
+    user_id: i64,
+    cookie: String,
+) -> Result<String, TestSuiteError> {
+    // DELETE OLD COOKIE
+    // db.execute("DELETE FROM cookie WHERE user_id = ?1", params![user_id])?;
+    // GENERATE COOKIE
+    let cookie_str = cookie.as_str().to_string();
+    // CALCULATE TIMEOUT
+    let now = Utc::now();
+    let current_unix_epoch = now.timestamp();
+    let timeout = CentraleConfig::COOKIE_TIMEOUT + current_unix_epoch;
+    // INSERT TO DB
+    db.execute(
+        "INSERT INTO cookie (user_id, cookie, timeout) VALUES (?1, ?2, ?3)",
+        params![user_id, &cookie, timeout],
+    )?;
+    Ok(cookie_str)
+}
+
+/// Creates 1 000 000 user + cookie entries to db. DO NOT USE IN PRODUCTION.
 fn main() {
     let pool = get_db("centrale.db", "centrale").unwrap();
     let db = pool.get().expect("Couldn't get db connection from pool");
     // CREATE MILION ENTRIES
     for i in 0..1000000 {
         let user = User::new_fake();
+        let salt = user.salt.clone();
         match add_user_to_db(&db, user, i) {
             Ok(id) => {
+                save_cookie(&db, id, salt).unwrap();
                 println!("{}", id)
             }
             Err(err) => {

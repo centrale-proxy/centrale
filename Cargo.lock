@@ -1947,10 +1947,13 @@ dependencies = [
 name = "test_suite"
 version = "0.1.0"
 dependencies = [
+ "chrono",
+ "config",
  "dir_and_db_pool",
  "fake",
  "proxy",
  "r2d2_sqlite",
+ "rand 0.10.0",
  "thiserror",
 ]
 
