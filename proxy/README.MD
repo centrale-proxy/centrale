@@ -5,6 +5,8 @@ Authenticates + authorizes with subodamain + cookie / bearer token.
 
 Has a rate limiter. 
 
+Enables same API with Cookie and Bearer token Authentication and TBD Authorization.
+
 2 user roles: admin and user 
 
 
@@ -123,6 +125,10 @@ Burst size is the number of total requests allowed to pipeline in total per one 
 Requests per second sets how many places in pipeline are freed in a second for 1 IP.
 
 If limit is hit, 429 is returned.
+
+# Test suite
+
+In folder test_suite there is a function that adds a 1000000 users to your db.
 
 # PLATFORM
 + SET .well-known/apple-app-site-association
