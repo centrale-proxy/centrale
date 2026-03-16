@@ -5,3 +5,4 @@ pub mod handle_test;
 pub mod host;
 pub mod one_request;
 pub mod subdomain;
+pub mod wildcard;

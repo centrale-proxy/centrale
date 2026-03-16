@@ -114,6 +114,16 @@ Server
 # CONFIG
 active_server_ip
 
+# Rate limiter
+
+You can set in config Burst Size and Requests Per Second.
+  
+Burst size is the number of total requests allowed to pipeline in total per one IP.
+
+Requests per second sets how many places in pipeline are freed in a second for 1 IP.
+
+If limit is hit, 429 is returned.
+
 # PLATFORM
 + SET .well-known/apple-app-site-association
 + PUT stuff to proxy HEADER

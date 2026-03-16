@@ -1,6 +1,5 @@
 use crate::{
-    proxy::handle_test::handle_test,
-    request::handle_wildcard,
+    proxy::{handle_test::handle_test, wildcard::handle_wildcard},
     subdomain::respond_post::respond_subdomain,
     user::{get::get_user, post::post::post_user},
 };
