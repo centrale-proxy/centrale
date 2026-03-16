@@ -14,7 +14,7 @@ pub fn create_bearer_table(
             FOREIGN KEY(user_id) REFERENCES user(id)
         );
 
-        CREATE INDEX IF NOT EXISTS idx_bearer ON bearer (bearer, user_id);
+        CREATE INDEX IF NOT EXISTS idx_bearer ON bearer (bearer);
 
         ",
     )?;

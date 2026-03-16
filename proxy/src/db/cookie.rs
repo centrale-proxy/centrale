@@ -15,7 +15,7 @@ pub fn create_cookie_table(
             FOREIGN KEY(user_id) REFERENCES user(id)
         );
 
-        CREATE INDEX IF NOT EXISTS idx_cookie ON cookie (cookie, user_id);
+        CREATE INDEX IF NOT EXISTS idx_cookie ON cookie (cookie);
 
         ",
     )?;
