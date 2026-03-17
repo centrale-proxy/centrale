@@ -68,4 +68,7 @@ pub enum CentraleError {
     //Argon2Error(#[from] argon2::Error),
     #[error("Header conversion error: {0}")]
     HeaderToStrError(#[from] ToStrError),
+
+    #[error("UTF-8 error: {0}")]
+    Utf8Error(#[from] std::str::Utf8Error),
 }

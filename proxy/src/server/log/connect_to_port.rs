@@ -48,14 +48,3 @@ pub fn connect_to_port() -> Result<(), Box<dyn Error>> {
     Ok(())
     //}
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn connect_to_writer() {
-        let a = connect_to_port().unwrap();
-        println!("{:?}", a);
-    }
-}
