@@ -1,6 +1,7 @@
 mod convert;
 mod error;
 mod listen;
+mod one_connection;
 mod one_message;
 mod payload;
 
@@ -12,5 +13,10 @@ use crate::listen::listen_to_port;
 // RECEIVE MESSAGE
 
 fn main() {
-    let _li = listen_to_port();
+    match listen_to_port() {
+        Ok(_) => {}
+        Err(err) => {
+            eprintln!("Writer Err: {}", err);
+        }
+    }
 }

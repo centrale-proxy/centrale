@@ -1,8 +1,9 @@
-use crate::one_message::one_message;
 use config::CentraleConfig;
 use mio::net::TcpListener;
 use mio::{Events, Interest, Poll, Token};
 use std::error::Error;
+
+use crate::one_connection::one_connection;
 
 const SERVER: Token = Token(0);
 
@@ -30,16 +31,7 @@ pub fn listen_to_port() -> Result<(), Box<dyn Error>> {
                     // LOOP MESSAGES FROM EACH CONNECTION
                     match connection {
                         Ok((connection, address)) => {
-                            println!("Got a connection from: {}", address);
-                            loop {
-                                match one_message(&connection) {
-                                    Ok(_) => {}
-                                    Err(err) => {
-                                        eprintln!("errr {:?}", err);
-                                        break;
-                                    }
-                                }
-                            }
+                            one_connection(&connection, address);
                         }
                         Err(err) => {
                             eprintln!("eeee {}", err);
