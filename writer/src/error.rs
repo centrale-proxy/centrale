@@ -8,8 +8,8 @@ pub enum WriterError {
     IoError(#[from] std::io::Error),
     #[error("Database error: {0}")]
     DatabaseError(#[from] rusqlite::Error),
-    #[error("Downstream closed")]
-    DownstreamClosed,
+    #[error("Client closed connection")]
+    ClientClosed,
     #[error("UTF-8 error: {0}")]
     Utf8Error(#[from] std::str::Utf8Error),
     #[error("JSON error: {0}")]

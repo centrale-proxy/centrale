@@ -33,7 +33,9 @@ pub fn handle_one_event(event: &Event, mut client: &TcpStream) -> Result<(), Wri
             if event.is_writable() {
                 // println!("is writable");
                 // let message = b"Hello, server!";
-                let message = b"WriterPayload(CheckOut(CheckOut{}))";
+                //let message = b"WriterPayload(CheckOut(CheckOut{}))";
+                let _message = b"{\"CheckOut\":{}}";
+
                 let co = CheckOut {};
                 let pl = WriterPayload::CheckOut(co);
                 let sss = serde_json::to_string(&pl).unwrap();

@@ -12,7 +12,7 @@ pub fn one_message(mut connection: &TcpStream) -> Result<(), WriterError> {
         Ok(0) => {
             // println!("Downstream closed");
             // SERVER SEND CLOSE
-            return Err(WriterError::DownstreamClosed);
+            return Err(WriterError::ClientClosed);
         }
         Ok(n) => {
             let str = vector_to_string(&buffer[..n])?;
