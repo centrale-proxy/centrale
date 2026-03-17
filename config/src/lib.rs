@@ -16,4 +16,5 @@ impl CentraleConfig {
     pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 120000;
     pub const WRITER_EVENTS_CAPACITY: usize = 128;
     pub const WRITER_DB_FILE: &str = "writer.db";
+    pub const WRITER_BUFFER_SIZE: usize = 1024;
 }

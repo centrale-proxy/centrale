@@ -7,7 +7,7 @@ use std::error::Error;
 
 const SERVER: Token = Token(0);
 
-pub fn listen_to_port(db: DbBool) -> Result<(), Box<dyn Error>> {
+pub fn start_server(db: DbBool) -> Result<(), Box<dyn Error>> {
     // Create a poll instance.
     let (mut poll, server) = get_server_poll(SERVER)?;
     let mut events = Events::with_capacity(CentraleConfig::WRITER_EVENTS_CAPACITY);
