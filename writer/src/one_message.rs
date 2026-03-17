@@ -10,14 +10,12 @@ pub fn one_message(mut connection: &TcpStream) -> Result<(), WriterError> {
     //let m = connection.read(&mut buffer);
     match connection.read(&mut buffer) {
         Ok(0) => {
-            //println!("Downstream closed");
+            // println!("Downstream closed");
             // SERVER SEND CLOSE
             return Err(WriterError::DownstreamClosed);
         }
         Ok(n) => {
             let str = vector_to_string(&buffer[..n])?;
-            //println!("str {:?}", str);
-            //let payload: Result<WriterPayload, serde_json::Error>
             println!("str: {:?}", &str);
             let payload: WriterPayload = serde_json::from_str(&str)?;
             save_to_db(payload);

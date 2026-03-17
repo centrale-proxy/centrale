@@ -1,9 +1,8 @@
+use crate::one_connection::one_connection;
 use config::CentraleConfig;
 use mio::net::TcpListener;
 use mio::{Events, Interest, Poll, Token};
 use std::error::Error;
-
-use crate::one_connection::one_connection;
 
 const SERVER: Token = Token(0);
 
@@ -27,19 +26,8 @@ pub fn listen_to_port() -> Result<(), Box<dyn Error>> {
         for event in events.iter() {
             match event.token() {
                 SERVER => {
-                    let connection = server.accept();
-                    // LOOP MESSAGES FROM EACH CONNECTION
-                    match connection {
-                        Ok((connection, address)) => {
-                            one_connection(&connection, address);
-                        }
-                        Err(err) => {
-                            eprintln!("eeee {}", err);
-                            break;
-                        }
-                    }
-                    //drop(connection);
-                    //}
+                    let (connection, address) = server.accept()?;
+                    one_connection(&connection, address);
                 }
                 _ => unreachable!(),
             }
