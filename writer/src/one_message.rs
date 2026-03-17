@@ -1,6 +1,6 @@
-use crate::convert::vector_to_string;
 use crate::error::WriterError;
 use crate::save_to_db::save_to_db;
+use common::convert::vector_to_string;
 use common::payload::WriterPayload;
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbConnection;
