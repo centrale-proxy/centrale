@@ -10,14 +10,14 @@ where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     B: 'static,
 {
-    // STREAM TO LOG
+    // TBD STREAM TO LOG
     println!("{:?}", req.headers());
 
     let fut = srv.call(req);
 
     Box::pin(async move {
         let res = fut.await?;
-        // STREAM TO LOG
+        // TBD STREAM TO LOG
         println!("{:?}", res.headers());
         Ok(res)
     })
