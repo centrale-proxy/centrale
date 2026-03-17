@@ -4,6 +4,7 @@
        "dir_and_db_pool",
        "config",
        "test_suite",
-       "writer"
+       "writer",
+       "common"
    ]
    resolver = "2"

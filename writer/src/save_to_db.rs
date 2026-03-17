@@ -1,6 +1,5 @@
+use common::payload::WriterPayload;
 use dir_and_db_pool::db::DbConnection;
-
-use crate::payload::WriterPayload;
 
 pub fn save_to_db(payload: WriterPayload, db: &DbConnection) {
     println!("payload: {:?}", &payload);

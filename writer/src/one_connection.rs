@@ -1,4 +1,4 @@
-use crate::one_message::one_message;
+use crate::{error::WriterError, one_message::one_message};
 use dir_and_db_pool::db::DbBool;
 use mio::net::TcpStream;
 use std::net::SocketAddr;
@@ -10,10 +10,14 @@ pub fn one_connection(stream: &TcpStream, address: SocketAddr, pool: &DbBool) {
     loop {
         match one_message(&stream, &db) {
             Ok(_) => {}
-            Err(err) => {
-                eprintln!("errr {:?}", err);
-                break;
-            }
+            Err(err) => match err {
+                WriterError::ClientClosed => {
+                    break;
+                }
+                _ => {
+                    eprintln!("errr {:?}", err);
+                }
+            },
         }
     }
 }
