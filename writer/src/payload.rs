@@ -25,6 +25,6 @@ pub struct CheckOut {}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum WriterPayload {
-    CheckIn,
-    CheckOut,
+    CheckIn(CheckIn),
+    CheckOut(CheckOut),
 }
