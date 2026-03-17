@@ -15,4 +15,5 @@ impl CentraleConfig {
     /// How many places in pipeline are freed in a second for 1 IP
     pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 120000;
     pub const WRITER_EVENTS_CAPACITY: usize = 128;
+    pub const WRITER_DB_FILE: &str = "writer.db";
 }
