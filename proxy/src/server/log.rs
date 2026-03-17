@@ -1,8 +1,8 @@
 pub mod connect_to_port;
 //pub mod _payload;
 
+use mio::net::TcpStream;
 use std::io::Write;
-use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
 
 use actix_web::Error;
@@ -22,9 +22,7 @@ where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     B: 'static,
 {
-    // --- Log the request ---
-    //let req_log = format!("REQ  {} {} {:?}\n", req.method(), req.uri(), req.headers());
-
+    //
     let aaa = CheckIn::new(&req);
     let pl = WriterPayload::CheckIn(aaa);
     let sss = serde_json::to_string(&pl).unwrap();

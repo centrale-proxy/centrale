@@ -3,7 +3,7 @@ use mio::net::TcpStream;
 use mio::{Events, Interest, Poll, Token};
 use std::error::Error;
 use std::io::Write;
-
+///
 pub fn get_client_poll() -> Result<(Poll, TcpStream), Box<dyn Error>> {
     const CLIENT: Token = Token(1);
     // Create a poll instance.
@@ -24,7 +24,7 @@ pub fn get_client_poll() -> Result<(Poll, TcpStream), Box<dyn Error>> {
 pub fn connect_to_port() -> Result<(), Box<dyn Error>> {
     // Create a poll instance.
     let (mut poll, mut client) = get_client_poll()?;
-    let mut events = Events::with_capacity(128);
+    let mut events = Events::with_capacity(10000);
 
     //loop {
     // Poll Mio for events, blocking until we get an event.
