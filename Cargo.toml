@@ -3,6 +3,7 @@
        "proxy",
        "dir_and_db_pool",
        "config",
-       "test_suite"
+       "test_suite",
+       "writer"
    ]
    resolver = "2"

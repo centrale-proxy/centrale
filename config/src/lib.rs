@@ -2,6 +2,7 @@ pub struct CentraleConfig;
 
 impl CentraleConfig {
     pub const SERVER_ADDRESS: &str = "127.0.0.1:8080";
+    pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
     pub const DOMAIN: &str = "localhost.com";
