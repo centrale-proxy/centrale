@@ -1522,6 +1522,7 @@ dependencies = [
  "config",
  "dir_and_db_pool",
  "env_logger",
+ "futures-util",
  "log",
  "r2d2",
  "r2d2_sqlite",

@@ -1,3 +1,4 @@
+use crate::server::log::log_middleware;
 use crate::server::rate_limiter::get_rate_limiter_config;
 use crate::server::routes::routes;
 use actix_governor::Governor;
@@ -13,6 +14,7 @@ pub async fn start_server(db: DbBool) -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .configure(routes)
+            .wrap_fn(|req, srv| log_middleware(req, srv))
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(db.clone()))
     })
