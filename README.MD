@@ -187,3 +187,4 @@ cd /Users/martin/Library/Application\ Support/centrale/
 
 
 Subdomainer.com
+prettylongdomain.com
