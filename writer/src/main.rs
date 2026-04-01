@@ -12,5 +12,10 @@ use dir_and_db_pool::db::get_db::get_db;
 
 fn main() {
     let db = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
-    start_server(db).unwrap();
+    match start_server(db) {
+        Ok(_) => {}
+        Err(err) => {
+            eprintln!("err, {}", err)
+        }
+    }
 }

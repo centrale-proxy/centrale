@@ -3,9 +3,9 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use mio::net::TcpStream;
+use mio::net::UdpSocket;
 
-use crate::server::log::{connect_to_port::get_client_poll, log_middleware};
+use crate::server::log::log_middleware;
 use crate::server::rate_limiter::get_rate_limiter_config;
 use crate::server::routes::routes;
 use actix_governor::Governor;
@@ -15,20 +15,21 @@ use dir_and_db_pool::db::DbBool;
 
 #[actix_web::main]
 pub async fn start_server(db: DbBool) -> std::io::Result<()> {
-    //
     let governor_conf = get_rate_limiter_config();
-    //
-    //let log_stream = TcpStream::connect("127.0.0.1:8081")?;
-    let addr: SocketAddr = "127.0.0.1:8081".parse().unwrap();
-    let log_stream = TcpStream::connect(addr)?;
-    let log_stream = Arc::new(Mutex::new(log_stream));
+
+    let addr_0: SocketAddr = "0.0.0.0:0".parse().unwrap();
+    let socket = UdpSocket::bind(addr_0)?; // OS picks a port
+
+    let socket_1 = Arc::new(Mutex::new(socket));
+
+    let addr: SocketAddr = CentraleConfig::WRITER_SERVER_ADDRESS.parse().unwrap();
 
     HttpServer::new(move || {
         App::new()
             .configure(routes)
             .wrap_fn({
-                let stream = log_stream.clone();
-                move |req, srv| log_middleware(req, srv, stream.clone())
+                let socket_2 = socket_1.clone();
+                move |req, srv| log_middleware(req, srv, socket_2.clone(), addr)
             })
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(db.clone()))
