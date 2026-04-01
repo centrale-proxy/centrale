@@ -1,0 +1,8 @@
+[package]
+name = "sample_server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+config = { path = "../config" }
+dir_and_db_pool = { path = "../dir_and_db_pool" }

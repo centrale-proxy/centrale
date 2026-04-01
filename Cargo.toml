@@ -5,6 +5,8 @@
        "config",
        "test_suite",
        "writer",
-       "common"
+       "common",
+       "sample_server"
+
    ]
    resolver = "2"
