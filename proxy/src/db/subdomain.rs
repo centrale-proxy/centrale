@@ -5,6 +5,9 @@ use r2d2_sqlite::SqliteConnectionManager;
 pub fn create_subdomain_table(
     db: &PooledConnection<SqliteConnectionManager>,
 ) -> Result<(), CentraleError> {
+    // TBD address
+    // TBD ip
+    // TBD port
     db.execute_batch(
         "
         CREATE TABLE IF NOT EXISTS subdomain (

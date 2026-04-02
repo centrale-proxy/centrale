@@ -5,7 +5,7 @@ use actix_web::{HttpRequest, web};
 
 /// HANDLES ALL WILDCARD REQUESTS
 pub async fn handle_wildcard(pool: web::Data<DbBool>, req: HttpRequest) -> impl Responder {
-    match process_one_request(pool, req) {
+    match process_one_request(pool, req).await {
         Ok(result) => result,
         Err(err) => {
             error!("Centrale error: {}", err);

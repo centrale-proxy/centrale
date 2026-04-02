@@ -71,4 +71,7 @@ pub enum CentraleError {
 
     #[error("UTF-8 error: {0}")]
     Utf8Error(#[from] std::str::Utf8Error),
+
+    #[error("Proxy request error: {0}")]
+    ReqwestError(#[from] reqwest::Error),
 }

@@ -1,20 +1,42 @@
 use crate::{
     error::CentraleError,
     proxy::{get_user_id::get_user_id, host::get_host, subdomain::get_subdomain},
+    subdomain::get::get_subdomain_pass,
 };
+use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
 use dir_and_db_pool::db::DbBool;
 
 /// Process one wildcard request
-pub fn process_one_request(
+pub async fn process_one_request(
     pool: web::Data<DbBool>,
     req: HttpRequest,
 ) -> Result<HttpResponse, CentraleError> {
     let headers = req.headers();
     let host = get_host(headers)?;
     let subdomain = get_subdomain(host)?;
-    let user_id = get_user_id(pool, headers, req.cookie("centrale"))?;
+    // AUTHENTICATE
+    let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
+    // TBD AUTHORIZE
+    let path = req.path().to_string();
     // TBD PROXY TO NODE
-    let res = HttpResponse::Ok().json(serde_json::json!({ "Ok": subdomain, "user": user_id }));
+    let domain = format!("http://localhost:8000");
+    let url = format!("{}{}", domain, path);
+    println!("subdomain {}", &subdomain);
+    let pass = get_subdomain_pass(&pool, &subdomain)?;
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(&url)
+        //.header(header::AUTHORIZATION, format!("Bearer {}", token))
+        .header("centrale_subdomain", format!("{}", subdomain))
+        .header("centrale_password", format!("{}", pass))
+        .send()
+        .await?;
+
+    let status = response.status();
+    let body = response.bytes().await?;
+    let res = HttpResponse::build(StatusCode::from_u16(status.as_u16()).unwrap()).body(body);
+
     Ok(res)
 }
