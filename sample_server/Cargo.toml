@@ -8,3 +8,5 @@ config = { path = "../config" }
 dir_and_db_pool = { path = "../dir_and_db_pool" }
 rusqlite = { version = "0.37.0", features = ["bundled", "bundled-sqlcipher"] }
 thiserror = "2.0.12"
+actix-web = "4.13.0"
+serde_json = "1.0.149"

@@ -1,18 +1,38 @@
-use rusqlite::{Connection, Result};
+use crate::error::DirsqlError;
+use r2d2::{CustomizeConnection, Pool};
+use r2d2_sqlite::SqliteConnectionManager;
+use rusqlite::{Connection, Error};
 
-pub fn get_secret_db(path: &str, passphrase: &str) -> Result<Connection> {
-    let conn = Connection::open(path)?;
-
-    // MUST be the very first pragma before any other operations
-    conn.execute_batch(&format!("PRAGMA key = '{}';", passphrase))?;
-
-    // Verify it works (will fail if wrong key)
-    conn.execute_batch("SELECT count(*) FROM sqlite_master;")?;
-
-    Ok(conn)
+#[derive(Debug)]
+struct SqlCipherCustomizer {
+    passphrase: String,
 }
 
-pub fn create_secret_db(path: &str, passphrase: &str) -> Result<Connection> {
+impl CustomizeConnection<Connection, Error> for SqlCipherCustomizer {
+    fn on_acquire(&self, conn: &mut Connection) -> Result<(), Error> {
+        conn.execute_batch(&format!("PRAGMA key = '{}';", self.passphrase))?;
+        conn.execute_batch("SELECT count(*) FROM sqlite_master;")?;
+        Ok(())
+    }
+}
+
+// 2. Build the pool with the customizer
+pub fn get_secret_db(
+    path: &str,
+    passphrase: &str,
+) -> Result<Pool<SqliteConnectionManager>, r2d2::Error> {
+    let manager = SqliteConnectionManager::file(path);
+
+    let pool = Pool::builder()
+        .connection_customizer(Box::new(SqlCipherCustomizer {
+            passphrase: passphrase.to_string(),
+        }))
+        .build(manager)?;
+
+    Ok(pool)
+}
+
+pub fn create_secret_db(path: &str, passphrase: &str) -> Result<Connection, DirsqlError> {
     let conn = Connection::open(path)?;
     conn.execute_batch(&format!("PRAGMA key = '{}';", passphrase))?;
 
@@ -28,7 +48,7 @@ pub fn create_secret_db(path: &str, passphrase: &str) -> Result<Connection> {
     Ok(conn)
 }
 
-pub fn harden(conn: &Connection) -> Result<()> {
+pub fn harden(conn: &Connection) -> Result<(), DirsqlError> {
     conn.execute_batch(
         "
         PRAGMA cipher_page_size = 4096;   -- Larger pages = better perf
