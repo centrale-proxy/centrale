@@ -20,7 +20,7 @@ use serde_json::Value;
 pub struct RegisterSubdomain {
     pub subdomain: String,
 }
-
+///
 pub async fn handle_post(
     pool: web::Data<DbBool>,
     payload: web::Json<RegisterSubdomain>,

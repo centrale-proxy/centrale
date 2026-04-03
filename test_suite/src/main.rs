@@ -1,5 +1,7 @@
 mod error;
 
+use std::collections::HashMap;
+
 use crate::error::TestSuiteError;
 use chrono::Utc;
 use config::CentraleConfig;
@@ -13,6 +15,7 @@ use fake::faker::name::en::Name;
 use fake::faker::name::en::{FirstName, LastName};
 use fake::{Dummy, Fake, Faker};
 use r2d2_sqlite::rusqlite::params;
+use reqwest::header::{self, COOKIE};
 
 #[derive(Debug, Dummy)]
 pub struct User {
@@ -87,10 +90,12 @@ pub fn save_cookie(
 }
 
 /// Creates 1 000 000 user + cookie entries to db. Salt is used ass cookie
-fn main() {
+#[actix_web::main]
+async fn main() {
     //
     let pool = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
     let db = get_encrypted_connection(&pool, CentraleConfig::MASTER_PASSWORD).unwrap();
+    let client = reqwest::Client::new();
 
     //let db = pool.get().expect("Couldn't get db connection from pool");
     // CREATE MILION ENTRIES
@@ -99,7 +104,35 @@ fn main() {
         let salt = user.salt.clone();
         match add_user_to_db(&db, user, i) {
             Ok(id) => {
-                save_cookie(&db, id, salt).unwrap();
+                let cookie = save_cookie(&db, id, salt).unwrap();
+                // MAKE REQUEST TO ADD
+                // let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
+                /*
+                                let url = format!("http://{}/api/subdomain", CentraleConfig::SERVER_ADDRESS);
+
+                                println!("{}", &url);
+
+                                let mut map = HashMap::new();
+
+                                let ii = format!("iammaaa{}", i);
+                                map.insert("subdomain", ii);
+
+                                let cookie_header = format!("centrale={}", cookie);
+                                println!("cookie_header {}", cookie_header);
+                                println!("map {:?}", map);
+
+                                let response = client
+                                    .post(&url)
+                                    .header(COOKIE, cookie_header)
+                                    //    .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
+                                    .json(&map)
+                                    .send()
+                                    .await
+                                    .unwrap();
+
+                                let status = response.status();
+                                println!("status {}", status);
+                */
                 println!("{}", id)
             }
             Err(err) => {

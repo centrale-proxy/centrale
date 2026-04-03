@@ -159,12 +159,12 @@ curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:808
 //
 curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/user -vvv
 
-curl -b "centrale=KPn04hgE8+yy2qFS0h1h3A" -H "Host: http://hello.localhost.com" http://localhost:8080/api/user
+curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://hello.localhost.com" http://localhost:8080/api/user
 
-curl -b "centrale=KPn04hgE8+yy2qFS0h1h3A" -H "Content-Type: application/json" -d '{"subdomain": "test"}'  http://localhost:8080/api/subdomain -vvv
+curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Content-Type: application/json" -d '{"subdomain": "test"}'  http://localhost:8080/api/subdomain -vvv
 
 --
-curl -b "centrale=KPn04hgE8+yy2qFS0h1h3A" -H "Host: http://test.localhost.com" http://test.localhost.com:8080 -vvv
+curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080 -vvv
 
 # Oha
 
