@@ -1,10 +1,12 @@
-use crate::{db::get_subdomain_db, error::SampleServerError};
+use crate::{
+    error::SampleServerError, pool::get::get_or_create_from_registry, server::DbPoolRegistry,
+};
 use actix_web::{HttpRequest, HttpResponse, web};
-use dir_and_db_pool::db::DbBool;
 use rusqlite::params;
+use std::sync::{Arc, RwLock};
 
 pub fn process_hello(
-    pool: web::Data<DbBool>,
+    registry: web::Data<Arc<RwLock<DbPoolRegistry>>>,
     req: HttpRequest,
 ) -> Result<HttpResponse, SampleServerError> {
     //
@@ -24,7 +26,12 @@ pub fn process_hello(
         .and_then(|v| v.to_str().ok());
 
     if centrale_password.is_some() && subdomain_id.is_some() && customer_role.is_some() {
-        let conn = get_subdomain_db(&subdomain_id.unwrap(), &centrale_password.unwrap()).unwrap();
+        // GET / CREATE + GET CONNECTION
+        let conn = get_or_create_from_registry(
+            &registry,
+            subdomain_id.unwrap(),
+            centrale_password.unwrap(),
+        )?;
 
         let db = conn.get().unwrap();
         let mut stmt = db.prepare(&"SELECT data FROM secrets;").unwrap();

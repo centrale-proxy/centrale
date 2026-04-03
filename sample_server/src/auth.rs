@@ -4,7 +4,7 @@ use actix_web::{
 };
 use config::CentraleConfig;
 
-pub async fn auth_MASTER_BEARER_TOKEN(
+pub async fn auth_master_bearer_token(
     req: ServiceRequest,
     next: actix_web::middleware::Next<impl MessageBody>,
 ) -> Result<ServiceResponse<impl MessageBody>, actix_web::Error> {

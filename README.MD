@@ -179,7 +179,7 @@ oha -n 1000000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ; Domain=su
 oha -n 1000000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ;"  http://subdomain.localhost.com:8080/api/user
 
 
-oha -n 1000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ;"  -H "Host: http://test.wello.ee"  http://test.localhost.com:8080
+oha -n 1000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ;"  -H "Host: http://test.localhost.com"  http://test.localhost.com:8080
 
 
 ---

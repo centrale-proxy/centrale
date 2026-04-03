@@ -1,8 +1,11 @@
-use crate::hello::process::process_hello;
+use crate::{hello::process::process_hello, server::DbPoolRegistry};
 use actix_web::{HttpRequest, HttpResponse, Responder, web};
-use dir_and_db_pool::db::DbBool;
+use std::sync::{Arc, RwLock};
 
-pub async fn respond_hello(pool: web::Data<DbBool>, req: HttpRequest) -> impl Responder {
+pub async fn respond_hello(
+    pool: web::Data<Arc<RwLock<DbPoolRegistry>>>,
+    req: HttpRequest,
+) -> impl Responder {
     match process_hello(pool, req) {
         Ok(result) => result,
         Err(err) => HttpResponse::UnprocessableEntity()
