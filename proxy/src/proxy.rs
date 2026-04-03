@@ -3,6 +3,8 @@ pub mod create_test_app;
 pub mod get_user_id;
 pub mod handle_test;
 pub mod host;
+pub mod is_ws;
 pub mod one_request;
+pub mod proxy_ws;
 pub mod subdomain;
 pub mod wildcard;

@@ -4,8 +4,12 @@ use actix_web::http::header;
 use actix_web::{HttpRequest, web};
 
 /// HANDLES ALL WILDCARD REQUESTS
-pub async fn handle_wildcard(pool: web::Data<DbBool>, req: HttpRequest) -> impl Responder {
-    match process_one_request(pool, req).await {
+pub async fn handle_wildcard(
+    pool: web::Data<DbBool>,
+    req: HttpRequest,
+    stream: web::Payload,
+) -> impl Responder {
+    match process_one_request(pool, req, stream).await {
         Ok(result) => result,
         Err(err) => {
             error!("Centrale error: {}", err);
@@ -15,22 +19,23 @@ pub async fn handle_wildcard(pool: web::Data<DbBool>, req: HttpRequest) -> impl 
 }
 
 // TBD
-// TBD RATE LIMIT BY IP
 // TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
-// TBD BROADCAST LOG
-//
+// TBD SET HEADERS Access-Control-Allow-Origin
+
+// DONE:
+// RATE LIMIT BY IP
+// BROADCAST LOG
 // GET COOKIE
 // GET BEARER TOKEN
 // AUTHENTICATE
 // AUTHORIZE
-// SET HEADERS Access-Control-Allow-Origin
 // PROXY:
 // // ADD TO REQ HEADERS
 // // MAKE REQUEST
 // // AWAIT
 // // RESPOND TO CLIENT
 // BROADCAST LOG
-//
+// PROXY SOCKET
 // // DELETE SUBDOMAIN
 
 use actix_web::{HttpResponse, Responder};
