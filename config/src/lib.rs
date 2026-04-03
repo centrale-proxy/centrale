@@ -20,5 +20,7 @@ impl CentraleConfig {
     // SAMPLE SERVER
     pub const SAMPLE_SERVER_ADDRESS: &str = "127.0.0.1:8000";
     // MASTER KEY BETWEEN PROXY AND NODES
-    pub const MASTER_BEARER_TOKEN: &str = "TEST";
+    pub const MASTER_BEARER_TOKEN: &str = "5zHNe7KE3XJvTmG1nDgOZ7kfA";
+    // MASTER PASSWORD FOR LOCAL DB ENCRYPTION
+    pub const MASTER_PASSWORD: &str = "oNnglBgHldsPbvkOgQt";
 }

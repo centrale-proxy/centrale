@@ -1,4 +1,5 @@
 use crate::{
+    db::get_db::get_encrypted_connection,
     error::CentraleError,
     user::{
         cookie::save_cookie::save_cookie,
@@ -25,7 +26,7 @@ pub fn handle_register(
     let register_request = json.into_inner();
     let username = register_request.username;
     let password = register_request.password;
-    let db = pool.get().expect("Couldn't get db connection from pool");
+    let db = get_encrypted_connection(pool.get_ref())?;
     // CREATE HASH AND SALT
     let (hash, salt) = hash_and_salt(&password)?;
     // SAVE USER TO DB

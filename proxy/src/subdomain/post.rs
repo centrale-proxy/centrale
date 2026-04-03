@@ -26,7 +26,7 @@ pub fn post_subdomain(
 
         db.execute(
             "INSERT INTO subdomain_user (subdomain, user_id, role) VALUES (?1, ?2, ?3)",
-            params![subdomain, password.as_str(), "admin".to_string()],
+            params![subdomain, user_id, "admin".to_string()],
         )?;
         // TBD INSERT META
 

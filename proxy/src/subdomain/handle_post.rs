@@ -1,5 +1,6 @@
 use crate::{
-    error::CentraleError, proxy::get_user_id::get_user_id, subdomain::post::post_subdomain,
+    db::get_db::get_encrypted_connection, error::CentraleError, proxy::get_user_id::get_user_id,
+    subdomain::post::post_subdomain,
 };
 use actix_http::Request;
 use actix_web::{
@@ -26,7 +27,7 @@ pub fn handle_post(
     let subdomain = json.subdomain.clone();
     let headers = req.headers();
     let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
-    let db = pool.get().expect("Couldn't get db connection from pool");
+    let db = get_encrypted_connection(pool.get_ref())?;
 
     match post_subdomain(&db, &subdomain, user_id) {
         Ok(result) => {
@@ -37,7 +38,7 @@ pub fn handle_post(
             Ok(res)
         }
         Err(err) => {
-            error!("Add subdomain error: {}", err);
+            error!("Add subdomain error handle: {}", err);
             Ok(HttpResponse::UnprocessableEntity()
                 .json(serde_json::json!({ "error": "Cannot add subdomain" })))
         }

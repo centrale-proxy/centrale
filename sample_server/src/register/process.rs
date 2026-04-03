@@ -1,12 +1,13 @@
 use crate::{
-    db::{create_subdomain_db, get_subdomain_db},
+    db::create_subdomain_db,
     error::SampleServerError,
+    pool::{DbPoolRegistry, get::get_or_create_from_registry},
 };
 use actix_web::{HttpRequest, HttpResponse, web};
-use dir_and_db_pool::db::DbBool;
+use std::sync::{Arc, RwLock};
 ///
 pub fn process_register(
-    pool: web::Data<DbBool>,
+    registry: web::Data<Arc<RwLock<DbPoolRegistry>>>,
     req: HttpRequest,
 ) -> Result<HttpResponse, SampleServerError> {
     //
@@ -29,7 +30,15 @@ pub fn process_register(
     if centrale_password.is_some() && subdomain_id.is_some() && customer_role.is_some() {
         // TRY TO REGISTER DB
         // GET CONNECDTION
-        let conn = get_subdomain_db(&subdomain_id.unwrap(), &centrale_password.unwrap()).unwrap();
+        let conn = get_or_create_from_registry(
+            &registry,
+            subdomain_id.unwrap(),
+            centrale_password.unwrap(),
+        )?;
+
+        //let db = conn.get().unwrap();
+
+        //let conn = get_subdomain_db(&subdomain_id.unwrap(), &centrale_password.unwrap()).unwrap();
         create_subdomain_db(&conn, centrale_password.unwrap()).unwrap();
 
         let c = conn.get().unwrap();
@@ -38,8 +47,7 @@ pub fn process_register(
 
         // CREATE SUBDOMAIN DB
         c.execute_batch(&format!(
-            "INSERT INTO {} (test) VALUES ('this is test value');",
-            subdomain_id.unwrap()
+            "INSERT INTO secrets (data) VALUES ('this is test value');",
         ))
         .unwrap();
 

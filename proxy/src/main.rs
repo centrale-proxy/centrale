@@ -11,13 +11,15 @@ use crate::{
     server::start::start_server,
 };
 use config::CentraleConfig;
-use dir_and_db_pool::db::get_db::get_db;
+use dir_and_db_pool::db::{db_file::db_file, encrypted::get_secret_db, get_db::get_db};
 use log::error;
 
 fn main() {
     // std::env::set_var("RUST_LOG", "actix_web=debug");
     env_logger::init();
-    match get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER) {
+    let file_path = db_file(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
+    let path = file_path.to_str().unwrap();
+    match get_secret_db(path, CentraleConfig::MASTER_PASSWORD) {
         Ok(db) => {
             init_db(&db);
             match start_server(db) {

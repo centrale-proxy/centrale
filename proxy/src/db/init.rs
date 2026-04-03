@@ -1,6 +1,6 @@
 use crate::{
     db::{
-        bearer::create_bearer_table, cookie::create_cookie_table,
+        bearer::create_bearer_table, cookie::create_cookie_table, get_db::get_encrypted_connection,
         subdomain::create_subdomain_table, subdomain_user::create_subdomain_user_table,
         user::create_user_table,
     },
@@ -10,7 +10,7 @@ use dir_and_db_pool::db::DbBool;
 
 pub fn init_db(pool: &DbBool) -> Result<(), CentraleError> {
     // USER TABLE
-    let db = pool.get()?;
+    let db = get_encrypted_connection(pool)?;
     // USER TABLE
     create_user_table(&db)?;
     // SUBDOMAIN
