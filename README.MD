@@ -246,3 +246,9 @@ mkcert *.localhost.com
 sudo certbot certonly --manual --preferred-challenges dns   -d "*.proompt.eu" -d "proompt.eu"
 
 sudo nano /etc/systemd/system/centrale.socket
+
+[Socket]
+ListenStream=443
+
+[Install]
+WantedBy=sockets.target

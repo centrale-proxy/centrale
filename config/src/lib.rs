@@ -32,3 +32,10 @@ impl CentraleConfig {
     pub const CERT_PRIVATE_KEY: &str = "test.localhost.com-key.pem";
     pub const CERT_PUB_KEY: &str = "test.localhost.com.pem";
 }
+
+/*
+pub const CERT_PRIVATE_KEY: &str =
+    "/Users/martin/yeah/centrale/proxy/test.localhost.com-key.pem";
+pub const CERT_PUB_KEY: &str = "/Users/martin/yeah/centrale/proxy/test.localhost.com.pem";
+
+ */
