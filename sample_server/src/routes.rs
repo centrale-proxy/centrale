@@ -7,4 +7,6 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .route(web::get().to(respond_hello))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
+
+    cfg.service(web::resource("/api/register_subdomain").route(web::get().to(respond_hello)));
 }

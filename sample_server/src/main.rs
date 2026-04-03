@@ -2,6 +2,7 @@ pub mod auth;
 pub mod db;
 pub mod error;
 pub mod hello;
+pub mod register;
 pub mod routes;
 pub mod server;
 

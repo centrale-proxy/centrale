@@ -2,10 +2,11 @@ use crate::error::SampleServerError;
 use actix_web::{HttpRequest, HttpResponse, web};
 use dir_and_db_pool::db::DbBool;
 
-pub fn process_hello(
+pub fn process_register(
     pool: web::Data<DbBool>,
     req: HttpRequest,
 ) -> Result<HttpResponse, SampleServerError> {
+    //
     //
     let subdomain_id = req
         .headers()
@@ -23,6 +24,8 @@ pub fn process_hello(
         .and_then(|v| v.to_str().ok());
 
     if customer_token.is_some() && subdomain_id.is_some() && customer_role.is_some() {
+        // TRY TO REGISTER DB
+        //
         let resp = HttpResponse::Ok()
             .json(serde_json::json!({ "subdomain_id": subdomain_id.unwrap().to_string(), "password": customer_token.unwrap().to_string(), "role": customer_role.unwrap().to_string() }));
         Ok(resp)
