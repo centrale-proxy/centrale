@@ -9,8 +9,12 @@ Enables same API with Cookie and Bearer token Authentication and TBD Authorizati
 
 2 user roles: admin and user 
 
-
-+ billing + log + Rate limit + remove malicious packets
++ authentication 
++ authorization 
++ billing
++ log 
++ Rate limit 
++ remove malicious packets
 
 # TBD
 // TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER

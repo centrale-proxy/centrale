@@ -17,9 +17,14 @@ pub fn process_hello(
         .get("centrale_password")
         .and_then(|v| v.to_str().ok());
 
+    let customer_role = req
+        .headers()
+        .get("centrale_role")
+        .and_then(|v| v.to_str().ok());
+
     if customer_token.is_some() && subdomain_id.is_some() {
         let resp = HttpResponse::Ok()
-            .json(serde_json::json!({ "subdomain_id": subdomain_id.unwrap().to_string(), "password": customer_token.unwrap().to_string() }));
+            .json(serde_json::json!({ "subdomain_id": subdomain_id.unwrap().to_string(), "password": customer_token.unwrap().to_string(), "role": customer_role.unwrap().to_string() }));
         Ok(resp)
     } else {
         Err(SampleServerError::StringError("Unauthorized".to_string()))

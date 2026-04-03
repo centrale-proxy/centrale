@@ -18,12 +18,16 @@ pub fn post_subdomain(
         return Err(CentraleError::SuchSubdomainExists);
     } else {
         let password = SaltString::generate(&mut OsRng);
-        // "INSERT INTO subdomain (subdomain, password, user_id, admin) VALUES (?1, ?2, ?3, ?4)",
         db.execute(
             "INSERT INTO subdomain (subdomain, password, user_id) VALUES (?1, ?2, ?3)",
             params![subdomain, password.as_str(), user_id],
         )?;
-        //let last_id = db.last_insert_rowid();
+
+        db.execute(
+            "INSERT INTO subdomain_user (subdomain, user_id, role) VALUES (?1, ?2, ?3)",
+            params![subdomain, password.as_str(), "admin".to_string()],
+        )?;
+        // TBD INSERT META
 
         Ok(subdomain.clone())
     }
