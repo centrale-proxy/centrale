@@ -21,10 +21,7 @@ pub fn add_user_to_db(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        db::{get_db::get_encrypted_connection, init::init_db},
-        user::post::hash_and_salt::hash_and_salt,
-    };
+    use crate::{db::init::init_db, user::post::hash_and_salt::hash_and_salt};
     use r2d2::Pool;
     use r2d2_sqlite::SqliteConnectionManager;
 
@@ -33,7 +30,7 @@ mod tests {
         let manager = SqliteConnectionManager::memory();
         let pool = Pool::new(manager).expect("Failed to create pool.");
         init_db(&pool).unwrap();
-        let db = get_encrypted_connection(&pool).unwrap();
+        let db = pool.get().expect("Couldn't get db connection from pool");
 
         let (hash, salt) = hash_and_salt(&"password".to_string()).unwrap();
         let user_id = add_user_to_db(&db, &"username".to_string(), &hash, salt.as_str()).unwrap();

@@ -1,5 +1,4 @@
 use crate::{
-    db::get_db::get_encrypted_connection,
     error::CentraleError,
     user::{
         cookie::save_cookie::save_cookie,
@@ -9,7 +8,8 @@ use crate::{
     },
 };
 use actix_web::{HttpResponse, web};
-use dir_and_db_pool::db::DbBool;
+use config::CentraleConfig;
+use dir_and_db_pool::db::{DbBool, get_encrypted_connection::get_encrypted_connection};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -26,7 +26,7 @@ pub fn handle_register(
     let register_request = json.into_inner();
     let username = register_request.username;
     let password = register_request.password;
-    let db = get_encrypted_connection(pool.get_ref())?;
+    let db = get_encrypted_connection(pool.get_ref(), CentraleConfig::MASTER_PASSWORD)?;
     // CREATE HASH AND SALT
     let (hash, salt) = hash_and_salt(&password)?;
     // SAVE USER TO DB

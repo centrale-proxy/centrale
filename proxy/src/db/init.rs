@@ -1,16 +1,17 @@
 use crate::{
     db::{
-        bearer::create_bearer_table, cookie::create_cookie_table, get_db::get_encrypted_connection,
+        bearer::create_bearer_table, cookie::create_cookie_table,
         subdomain::create_subdomain_table, subdomain_user::create_subdomain_user_table,
         user::create_user_table,
     },
     error::CentraleError,
 };
-use dir_and_db_pool::db::DbBool;
+use config::CentraleConfig;
+use dir_and_db_pool::db::{DbBool, get_encrypted_connection::get_encrypted_connection};
 
 pub fn init_db(pool: &DbBool) -> Result<(), CentraleError> {
     // USER TABLE
-    let db = get_encrypted_connection(pool)?;
+    let db = get_encrypted_connection(pool, CentraleConfig::MASTER_PASSWORD)?;
     // USER TABLE
     create_user_table(&db)?;
     // SUBDOMAIN

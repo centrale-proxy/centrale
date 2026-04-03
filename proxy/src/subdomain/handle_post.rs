@@ -1,6 +1,5 @@
 use crate::{
-    db::get_db::get_encrypted_connection, error::CentraleError, proxy::get_user_id::get_user_id,
-    subdomain::post::post_subdomain,
+    error::CentraleError, proxy::get_user_id::get_user_id, subdomain::post::post_subdomain,
 };
 use actix_http::Request;
 use actix_web::{
@@ -9,7 +8,8 @@ use actix_web::{
     http::header,
     web,
 };
-use dir_and_db_pool::db::DbBool;
+use config::CentraleConfig;
+use dir_and_db_pool::db::{DbBool, get_encrypted_connection::get_encrypted_connection};
 use log::error;
 use serde::Deserialize;
 use serde_json::Value;
@@ -27,7 +27,7 @@ pub fn handle_post(
     let subdomain = json.subdomain.clone();
     let headers = req.headers();
     let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
-    let db = get_encrypted_connection(pool.get_ref())?;
+    let db = get_encrypted_connection(pool.get_ref(), CentraleConfig::MASTER_PASSWORD)?;
 
     match post_subdomain(&db, &subdomain, user_id) {
         Ok(result) => {

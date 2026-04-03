@@ -1,4 +1,5 @@
 use actix_http::header::ToStrError;
+use dir_and_db_pool::error::DirsqlError;
 use r2d2::Error as R2d2Error;
 use r2d2_sqlite::rusqlite;
 use std::{error::Error as StdError, str::Utf8Error};
@@ -78,4 +79,7 @@ pub enum CentraleError {
 
     #[error("Proxy request error: {0}")]
     ReqwestError(#[from] reqwest::Error),
+
+    #[error("DirsqlError: {0}")]
+    DirsqlError(#[from] DirsqlError),
 }

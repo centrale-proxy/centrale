@@ -87,6 +87,7 @@ pub fn save_cookie(
 
 /// Creates 1 000 000 user + cookie entries to db. Salt is used ass cookie
 fn main() {
+    //
     let pool = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FILE).unwrap();
     let db = pool.get().expect("Couldn't get db connection from pool");
     // CREATE MILION ENTRIES
