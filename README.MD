@@ -86,6 +86,8 @@ Subdomain specific admin:
 PUT /api/make-user-admin - make user admin
 PUT /api/remove-user-admin - remove user admin
 
+GET /api/user/generate/air-token
+
 # LOCALHOST
 
 sudo nano /etc/hosts

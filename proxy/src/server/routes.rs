@@ -1,7 +1,10 @@
 use crate::{
     proxy::{handle_test::handle_test, wildcard::handle_wildcard},
     subdomain::respond_post::respond_subdomain,
-    user::{get::get::get_user, post::post::post_user},
+    user::{
+        air_token::generate_responder::generate_air_token, get::get::get_user,
+        post::post::post_user,
+    },
 };
 use actix_web::{HttpResponse, web};
 
@@ -10,6 +13,12 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::resource("/api/user")
             .route(web::post().to(post_user))
             .route(web::get().to(get_user))
+            .route(web::head().to(|| HttpResponse::Ok())),
+    );
+
+    cfg.service(
+        web::resource("/api/user/air/token")
+            .route(web::get().to(generate_air_token))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 

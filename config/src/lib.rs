@@ -23,6 +23,9 @@ impl CentraleConfig {
     pub const MASTER_BEARER_TOKEN: &str = "5zHNe7KE3XJvTmG1nDgOZ7kfA";
     // MASTER PASSWORD FOR LOCAL DB ENCRYPTION
     pub const MASTER_PASSWORD: &str = "oNnglBgHldsPbvkOgQt";
+    // WORKERS
     pub const PROXY_SERVER_WORKERS: usize = 4;
     pub const SAMPLE_SERVER_WORKERS: usize = 4;
+    // AIR TOKEN
+    pub const AIR_TOKEN_TIMEOUT: i64 = 60; //
 }

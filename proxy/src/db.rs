@@ -1,3 +1,4 @@
+pub mod air_token;
 pub mod bearer;
 pub mod cookie;
 pub mod db_error;
