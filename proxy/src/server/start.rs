@@ -12,6 +12,8 @@ use actix_governor::Governor;
 use actix_web::{App, HttpServer, web};
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+
 //
 #[actix_web::main]
 pub async fn start_server(db: DbBool) -> std::io::Result<()> {
@@ -23,6 +25,12 @@ pub async fn start_server(db: DbBool) -> std::io::Result<()> {
     let socket_1 = Arc::new(Mutex::new(socket));
 
     let addr: SocketAddr = CentraleConfig::WRITER_SERVER_ADDRESS.parse().unwrap();
+    // SSL
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+
+    builder.set_private_key_file("test.localhost.com-key.pem", SslFiletype::PEM)?;
+
+    builder.set_certificate_chain_file("test.localhost.com.pem")?;
 
     HttpServer::new(move || {
         App::new()
@@ -35,7 +43,8 @@ pub async fn start_server(db: DbBool) -> std::io::Result<()> {
             .app_data(web::Data::new(db.clone()))
     })
     .workers(CentraleConfig::PROXY_SERVER_WORKERS)
-    .bind(CentraleConfig::SERVER_ADDRESS)?
+    //.bind(CentraleConfig::SERVER_ADDRESS)?
+    .bind_openssl(CentraleConfig::SERVER_ADDRESS, builder)?
     .run()
     .await
 }

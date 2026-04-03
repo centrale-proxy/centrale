@@ -158,6 +158,7 @@ curl -H "Host: http://hello.wello.ee" http://localhost:8080
 curl -H "Host: http://hello.wello.ee" http://localhost:8080 -H "Authorization: Bearer _token"
 curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:8080
 
+
 //
 curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/user -vvv
 
@@ -189,6 +190,12 @@ oha -m POST -T "Content-Type: application/json" -d '{"username": "aaba", "passwo
 curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080/api/user/air/token -vvv
 // GET RESULT AND PASTE data.air_token AS air_token
 RUST_LOG=info ws --header="Host: ws://test.localhost.com" "ws://test.localhost.com:8080/air?air_token=GmCNE1jehmk/7g9zSX5OOQ"
+
+# WSS WEBSOCKET PROXY TEST:
+curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: test.localhost.com" --cacert /Users/martin/yeah/centrale/proxy/test.localhost.com.pem  https://test.localhost.com/api/user/air/token -vvv
+
+RUST_LOG=info ws --header="Host: wss://test.localhost.com" "wss://test.localhost.com/air?air_token=YY3i1zhlYuXubB/vZWSmYg" -k
+
 
 
 # FILES
