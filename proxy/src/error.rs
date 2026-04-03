@@ -39,6 +39,9 @@ pub enum CentraleError {
     #[error("Unable to parse URL")]
     UnableToParseUrl,
 
+    #[error("Invalid domain")]
+    InvalidDomain,
+
     #[error("Invalid subdomain")]
     InvalidSubdomain,
 

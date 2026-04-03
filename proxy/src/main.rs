@@ -20,7 +20,12 @@ fn main() {
     match get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER) {
         Ok(db) => {
             init_db(&db);
-            start_server(db);
+            match start_server(db) {
+                Ok(_) => {}
+                Err(err) => {
+                    eprintln!("server error {:?}", err);
+                }
+            }
         }
         Err(err) => {
             error!("DB error: {}", err);

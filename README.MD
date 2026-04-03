@@ -91,8 +91,7 @@ PUT /api/remove-user-admin - remove user admin
 sudo nano /etc/hosts
 
 127.0.0.1   subdomain.localhost.com
-127.0.0.1   another.subdomain.localhost.com
-
+127.0.0.1   test.localhost.com
 
 # Questions?
 // app.
@@ -165,7 +164,9 @@ curl -b "centrale=wL0BOcASdfFJsng/h5rlQQ" -H "Host: http://hello.wello.ee" http:
 
 curl -b "centrale=wL0BOcASdfFJsng/h5rlQQ" -H "Content-Type: application/json" -d '{"subdomain": "test"}'  http://localhost:8080/api/subdomain -vvv
 
-
+--
+curl -b "centrale=wL0BOcASdfFJsng/h5rlQQ" -H "Host: http://test.localhost.com" http://localhost:8080 -vvv
+curl -b "centrale=wL0BOcASdfFJsng/h5rlQQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080 -vvv
 
 # Oha
 
@@ -177,6 +178,8 @@ oha -n 1000000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ; Domain=su
 
 oha -n 1000000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ;"  http://subdomain.localhost.com:8080/api/user
 
+
+oha -n 1000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ;"  -H "Host: http://test.wello.ee"  http://test.localhost.com:8080
 
 
 ---
