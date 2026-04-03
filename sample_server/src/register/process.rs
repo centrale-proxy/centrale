@@ -1,4 +1,7 @@
-use crate::{db::get_subdomain_db, error::SampleServerError};
+use crate::{
+    db::{create_subdomain_db, get_subdomain_db},
+    error::SampleServerError,
+};
 use actix_web::{HttpRequest, HttpResponse, web};
 use dir_and_db_pool::db::DbBool;
 ///
@@ -27,8 +30,12 @@ pub fn process_register(
         // TRY TO REGISTER DB
         // GET CONNECDTION
         let conn = get_subdomain_db(&subdomain_id.unwrap(), &centrale_password.unwrap()).unwrap();
+        create_subdomain_db(&conn, centrale_password.unwrap()).unwrap();
 
         let c = conn.get().unwrap();
+        c.execute_batch(&format!("PRAGMA key = '{}';", &centrale_password.unwrap()))
+            .unwrap();
+
         // CREATE SUBDOMAIN DB
         c.execute_batch(&format!(
             "INSERT INTO {} (test) VALUES ('this is test value');",
