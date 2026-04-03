@@ -34,6 +34,7 @@ pub async fn start_server(db: DbBool) -> std::io::Result<()> {
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(db.clone()))
     })
+    .workers(CentraleConfig::PROXY_SERVER_WORKERS)
     .bind(CentraleConfig::SERVER_ADDRESS)?
     .run()
     .await

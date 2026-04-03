@@ -23,6 +23,7 @@ pub async fn start_server() -> Result<(), SampleServerError> {
             .wrap(from_fn(auth_master_bearer_token))
             .app_data(web::Data::new(registry.clone()))
     })
+    .workers(CentraleConfig::SAMPLE_SERVER_WORKERS)
     .bind(CentraleConfig::SAMPLE_SERVER_ADDRESS)?
     .run()
     .await?;
