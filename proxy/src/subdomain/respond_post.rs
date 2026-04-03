@@ -8,7 +8,7 @@ pub async fn respond_subdomain(
     json: web::Json<RegisterSubdomain>,
     req: HttpRequest,
 ) -> impl Responder {
-    match handle_post(pool, json, req) {
+    match handle_post(pool, json, req).await {
         Ok(result) => result,
         Err(err) => {
             error!("Add subdomain error: {}", err);

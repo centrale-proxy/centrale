@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     error::CentraleError, proxy::get_user_id::get_user_id, subdomain::post::post_subdomain,
 };
@@ -5,12 +7,12 @@ use actix_http::Request;
 use actix_web::{
     HttpRequest, HttpResponse,
     dev::{Service, ServiceResponse},
-    http::header,
     web,
 };
 use config::CentraleConfig;
 use dir_and_db_pool::db::{DbBool, get_encrypted_connection::get_encrypted_connection};
 use log::error;
+use reqwest::header;
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -19,23 +21,54 @@ pub struct RegisterSubdomain {
     pub subdomain: String,
 }
 
-pub fn handle_post(
+pub async fn handle_post(
     pool: web::Data<DbBool>,
-    json: web::Json<RegisterSubdomain>,
+    payload: web::Json<RegisterSubdomain>,
     req: HttpRequest,
 ) -> Result<HttpResponse, CentraleError> {
-    let subdomain = json.subdomain.clone();
+    let subdomain = payload.subdomain.clone();
     let headers = req.headers();
     let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
     let db = get_encrypted_connection(pool.get_ref(), CentraleConfig::MASTER_PASSWORD)?;
 
     match post_subdomain(&db, &subdomain, user_id) {
-        Ok(result) => {
+        Ok(password) => {
             // TBD SEND TO DESTINATION SERVER
-            //
-            let res = HttpResponse::Ok()
-                .json(serde_json::json!({ "subdomain": result, "user": user_id }));
-            Ok(res)
+            let client = reqwest::Client::new();
+            let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
+            let url = format!(
+                "http://{}/api/register_subdomain",
+                CentraleConfig::SAMPLE_SERVER_ADDRESS
+            );
+
+            let mut map = HashMap::new();
+            map.insert("hello", "hello");
+
+            let response = client
+                .post(&url)
+                .json(&map)
+                .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
+                .header("centrale_subdomain", format!("{}", subdomain))
+                .header("centrale_password", format!("{}", password))
+                .header("centrale_role", format!("{}", "admin"))
+                .send()
+                .await;
+
+            println!("response: {:?}", &response);
+
+            let res = response.unwrap();
+
+            let status = res.status();
+            println!("status: {}", status);
+
+            match status.as_u16() {
+                200 => {
+                    let res = HttpResponse::Ok()
+                        .json(serde_json::json!({ "subdomain": subdomain, "user": user_id }));
+                    Ok(res)
+                }
+                _ => Err(CentraleError::StringError("Wrong status".to_string())),
+            }
         }
         Err(err) => {
             error!("Add subdomain error handle: {}", err);
@@ -53,6 +86,8 @@ pub async fn _make_register_subdomain_request(
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
     cookie: &str,
 ) -> ServiceResponse {
+    use actix_web::http::header;
+
     let req = test::TestRequest::post()
         .uri("/api/subdomain")
         .insert_header(("Content-Type", "application/json"))

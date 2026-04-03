@@ -9,6 +9,7 @@ use std::sync::{Arc, RwLock};
 pub fn process_register(
     registry: web::Data<Arc<RwLock<DbPoolRegistry>>>,
     req: HttpRequest,
+    // BODY
 ) -> Result<HttpResponse, SampleServerError> {
     //
     //

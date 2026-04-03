@@ -5,6 +5,7 @@ use chrono::Utc;
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbConnection;
 use dir_and_db_pool::db::get_db::get_db;
+use dir_and_db_pool::db::get_encrypted_connection::get_encrypted_connection;
 use fake::faker::creditcard::en::CreditCardNumber;
 use fake::faker::internet::en::FreeEmail;
 use fake::faker::internet::en::{Password, Username};
@@ -88,8 +89,10 @@ pub fn save_cookie(
 /// Creates 1 000 000 user + cookie entries to db. Salt is used ass cookie
 fn main() {
     //
-    let pool = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FILE).unwrap();
-    let db = pool.get().expect("Couldn't get db connection from pool");
+    let pool = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
+    let db = get_encrypted_connection(&pool, CentraleConfig::MASTER_PASSWORD).unwrap();
+
+    //let db = pool.get().expect("Couldn't get db connection from pool");
     // CREATE MILION ENTRIES
     for i in 0..1000000 {
         let user = User::new_fake();
@@ -100,7 +103,8 @@ fn main() {
                 println!("{}", id)
             }
             Err(err) => {
-                eprintln!("err {}", err)
+                eprintln!("err {}", err);
+                break;
             }
         }
     }

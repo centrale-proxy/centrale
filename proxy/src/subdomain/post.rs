@@ -30,6 +30,6 @@ pub fn post_subdomain(
         )?;
         // TBD INSERT META
 
-        Ok(subdomain.clone())
+        Ok(password.to_string())
     }
 }

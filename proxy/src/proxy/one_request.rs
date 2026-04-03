@@ -17,6 +17,8 @@ pub async fn process_one_request(
     let headers = req.headers();
     let host = get_host(headers)?;
     let subdomain = get_subdomain(host)?;
+    // VALIDATE SUBDOMAIN
+    //
     // AUTHENTICATE
     let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
     // AUTHORIZE
