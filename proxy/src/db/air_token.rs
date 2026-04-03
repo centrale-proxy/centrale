@@ -15,7 +15,7 @@ pub fn create_air_token_table(
             FOREIGN KEY(user_id) REFERENCES user(id)
         );
 
-        CREATE INDEX IF NOT EXISTS air_token ON cookie (air_token);
+        CREATE INDEX IF NOT EXISTS air_token ON air_token (air_token);
 
         ",
     )?;

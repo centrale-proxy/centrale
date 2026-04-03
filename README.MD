@@ -169,6 +169,7 @@ curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Content-Type: application/json" -d
 --
 curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080 -vvv
 
+
 # Oha
 
 oha http://localhost:8080/api/user
@@ -203,6 +204,10 @@ RUST_LOG=info ws --header="Host: wss://test.localhost.com" "wss://test.localhost
 sqlite3 "/Users/martin/Library/Application Support/centrale/centrale.db"
 
 sqlcipher /Users/martin/Library/Application\ Support/centrale/subdomains/test
+
+sqlcipher /home/www/.local/share/centrale/centrale.db 
+
+PRAGMA key="aaaa";
 
 cd /Users/martin/Library/Application\ Support/centrale/
 
