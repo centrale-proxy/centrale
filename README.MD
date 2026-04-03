@@ -170,14 +170,14 @@ curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" h
 
 oha http://localhost:8080/api/user
 
-oha -n 1 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ; Domain=subdomain.localhost.com; Max-Age=86400"  http://subdomain.localhost.com:8080/api/user
+oha -n 1 --insecure -H "Cookie: centrale=Uun1VmI3TBu3EvW6lkaXlQ; Domain=subdomain.localhost.com; Max-Age=86400"  http://subdomain.localhost.com:8080/api/user
 
-oha -n 1000000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ; Domain=subdomain.localhost.com; Max-Age=86400"  http://subdomain.localhost.com:8080/api/user
+oha -n 1000000 --insecure -H "Cookie: centrale=Uun1VmI3TBu3EvW6lkaXlQ; Domain=subdomain.localhost.com; Max-Age=86400"  http://subdomain.localhost.com:8080/api/user
 
-oha -n 1000000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ;"  http://subdomain.localhost.com:8080/api/user
+oha -n 1000000 --insecure -H "Cookie: centrale=Uun1VmI3TBu3EvW6lkaXlQ;"  http://subdomain.localhost.com:8080/api/user
 
 
-oha -n 1000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ;"  -H "Host: http://test.localhost.com"  http://test.localhost.com:8080
+oha -n 1000 --insecure -H "Cookie: centrale=Uun1VmI3TBu3EvW6lkaXlQ;"  -H "Host: http://test.localhost.com"  http://test.localhost.com:8080
 
 
 ---
