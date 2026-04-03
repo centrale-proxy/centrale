@@ -185,6 +185,12 @@ oha -n 1000 --insecure -H "Cookie: centrale=Uun1VmI3TBu3EvW6lkaXlQ;"  -H "Host: 
 ---
 oha -m POST -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
 
+# WEBSOCKET PROXY TEST:
+curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080/api/user/air/token -vvv
+// GET RESULT AND PASTE data.air_token AS air_token
+RUST_LOG=info ws --header="Host: ws://test.localhost.com" "ws://test.localhost.com:8080/air?air_token=GmCNE1jehmk/7g9zSX5OOQ"
+
+
 # FILES
 
 sqlite3 "/Users/martin/Library/Application Support/centrale/centrale.db"

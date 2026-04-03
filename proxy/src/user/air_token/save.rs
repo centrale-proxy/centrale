@@ -6,11 +6,11 @@ use dir_and_db_pool::db::DbConnection;
 use r2d2_sqlite::rusqlite::params;
 use rand::rngs::OsRng;
 
-/// Add cookie to db
+/// Add air_token to db
 pub fn save_air_token(db: &DbConnection, user_id: i64) -> Result<String, CentraleError> {
-    // DELETE OLD COOKIE
+    // DELETE OLD AIR TOKEN
     db.execute("DELETE FROM air_token WHERE user_id = ?1", params![user_id])?;
-    // GENERATE COOKIE
+    // GENERATE AIR TOKEN
     let air_token = SaltString::generate(&mut OsRng);
     let air_token_str = air_token.as_str().to_string();
     // CALCULATE TIMEOUT
