@@ -1,4 +1,4 @@
-use crate::{error::SampleServerError, server::DbPoolRegistry};
+use crate::{error::SampleServerError, pool::DbPoolRegistry};
 use dir_and_db_pool::db::DbBool;
 use std::sync::{Arc, RwLock};
 

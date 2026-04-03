@@ -1,5 +1,6 @@
 use crate::{
-    error::SampleServerError, pool::get::get_or_create_from_registry, server::DbPoolRegistry,
+    error::SampleServerError,
+    pool::{DbPoolRegistry, get::get_or_create_from_registry},
 };
 use actix_web::{HttpRequest, HttpResponse, web};
 use rusqlite::params;

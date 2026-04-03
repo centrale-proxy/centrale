@@ -1,4 +1,4 @@
-use crate::{hello::process::process_hello, server::DbPoolRegistry};
+use crate::{hello::process::process_hello, pool::DbPoolRegistry};
 use actix_web::{HttpRequest, HttpResponse, Responder, web};
 use std::sync::{Arc, RwLock};
 
