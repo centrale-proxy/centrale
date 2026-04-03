@@ -169,6 +169,16 @@ curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Content-Type: application/json" -d
 --
 curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080 -vvv
 
+# curl prod
+//
+curl -X POST -H "Content-Type: application/json" -d '{"username": "ba", "password": "b"}' https://test.proompt.eu/api/user -vvv
+
+curl -b "centrale=nzAMcHw2k4R4zC0KXBug/A" https://test.proompt.eu/api/user
+
+curl -b "centrale=nzAMcHw2k4R4zC0KXBug/A" -H "Content-Type: application/json" -d '{"subdomain": "test5"}'  https://test.proompt.eu/api/subdomain -vvv
+
+curl -b "centrale=nzAMcHw2k4R4zC0KXBug/A" -H "Referer: https://test6.localhost.com" "https://test6.proompt.eu?air_token=f" -vvv
+
 
 # Oha
 
@@ -182,6 +192,9 @@ oha -n 1000000 --insecure -H "Cookie: centrale=Uun1VmI3TBu3EvW6lkaXlQ;"  http://
 
 
 oha -n 1000 --insecure -H "Cookie: centrale=Uun1VmI3TBu3EvW6lkaXlQ;"  -H "Host: http://test.localhost.com"  http://test.localhost.com:8080
+
+//
+oha -n 100 -H "Cookie: centrale=nzAMcHw2k4R4zC0KXBug/A;" -H "Referer: https://test6.localhost.com"  "https://test6.proompt.eu?air_token=f"
 
 
 ---
@@ -207,7 +220,7 @@ sqlcipher /Users/martin/Library/Application\ Support/centrale/subdomains/test
 
 sqlcipher /home/www/.local/share/centrale/centrale.db 
 
-PRAGMA key="aaaa";
+PRAGMA key="oNnglBgHldsPbvkOgQt";
 
 cd /Users/martin/Library/Application\ Support/centrale/
 
@@ -223,7 +236,7 @@ prettylongdomain.com
 
 Deploy:
 
-nano /etc/systemd/system/centrale.service
+sudo nano /etc/systemd/system/centrale.service
 
 [Unit]
 Description=Centrale  Proy
@@ -241,8 +254,8 @@ WantedBy=multi-user.target
 sudo systemctl enable centrale
 sudo systemctl start centrale
 
-journalctl -u centrale.service
-journalctl -u centrale.service -f
+sudo journalctl -u centrale.service
+sudo journalctl -u centrale.service -f
 
 # CERT locally
 mkcert *.localhost.com
