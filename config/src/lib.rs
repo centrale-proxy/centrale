@@ -28,4 +28,7 @@ impl CentraleConfig {
     pub const SAMPLE_SERVER_WORKERS: usize = 4;
     // AIR TOKEN
     pub const AIR_TOKEN_TIMEOUT: i64 = 60; //
+    // CERT
+    pub const CERT_PRIVATE_KEY: &str = "test.localhost.com-key.pem";
+    pub const CERT_PUB_KEY: &str = "test.localhost.com.pem";
 }

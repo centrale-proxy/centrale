@@ -214,3 +214,33 @@ cd /Users/martin/Library/Application\ Support/centrale/
 
 Subdomainer.com
 prettylongdomain.com
+
+
+Deploy:
+
+nano /etc/systemd/system/centrale.service
+
+[Unit]
+Description=Centrale  Proy
+After=network.target
+
+[Service]
+User=www       
+ExecStart=/home/www/centrale/target/release/proxy
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
+sudo systemctl enable centrale
+sudo systemctl start centrale
+
+journalctl -u centrale.service
+journalctl -u centrale.service -f
+
+# CERT locally
+mkcert *.localhost.com
+
+# CERT prod
+sudo certbot certonly --manual --preferred-challenges dns   -d "*.proompt.eu" -d "proompt.eu"
