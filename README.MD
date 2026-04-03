@@ -244,3 +244,5 @@ mkcert *.localhost.com
 
 # CERT prod
 sudo certbot certonly --manual --preferred-challenges dns   -d "*.proompt.eu" -d "proompt.eu"
+
+sudo nano /etc/systemd/system/centrale.socket
