@@ -10,6 +10,7 @@ pub fn post_subdomain(
     user_id: i64,
 ) -> Result<String, CentraleError> {
     //
+    //
     let mut stmt = db.prepare(&"SELECT COUNT(*) FROM subdomain WHERE subdomain = ?1")?;
     let count: i64 = stmt.query_row(params![subdomain], |row| row.get(0))?;
 
