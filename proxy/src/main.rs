@@ -20,15 +20,17 @@ fn main() {
     let file_path = db_file(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
     let path = file_path.to_str().unwrap();
     match get_secret_db(path, CentraleConfig::MASTER_PASSWORD) {
-        Ok(db) => {
-            init_db(&db);
-            match start_server(db) {
+        Ok(db) => match init_db(&db) {
+            Ok(_) => match start_server(db) {
                 Ok(_) => {}
                 Err(err) => {
                     eprintln!("server error {:?}", err);
                 }
+            },
+            Err(err) => {
+                eprintln!("db error {:?}", err);
             }
-        }
+        },
         Err(err) => {
             error!("DB error: {}", err);
             serve_db_error();
