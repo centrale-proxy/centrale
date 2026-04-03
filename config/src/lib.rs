@@ -19,4 +19,6 @@ impl CentraleConfig {
     pub const WRITER_BUFFER_SIZE: usize = 1024;
     // SAMPLE SERVER
     pub const SAMPLE_SERVER_ADDRESS: &str = "127.0.0.1:8000";
+    // MASTER KEY BETWEEN PROXY AND NODES
+    pub const MASTER_BEARER_TOKEN: &str = "TEST";
 }

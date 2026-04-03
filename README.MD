@@ -178,14 +178,16 @@ oha -n 1000000 --insecure -H "Cookie: centrale=wL0BOcASdfFJsng/h5rlQQ;"  http://
 ---
 oha -m POST -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
 
-
-
-
 # FILES
 
 sqlite3 "/Users/martin/Library/Application Support/centrale/centrale.db"
 
 cd /Users/martin/Library/Application\ Support/centrale/
+
+# PROBLEMS:
++ How to get subdomain to sample server
++ basic HTML to login... should be in "app".
++ how does "app" work? How should it be called?
 
 
 Subdomainer.com

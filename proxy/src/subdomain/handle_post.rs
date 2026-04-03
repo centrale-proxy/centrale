@@ -30,6 +30,7 @@ pub fn handle_post(
 
     match post_subdomain(&db, &subdomain, user_id) {
         Ok(result) => {
+            // TBD SEND TO DESTINATION SERVER
             let res = HttpResponse::Ok()
                 .json(serde_json::json!({ "subdomain": result, "user": user_id }));
             Ok(res)

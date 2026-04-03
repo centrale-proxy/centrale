@@ -5,7 +5,9 @@ use crate::{
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
+use reqwest::header;
 
 /// Process one wildcard request
 pub async fn process_one_request(
@@ -26,9 +28,10 @@ pub async fn process_one_request(
     let pass = get_subdomain_pass(&pool, &subdomain)?;
 
     let client = reqwest::Client::new();
+    let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
     let response = client
         .get(&url)
-        //.header(header::AUTHORIZATION, format!("Bearer {}", token))
+        .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
         .header("centrale_subdomain", format!("{}", subdomain))
         .header("centrale_password", format!("{}", pass))
         .send()

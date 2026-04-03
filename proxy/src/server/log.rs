@@ -28,7 +28,7 @@ where
         if let Ok(stream) = socket.lock() {
             match stream.send_to(&uu, addr) {
                 Ok(_) => {
-                    println!("sent");
+                    // println!("sent");
                 }
                 Err(err) => {
                     eprintln!("Unable to write to stream: {}", err);
