@@ -6,12 +6,16 @@ use tokio_tungstenite::tungstenite::Message as TungMessage;
 
 const UPSTREAM: &str = "ws://localhost:11111/air";
 
-pub async fn ws_proxy(req: HttpRequest, stream: web::Payload) -> actix_web::Result<HttpResponse> {
+pub async fn ws_proxy(
+    req: HttpRequest,
+    stream: web::Payload,
+    url: String,
+) -> actix_web::Result<HttpResponse> {
     // 1. Upgrade the client connection
-    let (response, mut client_session, mut client_stream) = actix_ws::handle(&req, stream)?;
+    let (response, client_session, mut client_stream) = actix_ws::handle(&req, stream)?;
 
     // 2. Connect to the upstream WebSocket server
-    let (upstream_ws, _) = connect_async(UPSTREAM)
+    let (upstream_ws, _) = connect_async(url)
         .await
         .map_err(|e| actix_web::error::ErrorBadGateway(e))?;
 

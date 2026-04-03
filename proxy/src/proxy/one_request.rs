@@ -2,8 +2,10 @@ use crate::{
     error::CentraleError,
     proxy::{
         authenticate_and_authorize::authenticate_and_authorize, is_ws::is_streaming_request,
-        proxy_ws::ws_proxy,
+        proxy_ws::ws_proxy, wildcard::QueryParams,
+        ws_authenticate_and_authorize::ws_authenticate_and_authorize,
     },
+    user::air_token::find_user_by_air_token::find_user_by_air_token,
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
@@ -16,9 +18,15 @@ pub async fn process_one_request(
     pool: web::Data<DbBool>,
     req: HttpRequest,
     stream: web::Payload,
+    query: web::Query<QueryParams>,
 ) -> Result<HttpResponse, CentraleError> {
     if is_streaming_request(&req) {
-        let socket = ws_proxy(req, stream).await?;
+        // let air_token = query.air_token.clone();
+
+        let (_user_id, _subdomain, _subdomain_user_role, _pass, url) =
+            ws_authenticate_and_authorize(pool, &req, query)?;
+
+        let socket = ws_proxy(req, stream, url).await?;
         Ok(socket)
     } else {
         let (_user_id, subdomain, subdomain_user_role, pass, url) =

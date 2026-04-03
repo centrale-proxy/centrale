@@ -7,10 +7,10 @@ use r2d2_sqlite::{SqliteConnectionManager, rusqlite::params};
 
 pub fn find_user_by_air_token(
     pool: &Data<Pool<SqliteConnectionManager>>,
-    cookie: &String,
+    air_token: &String,
 ) -> Result<i64, CentraleError> {
     let db = get_encrypted_connection(pool.get_ref(), CentraleConfig::MASTER_PASSWORD)?;
-    let mut stmt = db.prepare(&"SELECT user_id FROM cookie WHERE cookie = ?1")?;
-    let user_id: i64 = stmt.query_row(params![cookie], |row| row.get(0))?;
+    let mut stmt = db.prepare(&"SELECT user_id FROM air_token WHERE air_token = ?1")?;
+    let user_id: i64 = stmt.query_row(params![air_token], |row| row.get(0))?;
     Ok(user_id)
 }

@@ -8,4 +8,6 @@ pub mod is_ws;
 pub mod one_request;
 pub mod proxy_ws;
 pub mod subdomain;
+pub mod subdomain_string;
 pub mod wildcard;
+pub mod ws_authenticate_and_authorize;
