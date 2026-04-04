@@ -7,7 +7,7 @@ impl CentraleConfig {
     pub const DB_FILE: &str = "centrale.db";
     pub const DOMAIN: &str = "myapp.local";
     pub const COOKIE_TIMEOUT: i64 = 86400; // 60 * 60 * 24
-    pub const COOKIE_SECURE: bool = false;
+    pub const COOKIE_SECURE: bool = true;
     pub const COOKIE_HTTP_ONLY: bool = false;
     // RATE LIMITER
     /// How many requests are allowed to pipeline in total per one IP
