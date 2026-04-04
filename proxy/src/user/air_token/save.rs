@@ -13,7 +13,12 @@ pub fn save_air_token(db: &DbConnection, user_id: i64) -> Result<String, Central
     // GENERATE AIR TOKEN
     //let air_token = SaltString::generate(&mut OsRng);
     let air_token_1 = random_numbers_32();
-    let air_token_str = format!("{:?}", air_token_1);
+    let air_token_str = air_token_1
+        .iter()
+        .map(|n| n.to_string())
+        .collect::<Vec<String>>()
+        .join(" ");
+    //let air_token_str = format!("{:?}", air_token_1);
     // CALCULATE TIMEOUT
     let now = Utc::now();
     let current_unix_epoch = now.timestamp();
