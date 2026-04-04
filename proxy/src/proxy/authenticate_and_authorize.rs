@@ -4,6 +4,7 @@ use crate::{
     subdomain::{get::get_subdomain_pass, get_subdomain_user::get_subdomain_user_role},
 };
 use actix_web::{HttpRequest, web};
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
 ///
 pub fn authenticate_and_authorize(
@@ -22,7 +23,7 @@ pub fn authenticate_and_authorize(
     let pass = get_subdomain_pass(&pool, &subdomain)?;
     // PREPARE TO PROXY
     let path = req.path().to_string();
-    let domain = format!("http://localhost:8000");
+    let domain = format!("{}", CentraleConfig::SAMPLE_SERVER_ADDRESS);
     let url = format!("{}{}", domain, path);
 
     Ok((user_id, subdomain, subdomain_user_role, pass, url))

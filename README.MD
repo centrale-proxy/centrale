@@ -212,6 +212,12 @@ curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: test.localhost.com" --cacert
 RUST_LOG=info ws --header="Host: wss://test.localhost.com" "wss://test.localhost.com/air?air_token=YY3i1zhlYuXubB/vZWSmYg" -k
 
 
+# WSS WEBSOCKET PROXY TEST PROD:
+curl -b "centrale=nzAMcHw2k4R4zC0KXBug/A" -H "Host: test.proompt.eu" https://test.proompt.eu/api/user/air/token -vvv
+
+RUST_LOG=info ws --header="Host: wss://test6.proompt.eu" "wss://test6.proompt.eu/air?air_token=kRkVKpRtcWgqATJw1+53fA" -k
+
+
 
 # FILES
 
@@ -252,11 +258,17 @@ Restart=on-failure
 WantedBy=multi-user.target
 
 
+---
 sudo systemctl enable centrale
 sudo systemctl start centrale
 
 sudo journalctl -u centrale.service
 sudo journalctl -u centrale.service -f
+
+
+sudo systemctl enable sample_server
+sudo systemctl start sample_server
+
 
 # CERT locally
 mkcert *.localhost.com
