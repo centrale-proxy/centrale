@@ -4,29 +4,29 @@ use actix_web::{dev::ServiceResponse, http::header::HeaderValue};
 use config::CentraleConfig;
 use url::Url;
 
-pub fn get_subdomain(input_url: &HeaderValue) -> Result<String, CentraleError> {
-    if let Ok(url) = input_url.to_str() {
-        let parsed_url = Url::parse(url)?;
-        let host = parsed_url.host_str();
-        match host {
-            Some(host) => {
-                let parts: Vec<&str> = host.split('.').collect();
-                if parts.len() == 3 {
-                    let domain = format!("{}.{}", parts[1], parts[2]);
-                    if domain == CentraleConfig::DOMAIN {
-                        Ok(parts[0].to_string())
-                    } else {
-                        Err(CentraleError::InvalidDomain)
-                    }
+pub fn get_subdomain(url: &str) -> Result<String, CentraleError> {
+    //if let Ok(url) = input_url.to_str() {
+    let parsed_url = Url::parse(url)?;
+    let host = parsed_url.host_str();
+    match host {
+        Some(host) => {
+            let parts: Vec<&str> = host.split('.').collect();
+            if parts.len() == 3 {
+                let domain = format!("{}.{}", parts[1], parts[2]);
+                if domain == CentraleConfig::DOMAIN {
+                    Ok(parts[0].to_string())
                 } else {
-                    Err(CentraleError::InvalidSubdomain)
+                    Err(CentraleError::InvalidDomain)
                 }
+            } else {
+                Err(CentraleError::InvalidSubdomain)
             }
-            None => Err(CentraleError::MissingHost),
         }
-    } else {
-        Err(CentraleError::UnableToParseUrl)
+        None => Err(CentraleError::MissingHost),
     }
+    //} else {
+    //Err(CentraleError::UnableToParseUrl)
+    //}
 }
 
 #[actix_rt::test]

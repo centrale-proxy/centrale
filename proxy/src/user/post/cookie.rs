@@ -1,7 +1,7 @@
-use crate::{ error::CentraleError};
+use crate::error::CentraleError;
 use actix_web::{
     HttpResponse,
-    cookie::{Cookie, time::Duration},
+    cookie::{Cookie, SameSite, time::Duration},
 };
 use config::CentraleConfig;
 
@@ -16,7 +16,9 @@ pub fn create_and_set_cookie(
         .max_age(Duration::new(CentraleConfig::COOKIE_TIMEOUT, 0))
         .secure(CentraleConfig::COOKIE_SECURE) // Only send over HTTPS
         .http_only(CentraleConfig::COOKIE_HTTP_ONLY) // Not accessible via JavaScript
-        // .path("/")
+        .same_site(SameSite::Lax)
+        // Set-Cookie: centrale=...; Domain=localhost.com; Max-Age=86400; SameSite=None; Secure
+        .path("/")
         .finish();
     // ADD COOKIE
     let resp = HttpResponse::Ok()

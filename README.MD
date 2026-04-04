@@ -15,6 +15,7 @@ Enables same API with Cookie and Bearer token Authentication and TBD Authorizati
 + log 
 + Rate limit 
 + remove malicious packets
++ https cert
 
 # TBD
 // TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
@@ -161,14 +162,14 @@ curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:808
 
 //
 
-curl -X POST -H "Content-Type: application/json" -d '{"username": "a1", "password": "b"}' https://test.localhost.com/api/user -vvv
+curl -X POST -H "Content-Type: application/json" -d '{"username": "a1", "password": "b"}' https://test.myapp.local/api/user -vvv
 
-curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Referer: https://test.localhost.com" https://test.localhost.com/api/user
+curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: https://test.localhost.com" https://test.myapp.local/api/user
 
-curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Content-Type: application/json" -d '{"subdomain": "test2"}' https://test.localhost.com/api/subdomain -vvv
+curl -b "centrale=IKboPW7U/954kWDVwHUl5w" -H "Content-Type: application/json" -d '{"subdomain": "test"}' https://test.myapp.local/api/subdomain -vvv
 
 --
-curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Referer: http://test.localhost.com" https://test.localhost.com -vvv
+curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: http://test.localhost.com" https://test.localhost.com -vvv
 
 # curl prod
 //
@@ -272,6 +273,7 @@ sudo systemctl start sample_server
 
 # CERT locally
 mkcert *.localhost.com
+mkcert "*.myapp.local"
 
 # CERT prod
 sudo certbot certonly --manual --preferred-challenges dns   -d "*.proompt.eu" -d "proompt.eu"
@@ -283,3 +285,27 @@ ListenStream=443
 
 [Install]
 WantedBy=sockets.target
+
+
+# BRowser
+
+fetch("https://test.myapp.local/api/user", {
+  method: "POST",
+  credentials: "include",         
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "martin", password: "hello" }),
+
+})
+  .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
+  .then(console.log)
+  .catch(console.error);
+
+
+fetch("https://test.myapp.local/api/subdomain", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ subdomain: "test" })
+})
+  .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
+  .then(console.log)
+  .catch(console.error);

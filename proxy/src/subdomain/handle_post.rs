@@ -28,22 +28,28 @@ pub async fn handle_post(
 ) -> Result<HttpResponse, CentraleError> {
     let subdomain = payload.subdomain.clone();
     let headers = req.headers();
+    let cookie = req.cookie("centrale");
+    println!("cookie {:?}", cookie);
+    println!("headers {:?}", headers);
     let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
+    println!("user id {}", user_id);
     let db = get_encrypted_connection(pool.get_ref(), CentraleConfig::MASTER_PASSWORD)?;
 
     match post_subdomain(&db, &subdomain, user_id) {
         Ok(password) => {
+            println!("password {}", password);
+
             // TBD SEND TO DESTINATION SERVER
             let client = reqwest::Client::new();
             let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
             let url = format!(
-                "http://{}/api/register_subdomain",
+                "{}/api/register_subdomain",
                 CentraleConfig::SAMPLE_SERVER_ADDRESS
             );
 
             let mut map = HashMap::new();
             map.insert("hello", "hello");
-
+            println!("url {}", &url);
             let response = client
                 .post(&url)
                 .json(&map)

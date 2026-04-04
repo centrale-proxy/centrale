@@ -12,10 +12,10 @@ pub fn ws_authenticate_and_authorize(
     req: &HttpRequest,
     query: web::Query<QueryParams>,
 ) -> Result<(i64, String, String, String, String), CentraleError> {
-    let headers = req.headers();
-    let host = get_host(headers)?;
+    //let headers = req.headers();
+    let host = get_host(req)?;
     // VALIDATE SUBDOMAIN
-    let full_url = format!("https://{}", host.to_str()?);
+    let full_url = format!("https://{}", host);
     let subdomain = get_subdomain_string(&full_url)?;
 
     let air_token = match &query.air_token {

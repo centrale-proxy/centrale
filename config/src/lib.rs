@@ -5,7 +5,7 @@ impl CentraleConfig {
     pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
-    pub const DOMAIN: &str = "localhost.com";
+    pub const DOMAIN: &str = "myapp.local";
     pub const COOKIE_TIMEOUT: i64 = 86400; // 60 * 60 * 24
     pub const COOKIE_SECURE: bool = false;
     pub const COOKIE_HTTP_ONLY: bool = false;
@@ -29,8 +29,10 @@ impl CentraleConfig {
     // AIR TOKEN
     pub const AIR_TOKEN_TIMEOUT: i64 = 60; //
     // CERT
-    pub const CERT_PRIVATE_KEY: &str = "test.localhost.com-key.pem";
-    pub const CERT_PUB_KEY: &str = "test.localhost.com.pem";
+    pub const CERT_PRIVATE_KEY: &str =
+        "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.myapp.local-key.pem"; //"test.localhost.com-key.pem";
+    pub const CERT_PUB_KEY: &str =
+        "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.myapp.local.pem"; //"test.localhost.com.pem";
 }
 
 /*
