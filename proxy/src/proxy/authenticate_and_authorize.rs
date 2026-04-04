@@ -9,7 +9,7 @@ use dir_and_db_pool::db::DbBool;
 ///
 pub fn authenticate_and_authorize(
     pool: web::Data<DbBool>,
-    req: HttpRequest,
+    req: &HttpRequest,
 ) -> Result<(i64, String, String, String, String), CentraleError> {
     println!("req {:?}", &req);
 

@@ -1,8 +1,10 @@
 use actix_web::{App, HttpRequest, HttpResponse, HttpServer, web};
 use actix_ws::Message;
 use futures_util::{SinkExt, StreamExt};
+use reqwest::header::HeaderName;
 use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Message as TungMessage;
+use tokio_tungstenite::tungstenite::client::IntoClientRequest;
 
 const UPSTREAM: &str = "ws://localhost:11111/air";
 
@@ -10,12 +12,36 @@ pub async fn ws_proxy(
     req: HttpRequest,
     stream: web::Payload,
     url: String,
+    subdomain: String,
+    pass: String,
+    role: String,
 ) -> actix_web::Result<HttpResponse> {
     // 1. Upgrade the client connection
     let (response, client_session, mut client_stream) = actix_ws::handle(&req, stream)?;
 
+    let mut upstream_req = url
+        .into_client_request()
+        .map_err(|e| actix_web::error::ErrorBadGateway(e))?;
+
+    let headers = upstream_req.headers_mut();
+
+    headers.insert(
+        HeaderName::from_static("centrale_subdomain"),
+        subdomain.parse().unwrap(),
+    );
+
+    headers.insert(
+        HeaderName::from_static("centrale_password"),
+        pass.parse().unwrap(),
+    );
+
+    headers.insert(
+        HeaderName::from_static("centrale_role"),
+        role.parse().unwrap(),
+    );
+
     // 2. Connect to the upstream WebSocket server
-    let (upstream_ws, _) = connect_async(url)
+    let (upstream_ws, _) = connect_async(upstream_req)
         .await
         .map_err(|e| actix_web::error::ErrorBadGateway(e))?;
 

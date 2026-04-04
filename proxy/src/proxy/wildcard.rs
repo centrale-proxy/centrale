@@ -15,6 +15,7 @@ pub async fn handle_wildcard(
     req: HttpRequest,
     stream: web::Payload,
     query: web::Query<QueryParams>,
+    //  payload: web::Json<Value>,
 ) -> impl Responder {
     match process_one_request(pool, req, stream, query).await {
         Ok(result) => result,
@@ -83,7 +84,7 @@ pub fn _create_wildcard_request_with_referer(cookie: String, referer: &str) -> R
 
 use actix_web::test;
 //use serde_json::Value;
-use serde_json::json;
+use serde_json::{Value, json};
 
 pub fn _user_create_request() -> Request {
     let payload = json!({
