@@ -17,7 +17,7 @@ pub fn save_air_token(db: &DbConnection, user_id: i64) -> Result<String, Central
         .iter()
         .map(|n| n.to_string())
         .collect::<Vec<String>>()
-        .join(" ");
+        .join("");
     //let air_token_str = format!("{:?}", air_token_1);
     // CALCULATE TIMEOUT
     let now = Utc::now();
