@@ -1,9 +1,6 @@
 use crate::{
     error::CentraleError,
-    proxy::{
-        host::get_host, subdomain::get_subdomain, subdomain_string::get_subdomain_string,
-        wildcard::QueryParams,
-    },
+    proxy::{host::get_host, subdomain_string::get_subdomain_string, wildcard::QueryParams},
     subdomain::{get::get_subdomain_pass, get_subdomain_user::get_subdomain_user_role},
     user::air_token::find_user_by_air_token::find_user_by_air_token,
 };
@@ -18,10 +15,15 @@ pub fn ws_authenticate_and_authorize(
     let headers = req.headers();
     let host = get_host(headers)?;
     // VALIDATE SUBDOMAIN
-    let uuu = format!("http://{}", host.to_str()?);
-    let subdomain = get_subdomain_string(&uuu)?;
+    let full_url = format!("https://{}", host.to_str()?);
+    let subdomain = get_subdomain_string(&full_url)?;
+
+    let air_token = match &query.air_token {
+        Some(air_token) => air_token,
+        None => return Err(CentraleError::NoAirToken),
+    };
     // AUTHENTICATE VIA AIR TOKEN
-    let user_id = find_user_by_air_token(&pool, &query.air_token)?;
+    let user_id = find_user_by_air_token(&pool, &air_token)?;
     // AUTHORIZE
     let subdomain_user_role = get_subdomain_user_role(&pool, &subdomain, user_id)?;
     // GET PASS

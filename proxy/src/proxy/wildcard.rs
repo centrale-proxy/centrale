@@ -6,7 +6,7 @@ use serde_derive::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct QueryParams {
-    pub air_token: String,
+    pub air_token: Option<String>,
 }
 
 /// HANDLES ALL WILDCARD REQUESTS

@@ -160,14 +160,15 @@ curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:808
 
 
 //
-curl -X POST -H "Content-Type: application/json" -d '{"username": "a", "password": "b"}' http://localhost:8080/api/user -vvv
 
-curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://hello.localhost.com" http://localhost:8080/api/user
+curl -X POST -H "Content-Type: application/json" -d '{"username": "a1", "password": "b"}' https://test.localhost.com/api/user -vvv
 
-curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Content-Type: application/json" -d '{"subdomain": "test"}'  http://localhost:8080/api/subdomain -vvv
+curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Referer: https://test.localhost.com" https://test.localhost.com/api/user
+
+curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Content-Type: application/json" -d '{"subdomain": "test2"}' https://test.localhost.com/api/subdomain -vvv
 
 --
-curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080 -vvv
+curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Referer: http://test.localhost.com" https://test.localhost.com -vvv
 
 # curl prod
 //

@@ -58,6 +58,9 @@ pub enum CentraleError {
     #[error("Air token expired")]
     AirTokenExpired,
 
+    #[error("No air token")]
+    NoAirToken,
+
     #[error("Database error: {0}")]
     DatabaseError(#[from] rusqlite::Error),
 

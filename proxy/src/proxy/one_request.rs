@@ -5,7 +5,6 @@ use crate::{
         proxy_ws::ws_proxy, wildcard::QueryParams,
         ws_authenticate_and_authorize::ws_authenticate_and_authorize,
     },
-    user::air_token::find_user_by_air_token::find_user_by_air_token,
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
@@ -21,17 +20,16 @@ pub async fn process_one_request(
     query: web::Query<QueryParams>,
 ) -> Result<HttpResponse, CentraleError> {
     if is_streaming_request(&req) {
-        // let air_token = query.air_token.clone();
-
+        // IS STEAM
         let (_user_id, _subdomain, _subdomain_user_role, _pass, url) =
             ws_authenticate_and_authorize(pool, &req, query)?;
 
         let socket = ws_proxy(req, stream, url).await?;
         Ok(socket)
     } else {
+        // IS NORMAL
         let (_user_id, subdomain, subdomain_user_role, pass, url) =
             authenticate_and_authorize(pool, req)?;
-
         // PROXY
         let client = reqwest::Client::new();
         let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
