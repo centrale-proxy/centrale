@@ -23,6 +23,6 @@ async fn api_test_ok() {
     let req = test::TestRequest::get().uri("/api/test").to_request();
 
     let resp = test::call_service(&app, req).await;
-    println!("resp {:?}", resp);
+    //println!("resp {:?}", resp);
     assert!(resp.status().is_success());
 }

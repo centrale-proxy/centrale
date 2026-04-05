@@ -198,6 +198,7 @@ oha -n 1000 --insecure -H "Cookie: centrale=Uun1VmI3TBu3EvW6lkaXlQ;"  -H "Host: 
 //
 oha -n 100 -H "Cookie: centrale=nzAMcHw2k4R4zC0KXBug/A;" -H "Referer: https://test6.localhost.com"  "https://test6.proompt.eu?air_token=f"
 
+oha -n 100 -H "Cookie: centrale=GJR6D4B697qj67AjdJNRFw_;" https://test.proompt.eu/api/user
 
 ---
 oha -m POST -T "Content-Type: application/json" -d '{"username": "aaba", "password": "b"}' http://localhost:8080/api/user
@@ -327,7 +328,7 @@ fetch("https://test.proompt.eu/api/user", {
 fetch("https://test.proompt.eu/api/subdomain", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ subdomain: "clay" })
+  body: JSON.stringify({ subdomain: "claya" })
 })
   .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
   .then(console.log)

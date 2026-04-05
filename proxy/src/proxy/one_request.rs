@@ -37,7 +37,7 @@ pub async fn process_one_request(
         let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
         //let method = req.method();
         let method = Method::from_str(req.method().as_str()).unwrap();
-        println!("method: {:?}", method);
+        //println!("method: {:?}", method);
         let mut request = client
             .request(method.clone(), url)
             .header(header::AUTHORIZATION, format!("Bearer {}", master_token))

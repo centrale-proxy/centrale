@@ -11,11 +11,11 @@ pub fn authenticate_and_authorize(
     pool: web::Data<DbBool>,
     req: &HttpRequest,
 ) -> Result<(i64, String, String, String, String), CentraleError> {
-    println!("req {:?}", &req);
+    //println!("req {:?}", &req);
 
     let headers = req.headers();
     let host = get_host(&req)?;
-    println!("host {:?}", &host);
+    //println!("host {:?}", &host);
 
     // VALIDATE SUBDOMAIN
     let subdomain = get_subdomain(&host)?;

@@ -44,7 +44,7 @@ pub async fn _make_request_with_cookie_to_wildcard(
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
     cookie: &str,
 ) -> ServiceResponse {
-    println!("cookie {:?}", &cookie);
+    //println!("cookie {:?}", &cookie);
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header((header::COOKIE, cookie))
@@ -152,7 +152,7 @@ async fn million_users() {
         let cookie_header = resp.headers().get("set-cookie").unwrap();
         let cookie = cookie_header.to_str().unwrap();
         last_cookie = cookie.to_string();
-        println!("{:?}", last_cookie);
+        // println!("{:?}", last_cookie);
         // let auth_resp = _make_request_with_cookie(&app, cookie).await;
         // assert!(auth_resp.status().is_success());
     }

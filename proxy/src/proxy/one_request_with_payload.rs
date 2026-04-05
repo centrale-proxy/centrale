@@ -23,7 +23,7 @@ pub async fn process_one_request_with_payload(
     query: web::Query<QueryParams>,
     body: web::Bytes,
 ) -> Result<HttpResponse, CentraleError> {
-    println!("body {:?}", &body);
+    //println!("body {:?}", &body);
     // IS NORMAL
     let (_user_id, subdomain, subdomain_user_role, pass, url) =
         authenticate_and_authorize(pool, &req)?;
@@ -32,7 +32,7 @@ pub async fn process_one_request_with_payload(
     let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
     //let method = req.method();
     let method = Method::from_str(req.method().as_str()).unwrap();
-    println!("method: {:?}", method);
+    //println!("method: {:?}", method);
     let mut request = client
         .request(method.clone(), url)
         .header(header::AUTHORIZATION, format!("Bearer {}", master_token))

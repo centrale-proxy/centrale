@@ -59,8 +59,8 @@ async fn test_empty_host_header() {
 
     let req = test::TestRequest::get().uri("/").to_request();
     let resp = test::call_service(&app, req).await;
-    println!("{:?}", &resp.status());
-    println!("{:?}", &resp);
+    //println!("{:?}", &resp.status());
+    //println!("{:?}", &resp);
     assert!(resp.status().is_client_error());
 }
 

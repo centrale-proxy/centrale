@@ -13,7 +13,7 @@ pub async fn handle_wildcard_with_payload(
     query: web::Query<QueryParams>,
     body: web::Bytes,
 ) -> impl Responder {
-    println!("payload 1 {:?}", &body);
+    // println!("payload 1 {:?}", &body);
 
     match process_one_request_with_payload(pool, req, query, body).await {
         Ok(result) => result,

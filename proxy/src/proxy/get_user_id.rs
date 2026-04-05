@@ -18,7 +18,6 @@ pub fn get_user_id(
     let token = headers.get(AUTHORIZATION);
     // PREFER TOKEN
     if token.is_some() {
-        println!("oken");
         // BEARER TOKEN
         let token_string = token.unwrap().to_str()?;
         let user = find_user_by_token(&pool, &token_string.to_string())?;
@@ -28,7 +27,7 @@ pub fn get_user_id(
         let cookie_string = cookie.unwrap().to_string();
         let cookie = cookie_string.split(';').next().unwrap(); // Split by ';' and take the first part
         let cookie_value = cookie.split('=').nth(1).unwrap().to_string(); // Split by '=' and take the second part
-        println!("cookie_value {}", &cookie_value);
+        // println!("cookie_value {}", &cookie_value);
         let user = find_user_by_cookie(&pool, &cookie_value)?;
         Ok(user)
     } else {

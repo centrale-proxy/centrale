@@ -29,15 +29,15 @@ pub async fn handle_post(
     let subdomain = payload.subdomain.clone();
     let headers = req.headers();
     let cookie = req.cookie("centrale");
-    println!("cookie {:?}", cookie);
-    println!("headers {:?}", headers);
+    //  println!("cookie {:?}", cookie);
+    // println!("headers {:?}", headers);
     let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
-    println!("user id {}", user_id);
+    // println!("user id {}", user_id);
     let db = get_encrypted_connection(pool.get_ref(), CentraleConfig::MASTER_PASSWORD)?;
 
     match post_subdomain(&db, &subdomain, user_id) {
         Ok(password) => {
-            println!("password {}", password);
+            // println!("password {}", password);
 
             // TBD SEND TO DESTINATION SERVER
             let client = reqwest::Client::new();
@@ -49,7 +49,7 @@ pub async fn handle_post(
 
             let mut map = HashMap::new();
             map.insert("hello", "hello");
-            println!("url {}", &url);
+            // println!("url {}", &url);
             let response = client
                 .post(&url)
                 .json(&map)
@@ -60,12 +60,12 @@ pub async fn handle_post(
                 .send()
                 .await;
 
-            println!("response: {:?}", &response);
+            //  println!("response: {:?}", &response);
 
             let res = response.unwrap();
 
             let status = res.status();
-            println!("status: {}", status);
+            //  println!("status: {}", status);
 
             match status.as_u16() {
                 200 => {

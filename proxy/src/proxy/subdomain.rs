@@ -1,6 +1,6 @@
 use crate::{error::CentraleError, proxy::wildcard::_create_wildcard_request_with_referer};
 use actix_http::header::HeaderMap;
-use actix_web::{dev::ServiceResponse, http::header::HeaderValue};
+use actix_web::dev::ServiceResponse;
 use config::CentraleConfig;
 use url::Url;
 

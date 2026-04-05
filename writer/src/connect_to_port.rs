@@ -56,6 +56,6 @@ mod tests {
     #[test]
     fn connect_to_writer() {
         let a = connect_to_port().unwrap();
-        println!("{:?}", a);
+        println!("connect to writer: {:?}", a);
     }
 }

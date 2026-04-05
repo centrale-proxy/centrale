@@ -1,12 +1,10 @@
-use actix_web::{App, HttpRequest, HttpResponse, HttpServer, web};
+use actix_web::{HttpRequest, HttpResponse, web};
 use actix_ws::Message;
 use futures_util::{SinkExt, StreamExt};
 use reqwest::header::HeaderName;
 use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Message as TungMessage;
 use tokio_tungstenite::tungstenite::client::IntoClientRequest;
-
-const UPSTREAM: &str = "ws://localhost:11111/air";
 
 pub async fn ws_proxy(
     req: HttpRequest,
