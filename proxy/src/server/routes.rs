@@ -5,8 +5,8 @@ use crate::{
     },
     subdomain::respond_post::respond_subdomain,
     user::{
-        air_token::generate_responder::generate_air_token, get::get::get_user,
-        post::post::post_user,
+        air_token::generate_responder::generate_air_token,
+        bearer_token::responder::generate_bearer_token, get::get::get_user, post::post::post_user,
     },
 };
 use actix_web::{HttpResponse, web};
@@ -22,6 +22,12 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/api/user/air/token")
             .route(web::get().to(generate_air_token))
+            .route(web::head().to(|| HttpResponse::Ok())),
+    );
+
+    cfg.service(
+        web::resource("/api/user/bearer/token")
+            .route(web::get().to(generate_bearer_token))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 

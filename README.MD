@@ -224,6 +224,8 @@ RUST_LOG=info ws --header="Host: wss://test6.proompt.eu" "wss://test6.proompt.eu
 # FILES
 
 sqlite3 "/Users/martin/Library/Application Support/centrale/centrale.db"
+sqlcipher /Users/martin/Library/Application Support/centrale/centrale.db 
+
 
 sqlcipher /Users/martin/Library/Application\ Support/centrale/subdomains/test
 
@@ -333,3 +335,6 @@ fetch("https://test.proompt.eu/api/subdomain", {
   .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
   .then(console.log)
   .catch(console.error);
+
+# Token auth
+curl -H 'Authorization: Bearer uJ&$}r12A?CG:Ty*dP$jmoZY%^{3BAO[d<Y[jkd8Cv@BT?Ty7:*ftWvKiN;?9xD<' https://clay.myapp.local/api/user/bearer/token

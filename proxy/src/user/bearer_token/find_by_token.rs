@@ -7,7 +7,7 @@ use r2d2_sqlite::{SqliteConnectionManager, rusqlite::params};
 
 pub fn find_user_by_token(
     pool: &Data<Pool<SqliteConnectionManager>>,
-    bearer: &String,
+    bearer: &str,
 ) -> Result<i64, CentraleError> {
     let db = get_encrypted_connection(pool.get_ref(), CentraleConfig::MASTER_PASSWORD)?;
     let mut stmt = db.prepare(&"SELECT user_id FROM bearer WHERE bearer = ?1")?;

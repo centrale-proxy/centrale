@@ -1,6 +1,9 @@
 use crate::{
     error::CentraleError,
-    user::{cookie::find_by_cookie::find_user_by_cookie, find_by_token::find_user_by_token},
+    user::{
+        bearer_token::find_by_token::find_user_by_token,
+        cookie::find_by_cookie::find_user_by_cookie,
+    },
 };
 use actix_web::{
     cookie::Cookie,
@@ -16,11 +19,16 @@ pub fn get_user_id(
 ) -> Result<i64, CentraleError> {
     //
     let token = headers.get(AUTHORIZATION);
+
     // PREFER TOKEN
     if token.is_some() {
         // BEARER TOKEN
-        let token_string = token.unwrap().to_str()?;
-        let user = find_user_by_token(&pool, &token_string.to_string())?;
+        let token_string = token
+            .and_then(|v| v.to_str().ok())
+            .and_then(|v| v.strip_prefix("Bearer "))
+            .unwrap_or("");
+        // let token_string = token.unwrap().to_str()?;
+        let user = find_user_by_token(&pool, &token_string)?;
         Ok(user)
     } else if cookie.is_some() {
         // COOKIE

@@ -1,6 +1,7 @@
-use crate::{error::CentraleError, user::air_token::random::random_numbers_32};
+use crate::error::CentraleError;
 // use argon2::password_hash::SaltString;
 use chrono::Utc;
+use common::random::random_numbers;
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbConnection;
 use r2d2_sqlite::rusqlite::params;
@@ -12,7 +13,7 @@ pub fn save_air_token(db: &DbConnection, user_id: i64) -> Result<String, Central
     db.execute("DELETE FROM air_token WHERE user_id = ?1", params![user_id])?;
     // GENERATE AIR TOKEN
     //let air_token = SaltString::generate(&mut OsRng);
-    let air_token_1 = random_numbers_32();
+    let air_token_1 = random_numbers(32);
     let air_token_str = air_token_1
         .iter()
         .map(|n| n.to_string())
