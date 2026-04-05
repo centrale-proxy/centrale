@@ -303,6 +303,16 @@ fetch("https://test.myapp.local/api/user", {
   .then(console.log)
   .catch(console.error);
 
+fetch("https://test.myapp.local/api/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "martin", password: "hello" }),
+
+})
+  .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
+  .then(console.log)
+  .catch(console.error);
+
 
 fetch("https://test.myapp.local/api/subdomain", {
   method: "POST",

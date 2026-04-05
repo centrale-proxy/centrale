@@ -6,7 +6,7 @@ impl CentraleConfig {
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
     pub const DOMAIN: &str = "myapp.local";
-    pub const COOKIE_TIMEOUT: i64 = 86400; // 60 * 60 * 24
+    pub const COOKIE_TIMEOUT: i64 = 86400; // 60 * 60 * 24 * 30 // 86400 // 2592000
     pub const COOKIE_SECURE: bool = true; // FALSE FOR LOCAL
     pub const COOKIE_HTTP_ONLY: bool = true; // FALSE FOR LOCAL
     // RATE LIMITER

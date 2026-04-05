@@ -91,4 +91,7 @@ pub enum CentraleError {
 
     #[error("DirsqlError: {0}")]
     DirsqlError(#[from] DirsqlError),
+
+    #[error("Password hash error: {0}")]
+    PasswordHash(#[from] argon2::password_hash::Error),
 }
