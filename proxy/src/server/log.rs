@@ -43,17 +43,14 @@ where
     Box::pin(async move {
         let res = fut.await?;
         let status = res.status().as_u16();
-        let is_ok = status == 200;
-        let is_also_ok = status == 304;
-        if is_ok || is_also_ok {
+
+        if status == 200 || status == 304 {
             let check_out = CheckOut::new(res.status(), None);
-            let check_out_payload = WriterPayload::CheckOut(check_out);
-            send_payload(soc_2, addr, check_out_payload);
-            // println!("res_log {:?}", check_out);
+            send_payload(soc_2, addr, WriterPayload::CheckOut(check_out));
             Ok(res.map_into_boxed_body())
         } else {
-            let headers = res.headers().clone();
             let status_code = res.status();
+            let headers = res.headers().clone();
             let (req, response) = res.into_parts();
             let body_bytes = actix_web::body::to_bytes(response.into_body())
                 .await
@@ -61,14 +58,14 @@ where
 
             let check_out = CheckOut::new(status_code, Some(&body_bytes));
             println!("res_log {:?}", &check_out);
-            let check_out_payload = WriterPayload::CheckOut(check_out);
-            send_payload(soc_2, addr, check_out_payload);
-            let mut new_res = HttpResponse::build(status_code);
+            send_payload(soc_2, addr, WriterPayload::CheckOut(check_out));
+
+            let mut builder = HttpResponse::build(status_code);
             for (key, val) in headers.iter() {
-                new_res.append_header((key, val));
+                builder.append_header((key, val));
             }
-            let res = ServiceResponse::new(req, new_res.body(body_bytes));
-            Ok(res)
+
+            Ok(ServiceResponse::new(req, builder.body(body_bytes)))
         }
     })
 }
