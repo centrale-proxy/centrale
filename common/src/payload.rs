@@ -1,4 +1,8 @@
-use actix_web::dev::ServiceRequest;
+use actix_web::{
+    dev::{ServiceRequest, ServiceResponse},
+    http::StatusCode,
+    web::Bytes,
+};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -61,8 +65,6 @@ impl CheckIn {
         uu
     }
     pub fn new(req: &ServiceRequest) -> Self {
-        // println!("req {:?}", &req);
-
         // GET TIME
         let epoch_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -97,7 +99,51 @@ impl CheckIn {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct CheckOut {}
+pub struct CheckOut {
+    checkout: u128,
+    error: Option<String>,
+    status: Option<u16>,
+}
+
+use actix_web::body::to_bytes;
+
+async fn read_body(res: ServiceResponse) -> String {
+    let body_bytes = to_bytes(res.into_body()).await.unwrap();
+    String::from_utf8(body_bytes.to_vec()).unwrap()
+}
+
+impl CheckOut {
+    pub fn new(status: StatusCode, body: Option<&Bytes>) -> Self {
+        let epoch_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
+        let status_u16 = status.as_u16();
+        if status_u16 != 200 {
+            CheckOut {
+                checkout: epoch_time,
+                error: None,
+                status: Some(status_u16),
+            }
+        } else {
+            match body {
+                Some(body) => {
+                    let err = String::from_utf8_lossy(body).to_string();
+                    CheckOut {
+                        checkout: epoch_time,
+                        error: Some(err),
+                        status: Some(status_u16),
+                    }
+                }
+                None => CheckOut {
+                    checkout: epoch_time,
+                    error: None,
+                    status: Some(status_u16),
+                },
+            }
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum WriterPayload {
