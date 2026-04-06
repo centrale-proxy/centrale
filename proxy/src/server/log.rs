@@ -44,6 +44,10 @@ where
         let res = fut.await?;
         let status = res.status().as_u16();
 
+        if status == 101 || status < 200 {
+            return Ok(res.map_into_boxed_body());
+        }
+
         if status == 200 || status == 304 {
             let check_out = CheckOut::new(res.status(), None);
             send_payload(soc_2, addr, WriterPayload::CheckOut(check_out));
