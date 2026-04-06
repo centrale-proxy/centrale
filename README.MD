@@ -235,7 +235,3 @@ Server
 + How to get subdomain to sample server
 + basic HTML to login... should be in "app".
 + how does "app" work? How should it be called?
-
-
-Subdomainer.com
-prettylongdomain.com
