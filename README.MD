@@ -198,7 +198,7 @@ fetch("https://test.mydomain.local/api/subdomain", {
   .catch(console.error);
 
 # Token auth
-curl -H 'Authorization: Bearer uJ&$}r12A?CG:Ty*dP$jmoZY%^{3BAO[d<Y[jkd8Cv@BT?Ty7:*ftWvKiN;?9xD<' https://clay.domain.local/api/user/
+curl -H 'Authorization: Bearer uJ&$}r12A?CG:Ty*dP$jmoZY%^{3BAO[d<Y[jkd8Cv@BT?Ty7:*ftWvKiN;?9xD<' https://test.domain.local/api/user/
 
 
 # TBD
@@ -215,7 +215,6 @@ curl -H 'Authorization: Bearer uJ&$}r12A?CG:Ty*dP$jmoZY%^{3BAO[d<Y[jkd8Cv@BT?Ty7
 // user_meta
 // /api/redirect/:subdomain
 // robots.txt
-// does not anser to just "domain.com".
 // not private by default should also be possible for blog sites. Perhaps should be all the same type - private or public 
 
 # Workspaces?
@@ -225,13 +224,10 @@ Server
 
 # PLATFORM
 + SET .well-known/apple-app-site-association
-+ PUT stuff to proxy HEADER
-+ URL-id
 + add auth methods - SMART ID, log in link.
 + Companu registration extra keys
 + Central key storage?
 
 # PROBLEMS:
-+ How to get subdomain to sample server
 + basic HTML to login... should be in "app".
 + how does "app" work? How should it be called?
