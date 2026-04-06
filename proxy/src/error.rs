@@ -2,12 +2,10 @@ use actix_http::header::ToStrError;
 use dir_and_db_pool::error::DirsqlError;
 use r2d2::Error as R2d2Error;
 use r2d2_sqlite::rusqlite;
-use std::{error::Error as StdError, str::Utf8Error};
+use std::error::Error as StdError;
 use thiserror::Error;
 use url::ParseError;
 
-//
-//
 #[derive(Error, Debug)]
 pub enum CentraleError {
     #[error("IO error: {0}")]
@@ -25,29 +23,14 @@ pub enum CentraleError {
     #[error("Actix Web error: {0}")]
     ActixWebError(#[from] actix_web::error::Error),
 
-    #[error("No DB error")]
-    NoDb,
-
-    #[error("Unauthorized")]
-    Unauthorized,
-
-    #[error("Missing subdomain")]
-    MissingSubdomain,
-
     #[error("Missing host")]
     MissingHost,
-
-    #[error("Unable to parse URL")]
-    UnableToParseUrl,
 
     #[error("Invalid domain")]
     InvalidDomain,
 
     #[error("Invalid subdomain")]
     InvalidSubdomain,
-
-    #[error("No host or referer present")]
-    NoHostNoReferer,
 
     #[error("URL parse error: {0}")]
     UrlParseError(#[from] ParseError),
@@ -66,9 +49,6 @@ pub enum CentraleError {
 
     #[error("Database pool error: {0}")]
     PoolError(#[from] R2d2Error),
-
-    #[error("Such user exists")]
-    SuchUserExists,
 
     #[error("Such subdomain exists")]
     SuchSubdomainExists,

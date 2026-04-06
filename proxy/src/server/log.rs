@@ -1,5 +1,3 @@
-pub mod connect_to_port;
-
 use actix_web::Error;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse};
 use common::convert::string_to_vector;
