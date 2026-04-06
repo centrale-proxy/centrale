@@ -1,38 +1,28 @@
 
+Subdoin based SaaS engine.
+Each subdonain gets their own encrypted db.
+
+Overengineered yet oppinionated!
+
+***
+
+# Technically
+
 Upstream proxy for subdomains. 
 
-Authenticates + authorizes with subodamain + cookie / bearer token.
+Request enters into Proxy. Proxy:
++ Negotiates HTTPS
++ Authenticates (cookie / bearer)
++ Authorizes user access to subdomain,
++ Rate limits
++ Forwards request (http + websocket) to destination server
++ Forwards request data to Writer (logging service)
 
-Has a rate limiter. 
-
-Enables same API with Cookie and Bearer token Authentication and TBD Authorization.
-
-2 user roles: admin and user 
-
-+ authentication 
-+ authorization 
-+ billing
-+ log 
-+ Rate limit 
-+ remove malicious packets
-+ https cert
+***
 
 # TBD
 // TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
-// TBD BROADCAST LOG
-// GET COOKIE
-// GET BEARER TOKEN
-// AUTHENTICATE
-// AUTHORIZE
 // SET HEADERS Access-Control-Allow-Origin
-// PROXY:
-// // ADD TO REQ HEADERS
-// // MAKE REQUEST
-// // AWAIT
-// // RESPOND TO CLIENT
-// BROADCAST LOG
-//
-// // DELETE SUBDOMAIN
 
 ## DB
 user
@@ -43,58 +33,51 @@ subdomain_user
 
 ## NO AUTH:
 
-
-GET /api/test
-
+GET /api/tester
 POST /api/user - register user 
-GET /api/user
+POST /login - login
 
-GET /login /login/
-POST /login /login/
+## AUTH
 
-+ OPTIONS FOR ALL
-+ GET /register /register/ - html
-
-# POST /api/user
-Creates user, add's cookie to the session.
-
-# GET /api/user/generate/bearer-token
-# GET /api/user/view/bearer-token
-# DELETE /api/user/delete/bearer-token
-
-## APP
-
+GET /api/user/bearer/token
+(TBD) GET /api/user/view/bearer-token
+(TBD) DELETE /api/user/delete/bearer-token
 GET /logout
-
 GET /api/user - my user data
-PUT /api/user - put user
-DELETE /api/user - delete user
-
-GET /api/test-subdomain - see if subdomain is available
-
+(TBD) PUT /api/user - put user
+(TBD) DELETE /api/user - delete user
+(TBD) GET /api/test-subdomain - see if subdomain is available
 GET /api/subdomain - get user subdomains
-
 POST /api/subdomain - add subdomain
-
-DELETE /api/subdomain - delete subdomain
+(TBD) DELETE /api/subdomain - delete subdomain
 
 Subdomain specific:
-GET /api/users - users for subdomain
-POST /api/users - add user to subdomain
-DELETE /api/users/:id - delete user from subdomain
+(TBD) GET /api/users - users for subdomain
+(TBD) POST /api/users - add user to subdomain
+(TBD) DELETE /api/users/:id - delete user from subdomain
 
 Subdomain specific admin:
-PUT /api/make-user-admin - make user admin
-PUT /api/remove-user-admin - remove user admin
+(TBD) PUT /api/make-user-admin - make user admin
+(TBD) PUT /api/remove-user-admin - remove user admin
 
+
+Genereate air token for websockets
 GET /api/user/air/token
 
-# LOCALHOST
+Generate bearer token:
+GET /api/user/bearer/token
+
+(TBD) DELETE /api/user/bearer/:id
+
+# SET UP LOCALHOST LOCALHOST
+
+mkcert "*.proompt.local"
 
 sudo nano /etc/hosts
 
-127.0.0.1   subdomain.localhost.com
-127.0.0.1   test.localhost.com
+127.0.0.1   clay.proompt.local
+127.0.0.1   test.proompt.local
+
 
 # Questions?
 // app.
@@ -121,22 +104,16 @@ Server
 + + Other schemes will be answered as "Not authenticated".
 + Ansers "Not authenticated" to all invalid requests to avoid enumeration.
 
-# CONFIG
-active_server_ip
-
 # Rate limiter
 
 You can set in config Burst Size and Requests Per Second.
-  
 Burst size is the number of total requests allowed to pipeline in total per one IP.
-
 Requests per second sets how many places in pipeline are freed in a second for 1 IP.
-
 If limit is hit, 429 is returned.
 
 # Test suite
 
-In folder test_suite there is a function that adds a 1000000 users to your db.
+In folder test_suite there is a function that adds a 1000000 users to your local db.
 
 # PLATFORM
 + SET .well-known/apple-app-site-association
@@ -159,17 +136,16 @@ curl -H "Host: http://hello.wello.ee" http://localhost:8080
 curl -H "Host: http://hello.wello.ee" http://localhost:8080 -H "Authorization: Bearer _token"
 curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:8080
 
-
 //
 
-curl -X POST -H "Content-Type: application/json" -d '{"username": "a1", "password": "b"}' https://test.myapp.local/api/user -vvv
+curl -X POST -H "Content-Type: application/json" -d '{"username": "a1", "password": "b"}' https://test.proompt.local/api/user -vvv
 
-curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: https://test.localhost.com" https://test.myapp.local/api/user
+curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: https://test.proompt.local" https://test.proompt.local/api/user
 
-curl -b "centrale=IKboPW7U/954kWDVwHUl5w" -H "Content-Type: application/json" -d '{"subdomain": "test"}' https://test.myapp.local/api/subdomain -vvv
+curl -b "centrale=IKboPW7U/954kWDVwHUl5w" -H "Content-Type: application/json" -d '{"subdomain": "test"}' https://test.proompt.local/api/subdomain -vvv
 
 --
-curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: http://test.localhost.com" https://test.localhost.com -vvv
+curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: http://test.proompt.local" https://test.proompt.local -vvv
 
 # curl prod
 //
@@ -179,7 +155,7 @@ curl -b "centrale=nzAMcHw2k4R4zC0KXBug/A" https://test.proompt.eu/api/user
 
 curl -b "centrale=nzAMcHw2k4R4zC0KXBug/A" -H "Content-Type: application/json" -d '{"subdomain": "test5"}'  https://test.proompt.eu/api/subdomain -vvv
 
-curl -b "centrale=nzAMcHw2k4R4zC0KXBug/A" -H "Referer: https://test6.localhost.com" "https://test6.proompt.eu?air_token=f" -vvv
+curl -b "centrale=nzAMcHw2k4R4zC0KXBug/A" -H "Referer: https://test.proompt.local" "https://test6.proompt.eu?air_token=f" -vvv
 
 
 # Oha
@@ -275,8 +251,7 @@ sudo systemctl start sample_server
 
 
 # CERT locally
-mkcert *.localhost.com
-mkcert "*.myapp.local"
+mkcert "*.proompt.local"
 
 # CERT prod
 sudo certbot certonly --manual --preferred-challenges dns   -d "*.proompt.eu" -d "proompt.eu"
@@ -292,7 +267,7 @@ WantedBy=sockets.target
 
 # BRowser
 
-fetch("https://test.myapp.local/api/user", {
+fetch("https://test.proompt.local/api/user", {
   method: "POST",
   credentials: "include",         
   headers: { "Content-Type": "application/json" },
@@ -303,7 +278,7 @@ fetch("https://test.myapp.local/api/user", {
   .then(console.log)
   .catch(console.error);
 
-fetch("https://test.myapp.local/api/login", {
+fetch("https://test.proompt.local/api/login", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ username: "martin", password: "hello" }),
@@ -314,7 +289,7 @@ fetch("https://test.myapp.local/api/login", {
   .catch(console.error);
 
 
-fetch("https://test.myapp.local/api/subdomain", {
+fetch("https://test.proompt.local/api/subdomain", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ subdomain: "test" })
@@ -347,4 +322,4 @@ fetch("https://test.proompt.eu/api/subdomain", {
   .catch(console.error);
 
 # Token auth
-curl -H 'Authorization: Bearer uJ&$}r12A?CG:Ty*dP$jmoZY%^{3BAO[d<Y[jkd8Cv@BT?Ty7:*ftWvKiN;?9xD<' https://clay.myapp.local/api/user/bearer/token
+curl -H 'Authorization: Bearer uJ&$}r12A?CG:Ty*dP$jmoZY%^{3BAO[d<Y[jkd8Cv@BT?Ty7:*ftWvKiN;?9xD<' https://clay.proompt.local/api/user/bearer/token
