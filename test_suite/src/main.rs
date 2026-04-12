@@ -114,7 +114,7 @@ async fn main() {
             Ok(id) => {
                 let cookie = save_cookie(&db, id, salt).unwrap();
                 // MAKE REQUEST TO ADD
-                // let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
+                // let master_token = CentraleConfig::CENTRALE_MASTER_BEARER_TOKEN;
                 /*
                                 let url = format!("http://{}/api/subdomain", CentraleConfig::SERVER_ADDRESS);
 

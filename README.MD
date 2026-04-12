@@ -59,8 +59,11 @@ Subdomain specific admin:
 (TBD) PUT /api/make-user-admin - make user admin
 (TBD) PUT /api/remove-user-admin - remove user admin
 
-# SET UP ENVIRONEMNT VARIABLES
+# SET UP ENVIRONEMENT VARIABLES
+// used to encrypt local db
 export CENTRALE_MASTER_PASSWORD="_my_master_password_that_is_very_long_"
+// used with connection between proxy and destination server
+export CENTRALE_MASTER_BEARER_TOKEN="_my_master_bearer_token_that_is_very_long_"
 
 
 

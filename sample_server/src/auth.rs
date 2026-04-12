@@ -3,6 +3,7 @@ use actix_web::{
     dev::{ServiceRequest, ServiceResponse},
 };
 use config::CentraleConfig;
+use std::env;
 
 pub async fn auth_master_bearer_token(
     req: ServiceRequest,
@@ -13,10 +14,10 @@ pub async fn auth_master_bearer_token(
         .get("Authorization")
         .and_then(|v| v.to_str().ok());
 
+    let master_token = env::var(CentraleConfig::CENTRALE_MASTER_BEARER_TOKEN).unwrap();
+
     match auth_header {
-        Some(header) if header == format!("Bearer {}", CentraleConfig::MASTER_BEARER_TOKEN) => {
-            next.call(req).await
-        }
+        Some(header) if header == format!("Bearer {}", master_token) => next.call(req).await,
         _ => Err(actix_web::error::ErrorUnauthorized(
             "Master token unauthenticated",
         )),

@@ -77,4 +77,7 @@ pub enum CentraleError {
 
     #[error("Missing CENTRALE_MASTER_PASSWORD in environment variables")]
     MissingMasterPassword,
+
+    #[error("Missing CENTRALE_MASTER_BEARER_TOKEN in environment variables")]
+    MissingMasterBearerToken,
 }

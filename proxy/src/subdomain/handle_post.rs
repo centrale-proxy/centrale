@@ -1,5 +1,7 @@
 use crate::{
-    db::get_db::get_centrale_db, error::CentraleError, proxy::get_user_id::get_user_id,
+    db::get_db::get_centrale_db,
+    error::CentraleError,
+    proxy::{get_master_bearer::get_master_bearer_token, get_user_id::get_user_id},
     subdomain::post::post_subdomain,
 };
 use actix_http::Request;
@@ -28,7 +30,7 @@ pub async fn handle_post(
 ) -> Result<HttpResponse, CentraleError> {
     let subdomain = payload.subdomain.clone();
     let headers = req.headers();
-    let cookie = req.cookie("centrale");
+    // let cookie = req.cookie("centrale");
     //  println!("cookie {:?}", cookie);
     // println!("headers {:?}", headers);
     let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
@@ -41,7 +43,8 @@ pub async fn handle_post(
 
             // TBD SEND TO DESTINATION SERVER
             let client = reqwest::Client::new();
-            let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
+            let master_token = get_master_bearer_token()?;
+
             let url = format!(
                 "{}/api/register_subdomain",
                 CentraleConfig::SAMPLE_SERVER_ADDRESS

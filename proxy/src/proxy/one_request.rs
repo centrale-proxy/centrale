@@ -1,14 +1,14 @@
 use crate::{
     error::CentraleError,
     proxy::{
-        authenticate_and_authorize::authenticate_and_authorize, is_ws::is_streaming_request,
+        authenticate_and_authorize::authenticate_and_authorize,
+        get_master_bearer::get_master_bearer_token, is_ws::is_streaming_request,
         proxy_ws::ws_proxy, wildcard::QueryParams,
         ws_authenticate_and_authorize::ws_authenticate_and_authorize,
     },
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
-use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
 use reqwest::{Method, header};
 use std::str::FromStr;
@@ -34,11 +34,11 @@ pub async fn process_one_request(
             authenticate_and_authorize(pool, &req)?;
         // PROXY
         let client = reqwest::Client::new();
-        let master_token = CentraleConfig::MASTER_BEARER_TOKEN;
+        let master_token = get_master_bearer_token()?;
         //let method = req.method();
         let method = Method::from_str(req.method().as_str()).unwrap();
         //println!("method: {:?}", method);
-        let mut request = client
+        let request = client
             .request(method.clone(), url)
             .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
             .header("centrale_subdomain", format!("{}", subdomain))
