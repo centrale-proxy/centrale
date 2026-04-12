@@ -22,7 +22,7 @@ impl CentraleConfig {
     // MASTER KEY BETWEEN PROXY AND NODES
     pub const MASTER_BEARER_TOKEN: &str = "5zHNe7KE3XJvTmG1nDgOZ7kfA";
     // MASTER PASSWORD FOR LOCAL DB ENCRYPTION
-    pub const MASTER_PASSWORD: &str = "oNnglBgHldsPbvkOgQt";
+    pub const CENTRALE_MASTER_PASSWORD: &str = "CENTRALE_MASTER_PASSWORD";
     // WORKERS
     pub const PROXY_SERVER_WORKERS: usize = 4;
     pub const SAMPLE_SERVER_WORKERS: usize = 4;

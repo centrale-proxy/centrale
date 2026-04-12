@@ -74,4 +74,7 @@ pub enum CentraleError {
 
     #[error("Password hash error: {0}")]
     PasswordHash(#[from] argon2::password_hash::Error),
+
+    #[error("Missing CENTRALE_MASTER_PASSWORD in environment variables")]
+    MissingMasterPassword,
 }

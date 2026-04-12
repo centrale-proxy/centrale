@@ -59,6 +59,10 @@ Subdomain specific admin:
 (TBD) PUT /api/make-user-admin - make user admin
 (TBD) PUT /api/remove-user-admin - remove user admin
 
+# SET UP ENVIRONEMNT VARIABLES
+export CENTRALE_MASTER_PASSWORD="_my_master_password_that_is_very_long_"
+
+
 
 # SET UP LOCALHOST LOCALHOST
 

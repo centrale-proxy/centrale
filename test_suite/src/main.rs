@@ -1,6 +1,7 @@
 mod error;
 
 use std::collections::HashMap;
+use std::env;
 
 use crate::error::TestSuiteError;
 use chrono::Utc;
@@ -94,7 +95,14 @@ pub fn save_cookie(
 async fn main() {
     //
     let pool = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
-    let db = get_encrypted_connection(&pool, CentraleConfig::MASTER_PASSWORD).unwrap();
+    let password = match env::var(CentraleConfig::CENTRALE_MASTER_PASSWORD) {
+        Ok(token) => token,
+        Err(err) => {
+            panic!("Missing CENTRALE_MASTER_PASSWORD {}", err);
+        }
+    };
+
+    let db = get_encrypted_connection(&pool, &password).unwrap();
     let client = reqwest::Client::new();
 
     //let db = pool.get().expect("Couldn't get db connection from pool");

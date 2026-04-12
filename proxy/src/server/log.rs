@@ -25,7 +25,6 @@ pub fn log_middleware<S, B>(
     socket: Arc<Mutex<UdpSocket>>,
     addr: SocketAddr,
 ) -> LocalBoxFuture<'static, Result<ServiceResponse<BoxBody>, Error>>
-// <-- BoxBody here
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     B: MessageBody + 'static,

@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use crate::{
-    error::CentraleError, proxy::get_user_id::get_user_id, subdomain::post::post_subdomain,
+    db::get_db::get_centrale_db, error::CentraleError, proxy::get_user_id::get_user_id,
+    subdomain::post::post_subdomain,
 };
 use actix_http::Request;
 use actix_web::{
@@ -10,11 +9,12 @@ use actix_web::{
     web,
 };
 use config::CentraleConfig;
-use dir_and_db_pool::db::{DbBool, get_encrypted_connection::get_encrypted_connection};
+use dir_and_db_pool::db::DbBool;
 use log::error;
 use reqwest::header;
 use serde::Deserialize;
 use serde_json::Value;
+use std::collections::HashMap;
 
 #[derive(Deserialize)]
 pub struct RegisterSubdomain {
@@ -33,7 +33,7 @@ pub async fn handle_post(
     // println!("headers {:?}", headers);
     let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
     // println!("user id {}", user_id);
-    let db = get_encrypted_connection(pool.get_ref(), CentraleConfig::MASTER_PASSWORD)?;
+    let db = get_centrale_db(pool.get_ref())?;
 
     match post_subdomain(&db, &subdomain, user_id) {
         Ok(password) => {
