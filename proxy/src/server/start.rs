@@ -23,8 +23,8 @@ pub async fn start_server(db: DbBool) -> std::io::Result<()> {
     let addr: SocketAddr = CentraleConfig::WRITER_SERVER_ADDRESS.parse().unwrap();
     // SSL
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-    builder.set_private_key_file(CentraleConfig::CERT_PRIVATE_KEY, SslFiletype::PEM)?;
-    builder.set_certificate_chain_file(CentraleConfig::CERT_PUB_KEY)?;
+    builder.set_private_key_file(CentraleConfig::cert_private_key(), SslFiletype::PEM)?;
+    builder.set_certificate_chain_file(CentraleConfig::cert_pub_key())?;
     // SERVER ITSELF
     HttpServer::new(move || {
         App::new()

@@ -30,11 +30,6 @@ impl CentraleConfig {
     pub const SAMPLE_SERVER_WORKERS: usize = 4;
     // AIR TOKEN
     pub const AIR_TOKEN_TIMEOUT: i64 = 60;
-    // CERT
-    pub const CERT_PRIVATE_KEY: &str =
-        "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.proompt.local-key.pem";
-    pub const CERT_PUB_KEY: &str =
-        "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.proompt.local.pem";
 
     pub fn master_bearer_token() -> String {
         std::env::var("CENTRALE_MASTER_BEARER_TOKEN")
@@ -44,9 +39,19 @@ impl CentraleConfig {
     pub fn master_password() -> String {
         std::env::var("CENTRALE_MASTER_PASSWORD").expect("CENTRALE_MASTER_PASSWORD must be set")
     }
+    // CERT
+    pub fn cert_private_key() -> String {
+        std::env::var("CENTRALE_CERT_PRIVATE_KEY").expect("CENTRALE_CERT_PRIVATE_KEY must be set")
+    }
+
+    pub fn cert_pub_key() -> String {
+        std::env::var("CENTRALE_CERT_PUB_KEY").expect("CENTRALE_CERT_PUB_KEY must be set")
+    }
 
     pub fn test() {
         Self::master_bearer_token();
         Self::master_password();
+        Self::cert_private_key();
+        Self::cert_pub_key();
     }
 }
