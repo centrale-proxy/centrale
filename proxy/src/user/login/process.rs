@@ -29,12 +29,11 @@ pub fn process_login(
     let password = register_request.password;
     let db = get_centrale_db(pool.get_ref())?;
 
-    let salt = find_user_salt(&pool, &username)?;
+    let salt = find_user_salt(&pool, &username).unwrap_or("none".to_string());
     // CREATE HASH AND SALT
     let hash = hash_with_salt(&password, &salt)?;
     // SAVE USER TO DB
     let user_id = find_user_by_hash(&pool, &hash)?;
-    // let user_id = add_user_to_db(&db, &username, &hash, salt.as_str())?;
     // SAVE COOKIE
     let cookie_value = save_cookie(&db, user_id)?;
     // ADD COOKIE
