@@ -25,7 +25,7 @@ Proxy:
 
 ## NO AUTH endoints:
 GET /api/tester
-POST /api/user - register user 
+POST /api/user - register user (password can be 1-200 chars, username can be 1-100 chars)
 POST /login - login
 
 ## AUTH endpoints
