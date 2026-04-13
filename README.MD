@@ -3,8 +3,6 @@
 
 Each subdonain gets their own forwarding address (and encrypted db in destination server).  
 
-Overengineered yet oppinionated!
-
 ***
 
 # Technically
@@ -18,17 +16,19 @@ Proxy:
 + Authenticates (cookie / bearer)
 + Authorizes user access to subdomain,
 + Rate limits
-+ Forwards request (http + websocket) to destination server
++ proxies request (http + websocket) to destination server
 + Forwards request data to Writer (logging service)
 
 ***
 
 ## NO AUTH endoints:
-GET /api/tester
+```
+GET /api/tester - (ensures website is up and db is working)
 POST /api/user - register user (password can be 1-200 chars, username can be 1-100 chars)
 POST /login - login
-
+```
 ## AUTH endpoints
+```
 GET /api/user/bearer/token
 (TBD) GET /api/user/view/bearer-token
 (TBD) DELETE /api/user/delete/bearer-token
@@ -58,25 +58,26 @@ Subdomain specific:
 Subdomain specific admin:
 (TBD) PUT /api/make-user-admin - make user admin
 (TBD) PUT /api/remove-user-admin - remove user admin
+```
 
 # SET UP ENVIRONEMENT VARIABLES
 Either copy .env.sample to .env 
+```
 // used to encrypt local db
 export CENTRALE_MASTER_PASSWORD="_my_master_password_that_is_very_long_"
 // used with connection between proxy and destination server
 export CENTRALE_MASTER_BEARER_TOKEN="_my_master_bearer_token_that_is_very_long_"
 
-or at them to env yourself
-CENTRALE_MASTER_PASSWORD="_my_master_password_that_is_very_long_"
-CENTRALE_MASTER_BEARER_TOKEN="_my_master_bearer_token_that_is_very_long_"
-
+```
 # SET UP LOCALHOST LOCALHOST
+```
 
 mkcert "*.mydomain.local"
 
 sudo nano /etc/hosts
 
 127.0.0.1   test.mydomain.local
+```
 
 # Concepts
 + subdomains are always authenticated.
@@ -85,15 +86,18 @@ sudo nano /etc/hosts
 + Ansers "Not authenticated" to all invalid requests to avoid enumeration.
 
 # Rate limiter
-You can set in config Burst Size and Requests Per Second.
-Burst size is the number of total requests allowed to pipeline in total per one IP.
+You can set in config Burst Size and Requests Per Second.  
+
+Burst size is the number of total requests allowed to pipeline in total per one IP.  
+
 Requests per second sets how many places in pipeline are freed in a second for 1 IP.
-If limit is hit, 429 is returned.
+If limit is hit, 429 is returned.  
 
 # Test suite
 In folder test_suite there is a function that adds a 1000000 users to your local db.
 
 # CURL
+```
 curl http://localhost:8080
 curl -H "Referer: http://localhost:8080" http://localhost:8080
 curl -H "Referer: http://hello.hello.ee" http://localhost:8080
@@ -113,25 +117,33 @@ curl -b "centrale=IKboPW7U/954kWDVwHUl5w" -H "Content-Type: application/json" -d
 --
 curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: http://test.domain.local" https://test.domain.local -vvv
 
+```
 
 # WEBSOCKET PROXY TEST:
+```
 curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080/api/user/air/token -vvv
 // GET RESULT AND PASTE data.air_token AS air_token
 RUST_LOG=info ws --header="Host: ws://test.localhost.com" "ws://test.localhost.com:8080/air?air_token=GmCNE1jehmk/7g9zSX5OOQ"
+```
 
 # WSS WEBSOCKET PROXY TEST:
+```
 curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: test.localhost.com" --cacert /Users/martin/yeah/centrale/proxy/test.localhost.com.pem  https://test.localhost.com/api/user/air/token -vvv
 
 RUST_LOG=info ws --header="Host: wss://test.localhost.com" "wss://test.localhost.com/air?air_token=YY3i1zhlYuXubB/vZWSmYg" -k
 
+```
 
 # Sqlite3 access
 
-sqlcipher /home/www/.local/share/centrale/centrale.db 
+```
+sqlcipher /home/username/.local/share/centrale/centrale.db 
 PRAGMA key="aaaa";
 
+```
 
 # Deploy:
+```
 
 sudo nano /etc/systemd/system/centrale.service
 
@@ -160,11 +172,17 @@ sudo journalctl -u centrale.service -f
 sudo systemctl enable sample_server
 sudo systemctl start sample_server
 
+```
 
 # CERT locally
+```
+
 mkcert "*.mydomain.local"
+```
 
 # CERT prod
+```
+
 sudo certbot certonly --manual --preferred-challenges dns   -d "*.domain.eu" -d "domain.eu"
 
 sudo nano /etc/systemd/system/centrale.socket
@@ -175,8 +193,10 @@ ListenStream=443
 [Install]
 WantedBy=sockets.target
 
+```
 
 # Browser
+```
 
 fetch("https://test.mydomain.local/api/user", {
   method: "POST",
@@ -210,28 +230,28 @@ fetch("https://test.mydomain.local/api/subdomain", {
 
 # Token auth
 curl -H 'Authorization: Bearer uJ&$}r12A?CG:Ty*dP$jmoZY%^{3BAO[d<Y[jkd8Cv@BT?Ty7:*ftWvKiN;?9xD<' https://test.domain.local/api/user/
+```
 
 
 # TBD
-// TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
-// SET HEADERS Access-Control-Allow-Origin
++ TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
++ SET HEADERS Access-Control-Allow-Origin
 
 # Questions?
-// app.
-// // is it you or is it proxy?
-// .well-known/apple-app-site-association
-// favicon.ico
-// Dashboard
-// subdomain_meta
-// user_meta
-// /api/redirect/:subdomain
-// robots.txt
-// not private by default should also be possible for blog sites. Perhaps should be all the same type - private or public 
++ app.
++ .well-known/apple-app-site-association
++ favicon.ico
++ Dashboard
++ subdomain_meta
++ user_meta
++ /api/redirect/:subdomain
++ robots.txt
++ not private by default should also be possible for blog sites. Perhaps should be all the same type - private or public 
 
 # Workspaces?
-Proxy
-App
-Server
++ Proxy
++ App
++ Server
 
 # PLATFORM
 + SET .well-known/apple-app-site-association
