@@ -11,6 +11,6 @@ pub fn get_rate_limiter_config() -> GovernorConfig<PeerIpKeyExtractor, NoOpMiddl
         .burst_size(CentraleConfig::RATE_LIMITER_BURST_SIZE)
         .permissive(false)
         .finish()
-        // IT USES UNWRAP, BUT I'M NOT REALLY SURE, WHEN THIS CAN FAIL, AND WOULD LIKE TO AVOID matchING IT
+        // UNWRAP CAN ERROR, IF EITHER OF THE CONFIGS IS 0
         .unwrap()
 }

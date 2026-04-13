@@ -9,8 +9,10 @@ pub fn public_rate_limiter_config()
     GovernorConfigBuilder::default()
         .requests_per_second(CentraleConfig::PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND)
         .burst_size(CentraleConfig::PUBLIC_RATE_LIMITER_BURST_SIZE)
-        .permissive(false)
+        .key_extractor(PeerIpKeyExtractor)
+        // permissive in tests, enforcing in prod
+        .permissive(cfg!(test))
         .finish()
-        // IT USES UNWRAP, BUT I'M NOT REALLY SURE, WHEN THIS CAN FAIL, AND WOULD LIKE TO AVOID matchING IT
+        // UNWRAP CAN ERROR, IF EITHER OF THE CONFIGS IS 0
         .unwrap()
 }
