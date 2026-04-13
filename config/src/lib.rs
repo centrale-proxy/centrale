@@ -7,6 +7,9 @@ impl CentraleConfig {
     // MASTER PASSWORD FOR LOCAL DB ENCRYPTION
     pub const CENTRALE_MASTER_PASSWORD: &str = "CENTRALE_MASTER_PASSWORD";
     // NOT ENVIRONMENT VARIABLES:
+    pub const CENTRALE_CERT_PRIVATE_KEY: &str = "CENTRALE_CERT_PRIVATE_KEY";
+    pub const CENTRALE_CERT_PUB_KEY: &str = "CENTRALE_CERT_PUB_KEY";
+
     pub const SERVER_ADDRESS: &str = "0.0.0.0:443";
     pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
@@ -32,20 +35,21 @@ impl CentraleConfig {
     pub const AIR_TOKEN_TIMEOUT: i64 = 60;
 
     pub fn master_bearer_token() -> String {
-        std::env::var("CENTRALE_MASTER_BEARER_TOKEN")
+        std::env::var(Self::CENTRALE_MASTER_BEARER_TOKEN)
             .expect("CENTRALE_MASTER_BEARER_TOKEN must be set")
     }
 
     pub fn master_password() -> String {
-        std::env::var("CENTRALE_MASTER_PASSWORD").expect("CENTRALE_MASTER_PASSWORD must be set")
+        std::env::var(Self::CENTRALE_MASTER_PASSWORD).expect("CENTRALE_MASTER_PASSWORD must be set")
     }
     // CERT
     pub fn cert_private_key() -> String {
-        std::env::var("CENTRALE_CERT_PRIVATE_KEY").expect("CENTRALE_CERT_PRIVATE_KEY must be set")
+        std::env::var(Self::CENTRALE_CERT_PRIVATE_KEY)
+            .expect("CENTRALE_CERT_PRIVATE_KEY must be set")
     }
 
     pub fn cert_pub_key() -> String {
-        std::env::var("CENTRALE_CERT_PUB_KEY").expect("CENTRALE_CERT_PUB_KEY must be set")
+        std::env::var(Self::CENTRALE_CERT_PUB_KEY).expect("CENTRALE_CERT_PUB_KEY must be set")
     }
 
     pub fn test() {
