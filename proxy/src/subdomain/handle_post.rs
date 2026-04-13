@@ -58,12 +58,8 @@ pub async fn handle_post(
                 .send()
                 .await;
 
-            //  println!("response: {:?}", &response);
-
-            let res = response.unwrap();
-
+            let res = response?;
             let status = res.status();
-            //  println!("status: {}", status);
 
             match status.as_u16() {
                 200 => {
