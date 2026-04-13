@@ -23,29 +23,24 @@ Proxy:
 
 ## NO AUTH endoints:
 ```
-GET /api/tester - (ensures website is up and db is working)
+GET /api/tester - ensures website is up and db is working
 POST /api/user - register user (password can be 1-200 chars, username can be 1-100 chars)
 POST /login - login
 ```
 ## AUTH endpoints
 ```
-GET /api/user/bearer/token
-(TBD) GET /api/user/view/bearer-token
-(TBD) DELETE /api/user/delete/bearer-token
+GET /api/user/bearer/token - generate bearer token for user
+(TBD) GET /api/user/view/bearer
+(TBD) DELETE /api/user/bearer/:id
 
 GET /api/user - my user data
 GET /logout
 (TBD) PUT /api/user - put user
 (TBD) DELETE /api/user - delete user
 
-Genereate air token for websockets
-GET /api/user/air/token
+GET /api/user/air/token - Genereate air token for websockets
 
-Generate bearer token:
-GET /api/user/bearer/token
-(TBD) DELETE /api/user/bearer/:id
-
-POST /api/subdomain - add subdomain (subdomain is max 20 chars, if over, will be tructuated)
+POST /api/subdomain - add subdomain (subdomain is min 1, max 20 chars, if over, will be tructuated)
 (TBD) GET /api/subdomain - get user subdomains
 (TBD) DELETE /api/subdomain - delete subdomain
 (TBD) GET /api/test-subdomain - see if subdomain is available
@@ -61,17 +56,11 @@ Subdomain specific admin:
 ```
 
 # SET UP ENVIRONEMENT VARIABLES
-Either copy .env.sample to .env 
-```
-// used to encrypt local db
-export CENTRALE_MASTER_PASSWORD="_my_master_password_that_is_very_long_"
-// used with connection between proxy and destination server
-export CENTRALE_MASTER_BEARER_TOKEN="_my_master_bearer_token_that_is_very_long_"
+copy .env.sample to .env   
+Fill with your credentials
 
-```
 # SET UP LOCALHOST LOCALHOST
 ```
-
 mkcert "*.mydomain.local"
 
 sudo nano /etc/hosts
