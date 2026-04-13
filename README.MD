@@ -18,7 +18,12 @@ Proxy:
 + Authorizes user access to subdomain,
 + Rate limits
 + proxies request (http + websocket) to destination server
++ + add id, password and role to (destination server db) request headers
 + Forwards request data to Writer (logging service)
+
+Destination server:
++ each subdomain gets own (sqlite + sqlcipher password) db
++ with id and password from request header opens db commection
 
 ***
 

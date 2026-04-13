@@ -26,26 +26,6 @@ pub async fn handle_wildcard(
     }
 }
 
-// TBD
-// TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
-// TBD SET HEADERS Access-Control-Allow-Origin
-
-// DONE:
-// RATE LIMIT BY IP
-// BROADCAST LOG
-// GET COOKIE
-// GET BEARER TOKEN
-// AUTHENTICATE
-// AUTHORIZE
-// PROXY:
-// // ADD TO REQ HEADERS
-// // MAKE REQUEST
-// // AWAIT
-// // RESPOND TO CLIENT
-// BROADCAST LOG
-// PROXY SOCKET
-// // DELETE SUBDOMAIN
-
 use actix_web::{HttpResponse, Responder};
 use dir_and_db_pool::db::DbBool;
 use log::error;
@@ -83,7 +63,6 @@ pub fn _create_wildcard_request_with_referer(cookie: String, referer: &str) -> R
 }
 
 use actix_web::test;
-//use serde_json::Value;
 use serde_json::json;
 
 pub fn _user_create_request() -> Request {
