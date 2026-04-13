@@ -36,13 +36,12 @@ pub async fn process_one_request(
         let client = reqwest::Client::new();
 
         let master_token = CentraleConfig::master_bearer_token();
-        //let method = req.method();
-        //let method = Method::from_str(req.method().as_str()).unwrap();
+
         let method = Method::from_str(req.method().as_str());
 
         let unwrapped_method = match method {
             Ok(method) => method,
-            Err(err) => return Err(CentraleError::InvalidMethod),
+            Err(_err) => return Err(CentraleError::InvalidMethod),
         };
 
         //println!("method: {:?}", method);
