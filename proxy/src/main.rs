@@ -18,6 +18,6 @@ fn main() {
     // TEST IF ALL VARS ARE THERE
     CentraleConfig::test();
     if let Err(err) = setup_and_start() {
-        error!("Centrale error: {}", err);
+        error!("Centrale start error: {}", err);
     }
 }

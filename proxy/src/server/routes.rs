@@ -7,7 +7,8 @@ use crate::{
     subdomain::respond_post::respond_subdomain,
     user::{
         air_token::generate_responder::generate_air_token,
-        bearer_token::responder::generate_bearer_token, get::get::get_user,
+        bearer_token::responder::generate_bearer_token,
+        bearer_token_view::responder::view_bearer_tokens, get::get::get_user,
         login::handle::handle_login, post::post::post_user,
     },
 };
@@ -41,6 +42,12 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/api/user/bearer/token")
             .route(web::get().to(generate_bearer_token))
+            .route(web::head().to(|| HttpResponse::Ok())),
+    );
+
+    cfg.service(
+        web::resource("/api/user/bearer/view")
+            .route(web::get().to(view_bearer_tokens))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 

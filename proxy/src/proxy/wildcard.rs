@@ -20,7 +20,7 @@ pub async fn handle_wildcard(
     match process_one_request(pool, req, stream, query).await {
         Ok(result) => result,
         Err(err) => {
-            error!("Centrale error: {}", err);
+            error!("Centrale wildcard error: {}", err);
             HttpResponse::Unauthorized().json(serde_json::json!({ "error": "Not authenticated" }))
         }
     }
@@ -84,7 +84,7 @@ pub fn _create_wildcard_request_with_referer(cookie: String, referer: &str) -> R
 
 use actix_web::test;
 //use serde_json::Value;
-use serde_json::{Value, json};
+use serde_json::json;
 
 pub fn _user_create_request() -> Request {
     let payload = json!({

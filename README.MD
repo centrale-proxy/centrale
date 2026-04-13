@@ -2,6 +2,7 @@
 # Subdomain based SaaS engine.
 
 Each subdonain gets their own forwarding address (and encrypted db in destination server).  
+Idea is, that you can register new customers to new destination server, when one has enough tenants.
 
 ***
 
@@ -30,7 +31,7 @@ POST /login - login
 ## AUTH endpoints
 ```
 GET /api/user/bearer/token - generate bearer token for user
-(TBD) GET /api/user/view/bearer
+(TBD) GET /api/user/bearer/view
 (TBD) DELETE /api/user/bearer/:id
 
 GET /api/user - my user data
@@ -99,27 +100,27 @@ curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:808
 
 curl -X POST -H "Content-Type: application/json" -d '{"username": "a1", "password": "b"}' https://test.domain.local/api/user -vvv
 
-curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: https://test.domain.local" https://test.domain.local/api/user
+curl -b "centrale=ssssss" -H "Referer: https://test.domain.local" https://test.domain.local/api/user
 
-curl -b "centrale=IKboPW7U/954kWDVwHUl5w" -H "Content-Type: application/json" -d '{"subdomain": "test"}' https://test.domain.local/api/subdomain -vvv
+curl -b "centrale=ssssss" -H "Content-Type: application/json" -d '{"subdomain": "test"}' https://test.domain.local/api/subdomain -vvv
 
 --
-curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: http://test.domain.local" https://test.domain.local -vvv
+curl -b "centrale=ssssss" -H "Referer: http://test.domain.local" https://test.domain.local -vvv
 
 ```
 
 # WEBSOCKET PROXY TEST:
 ```
-curl -b "centrale=aaaaaa" -H "Host: http://test.localhost.com" http://test.localhost.com:8080/api/user/air/token -vvv
+curl -b "centrale=aaaaaa" -H "Host: http://test.domain.local" http://test.domain.local:8080/api/user/air/token -vvv
 // GET RESULT AND PASTE data.air_token AS air_token
-RUST_LOG=info ws --header="Host: ws://test.localhost.com" "ws://test.localhost.com:8080/air?air_token=GmCNE1jehmk/7g9zSX5OOQ"
+RUST_LOG=info ws --header="Host: ws://test.domain.local" "ws://test.domain.local:8080/air?air_token=GmCNE1jehmk/7g9zSX5OOQ"
 ```
 
 # WSS WEBSOCKET PROXY TEST:
 ```
-curl -b "centrale=aaaaaa" -H "Host: test.localhost.com" --cacert /Users/user/app/centrale/proxy/test.localhost.com.pem  https://test.localhost.com/api/user/air/token -vvv
+curl -b "centrale=aaaaaa" -H "Host: test.domain.local" --cacert /Users/user/app/centrale/proxy/test.localhost.com.pem  https://test.domain.local/api/user/air/token -vvv
 
-RUST_LOG=info ws --header="Host: wss://test.localhost.com" "wss://test.localhost.com/air?air_token=YY3i1zhlYuXubB/vZWSmYg" -k
+RUST_LOG=info ws --header="Host: wss://test.domain.local" "wss://domain.local/air?air_token=aaaaaa" -k
 
 ```
 

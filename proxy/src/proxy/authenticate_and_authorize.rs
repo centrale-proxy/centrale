@@ -11,11 +11,10 @@ pub fn authenticate_and_authorize(
     pool: web::Data<DbBool>,
     req: &HttpRequest,
 ) -> Result<(i64, String, String, String, String), CentraleError> {
-    //println!("req {:?}", &req);
+    // println!("req {:?}", &req);
 
     let headers = req.headers();
     let host = get_host(&req)?;
-    //println!("host {:?}", &host);
 
     // VALIDATE SUBDOMAIN
     let subdomain = get_subdomain(&host)?;
@@ -27,8 +26,10 @@ pub fn authenticate_and_authorize(
     let pass = get_subdomain_pass(&pool, &subdomain)?;
     // PREPARE TO PROXY
     let path = req.path().to_string();
+    //println!("path {}", path);
     let domain = format!("{}", CentraleConfig::SAMPLE_SERVER_ADDRESS);
     let url = format!("{}{}", domain, path);
+    println!("url {}", path);
 
     Ok((user_id, subdomain, subdomain_user_role, pass, url))
 }

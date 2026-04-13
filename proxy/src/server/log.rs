@@ -60,7 +60,7 @@ where
                 .unwrap_or_default();
 
             let check_out = CheckOut::new(status_code, Some(&body_bytes));
-            println!("res_log {:?}", &check_out);
+            // println!("res_log {:?}", &check_out);
             send_payload(soc_2, addr, WriterPayload::CheckOut(check_out));
 
             let mut builder = HttpResponse::build(status_code);

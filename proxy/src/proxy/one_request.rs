@@ -44,19 +44,12 @@ pub async fn process_one_request(
             Err(_err) => return Err(CentraleError::InvalidMethod),
         };
 
-        //println!("method: {:?}", method);
         let request = client
             .request(unwrapped_method.clone(), url)
             .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
             .header("centrale_subdomain", format!("{}", subdomain))
             .header("centrale_password", format!("{}", pass))
             .header("centrale_role", format!("{}", subdomain_user_role));
-        // .json(&payload)
-        //.send()
-        //.await?;
-        // if matches!(method, Method::POST | Method::PUT) {
-        //   request = request.json(&payload);
-        // }
 
         let response = request.send().await?;
 
