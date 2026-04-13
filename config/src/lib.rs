@@ -22,14 +22,20 @@ impl CentraleConfig {
     pub const RATE_LIMITER_BURST_SIZE: u32 = 120000;
     /// How many places in pipeline are freed in a second for 1 IP
     pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 120000;
+    // RATE LIMITER FOR PUBLIC ENDPOINTS
+    /// How many requests are allowed to pipeline in total per one IP
+    pub const PUBLIC_RATE_LIMITER_BURST_SIZE: u32 = 1;
+    /// How many places in pipeline are freed in a second for 1 IP
+    pub const PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 1;
+    // WRITER
     pub const WRITER_EVENTS_CAPACITY: usize = 10000;
     pub const WRITER_DB_FILE: &str = "writer.db";
     pub const WRITER_BUFFER_SIZE: usize = 1024;
     // SAMPLE SERVER
     pub const SAMPLE_SERVER_ADDRESS: &str = "http://127.0.0.1:11111";
     // WORKERS
-    pub const PROXY_SERVER_WORKERS: usize = 4;
-    pub const SAMPLE_SERVER_WORKERS: usize = 4;
+    pub const PROXY_SERVER_WORKERS: usize = 1;
+    pub const SAMPLE_SERVER_WORKERS: usize = 1;
     // AIR TOKEN
     pub const AIR_TOKEN_TIMEOUT: i64 = 60;
 

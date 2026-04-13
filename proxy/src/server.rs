@@ -1,4 +1,5 @@
 pub mod log;
+pub mod public_rate_limiter;
 pub mod rate_limiter;
 pub mod routes;
 pub mod start;

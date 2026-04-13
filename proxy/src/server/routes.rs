@@ -3,6 +3,7 @@ use crate::{
         handle_test::handle_test, wildcard::handle_wildcard,
         wildcard_with_payload::handle_wildcard_with_payload,
     },
+    server::public_rate_limiter::public_rate_limiter_config,
     subdomain::respond_post::respond_subdomain,
     user::{
         air_token::generate_responder::generate_air_token,
@@ -10,16 +11,19 @@ use crate::{
         login::handle::handle_login, post::post::post_user,
     },
 };
+use actix_governor::Governor;
 use actix_web::{HttpResponse, web};
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
+    let public_governor_conf = public_rate_limiter_config();
+
     cfg.service(
         web::resource("/api/user")
-            .route(web::post().to(post_user))
+            .wrap(Governor::new(&public_governor_conf))
             .route(web::get().to(get_user))
-            .route(web::head().to(|| HttpResponse::Ok())),
+            .route(web::head().to(|| HttpResponse::Ok()))
+            .route(web::post().to(post_user)),
     );
-
     cfg.service(
         web::resource("/api/login")
             .route(web::post().to(handle_login))
@@ -41,6 +45,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/api/subdomain")
             .route(web::post().to(respond_subdomain))
+            .wrap(Governor::new(&public_governor_conf))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
