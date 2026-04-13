@@ -16,26 +16,25 @@ pub async fn ws_proxy(
 ) -> actix_web::Result<HttpResponse> {
     // 1. Upgrade the client connection
     let (response, client_session, mut client_stream) = actix_ws::handle(&req, stream)?;
-
     let mut upstream_req = url
         .into_client_request()
         .map_err(|e| actix_web::error::ErrorBadGateway(e))?;
-
     let headers = upstream_req.headers_mut();
-
     headers.insert(
         HeaderName::from_static("centrale_subdomain"),
-        subdomain.parse().unwrap(),
+        subdomain
+            .parse()
+            .map_err(|e| actix_web::error::ErrorBadGateway(e))?,
     );
-
     headers.insert(
         HeaderName::from_static("centrale_password"),
-        pass.parse().unwrap(),
+        pass.parse()
+            .map_err(|e| actix_web::error::ErrorBadGateway(e))?,
     );
-
     headers.insert(
         HeaderName::from_static("centrale_role"),
-        role.parse().unwrap(),
+        role.parse()
+            .map_err(|e| actix_web::error::ErrorBadGateway(e))?,
     );
 
     // 2. Connect to the upstream WebSocket server
