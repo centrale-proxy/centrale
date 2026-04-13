@@ -74,11 +74,7 @@ pub enum CentraleError {
 
     #[error("Password hash error: {0}")]
     PasswordHash(#[from] argon2::password_hash::Error),
-    /*
-    #[error("Missing CENTRALE_MASTER_PASSWORD in environment variables")]
-    MissingMasterPassword,
 
-    #[error("Missing CENTRALE_MASTER_BEARER_TOKEN in environment variables")]
-    MissingMasterBearerToken,
-     */
+    #[error("Password is to long. Max allowed length: 200 chars")]
+    PasswordIsTooLong,
 }
