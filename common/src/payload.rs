@@ -7,13 +7,13 @@ use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CheckIn {
-    checkin: u128,
-    ip: Option<String>,
-    url: Option<String>,
+    pub checkin: u128,
+    pub ip: Option<String>,
+    pub url: Option<String>,
     // path: Option<String>,
-    query: Option<String>,
-    ua: Option<String>,
-    method: Option<String>,
+    pub query: Option<String>,
+    pub ua: Option<String>,
+    pub method: Option<String>,
     // referrer: Option<String>,
     // host: Option<String>,
     // os: Option<String>,
@@ -100,9 +100,9 @@ impl CheckIn {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CheckOut {
-    checkout: u128,
-    error: Option<String>,
-    status: Option<u16>,
+    pub checkout: u128,
+    pub error: Option<String>,
+    pub status: Option<u16>,
 }
 
 use actix_web::body::to_bytes;

@@ -163,6 +163,9 @@ sudo systemctl start centrale
 sudo journalctl -u centrale.service
 sudo journalctl -u centrale.service -f
 
+sudo journalctl -u writer.service
+sudo journalctl -u writer.service -f
+
 
 sudo systemctl enable sample_server
 sudo systemctl start sample_server
