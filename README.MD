@@ -142,6 +142,7 @@ After=network.target
 [Service]
 User=www       
 ExecStart=/home/www/centrale/target/release/proxy
+EnvironmentFile=/etc/environment
 Restart=on-failure
 
 [Install]
