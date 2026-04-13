@@ -6,12 +6,12 @@ pub fn get_host(req: &HttpRequest) -> Result<String, CentraleError> {
     let host = header.get("Host");
     let referer = header.get("Referer");
     let from_url = req.uri();
-    if host.is_some() {
-        Ok(host.unwrap().to_str().unwrap().to_string())
-    } else if referer.is_some() {
-        Ok(referer.unwrap().to_str().unwrap().to_string())
+
+    if let Some(host) = host {
+        Ok(host.to_str()?.to_string())
+    } else if let Some(referer) = referer {
+        Ok(referer.to_str()?.to_string())
     } else {
         Ok(from_url.to_string())
-        // Err(CentraleError::NoHostNoReferer)
     }
 }
