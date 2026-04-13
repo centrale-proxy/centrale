@@ -24,6 +24,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .route(web::head().to(|| HttpResponse::Ok()))
             .route(web::post().to(post_user)),
     );
+
     cfg.service(
         web::resource("/api/login")
             .route(web::post().to(handle_login))
@@ -44,8 +45,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
 
     cfg.service(
         web::resource("/api/subdomain")
-            .route(web::post().to(respond_subdomain))
             .wrap(Governor::new(&public_governor_conf))
+            .route(web::post().to(respond_subdomain))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
