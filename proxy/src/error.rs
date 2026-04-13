@@ -77,4 +77,7 @@ pub enum CentraleError {
 
     #[error("Password is to long. Max allowed length: 200 chars")]
     PasswordIsTooLong,
+
+    #[error("No cookie found")]
+    NoCookie,
 }

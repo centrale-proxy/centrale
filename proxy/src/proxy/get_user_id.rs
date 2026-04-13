@@ -26,16 +26,27 @@ pub fn get_user_id(
         let token_string = token
             .and_then(|v| v.to_str().ok())
             .and_then(|v| v.strip_prefix("Bearer "))
-            .unwrap_or("");
+            .unwrap_or("none");
         // let token_string = token.unwrap().to_str()?;
         let user = find_user_by_token(&pool, &token_string)?;
         Ok(user)
     } else if cookie.is_some() {
         // COOKIE
-        let cookie_string = cookie.unwrap().to_string();
-        let cookie = cookie_string.split(';').next().unwrap(); // Split by ';' and take the first part
-        let cookie_value = cookie.split('=').nth(1).unwrap().to_string(); // Split by '=' and take the second part
-        // println!("cookie_value {}", &cookie_value);
+        let cookie_value = match cookie {
+            Some(cookie_string) => {
+                let cookie_string_owned = cookie_string.to_string();
+                let cookie_headers = cookie_string_owned.split(';').next().unwrap_or("none");
+                let cookie_value = cookie_headers
+                    .split('=')
+                    .nth(1)
+                    .unwrap_or("none")
+                    .to_string();
+                cookie_value
+            }
+            None => {
+                return Err(CentraleError::NoCookie);
+            }
+        };
         let user = find_user_by_cookie(&pool, &cookie_value)?;
         Ok(user)
     } else {
