@@ -27,6 +27,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
 
     cfg.service(
         web::resource("/api/login")
+            .wrap(Governor::new(&public_governor_conf))
             .route(web::post().to(handle_login))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
