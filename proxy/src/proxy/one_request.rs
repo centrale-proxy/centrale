@@ -37,10 +37,17 @@ pub async fn process_one_request(
 
         let master_token = CentraleConfig::master_bearer_token();
         //let method = req.method();
-        let method = Method::from_str(req.method().as_str()).unwrap();
+        //let method = Method::from_str(req.method().as_str()).unwrap();
+        let method = Method::from_str(req.method().as_str());
+
+        let unwrapped_method = match method {
+            Ok(method) => method,
+            Err(err) => return Err(CentraleError::InvalidMethod),
+        };
+
         //println!("method: {:?}", method);
         let request = client
-            .request(method.clone(), url)
+            .request(unwrapped_method.clone(), url)
             .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
             .header("centrale_subdomain", format!("{}", subdomain))
             .header("centrale_password", format!("{}", pass))

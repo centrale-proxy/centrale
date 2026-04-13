@@ -32,6 +32,9 @@ pub enum CentraleError {
     #[error("Invalid subdomain")]
     InvalidSubdomain,
 
+    #[error("Invalid method")]
+    InvalidMethod,
+
     #[error("URL parse error: {0}")]
     UrlParseError(#[from] ParseError),
 
