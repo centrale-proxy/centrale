@@ -35,4 +35,18 @@ impl CentraleConfig {
         "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.proompt.local-key.pem";
     pub const CERT_PUB_KEY: &str =
         "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.proompt.local.pem";
+
+    pub fn master_bearer_token() -> String {
+        std::env::var("CENTRALE_MASTER_BEARER_TOKEN")
+            .expect("CENTRALE_MASTER_BEARER_TOKEN must be set")
+    }
+
+    pub fn master_password() -> String {
+        std::env::var("CENTRALE_MASTER_PASSWORD").expect("CENTRALE_MASTER_PASSWORD must be set")
+    }
+
+    pub fn test() {
+        Self::master_bearer_token();
+        Self::master_password();
+    }
 }

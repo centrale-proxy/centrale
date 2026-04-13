@@ -95,12 +95,7 @@ pub fn save_cookie(
 async fn main() {
     //
     let pool = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
-    let password = match env::var(CentraleConfig::CENTRALE_MASTER_PASSWORD) {
-        Ok(token) => token,
-        Err(err) => {
-            panic!("Missing CENTRALE_MASTER_PASSWORD {}", err);
-        }
-    };
+    let password = CentraleConfig::master_password();
 
     let db = get_encrypted_connection(&pool, &password).unwrap();
     let client = reqwest::Client::new();

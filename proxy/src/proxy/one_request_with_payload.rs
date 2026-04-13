@@ -2,13 +2,11 @@ use std::str::FromStr;
 
 use crate::{
     error::CentraleError,
-    proxy::{
-        authenticate_and_authorize::authenticate_and_authorize,
-        get_master_bearer::get_master_bearer_token, wildcard::QueryParams,
-    },
+    proxy::{authenticate_and_authorize::authenticate_and_authorize, wildcard::QueryParams},
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
 use reqwest::{Method, header};
 use serde_json::Value;
@@ -27,7 +25,7 @@ pub async fn process_one_request_with_payload(
         authenticate_and_authorize(pool, &req)?;
     // PROXY
     let client = reqwest::Client::new();
-    let master_token = get_master_bearer_token()?;
+    let master_token = CentraleConfig::master_bearer_token();
     //let method = req.method();
     let method = Method::from_str(req.method().as_str()).unwrap();
     //println!("method: {:?}", method);

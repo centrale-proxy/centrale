@@ -7,3 +7,4 @@
 /config/src/lib.rs
 /archive/
 /proxy/ssl
+.env

@@ -8,13 +8,7 @@ use log::error;
 use std::env;
 
 pub fn get_centrale_db(pool: &DbBool) -> Result<DbConnection, CentraleError> {
-    let password = match env::var(CentraleConfig::CENTRALE_MASTER_PASSWORD) {
-        Ok(token) => token,
-        Err(err) => {
-            error!("{}", err);
-            return Err(CentraleError::MissingMasterPassword);
-        }
-    };
+    let password = CentraleConfig::master_password();
     let db = get_encrypted_connection(pool, &password)?;
     Ok(db)
 }
