@@ -178,3 +178,56 @@ async fn post_subdomain_21_chars_cuts_to_20_chars() {
 
     assert!(subdomain.subdomain.len() == 20);
 }
+#[actix_rt::test]
+async fn post_subdomain_invalid_url_chars_fails() {
+    use crate::proxy::create_test_app::_create_test_app;
+    use serde_json::json;
+    let app = _create_test_app().await;
+    let cookie = _create_user_get_cookie(&app).await;
+
+    let invalid_chars = [
+        " ",  // space
+        "\0", // null byte
+        "/",  // slash
+        "\\", // backslash
+        "?",  // query string delimiter
+        "#",  // fragment delimiter
+        "@",  // at sign
+        "!",  // exclamation mark
+        "$",  // dollar sign
+        "&",  // ampersand
+        "'",  // single quote
+        "(",  // parenthesis open
+        ")",  // parenthesis close
+        "*",  // asterisk
+        "+",  // plus
+        ",",  // comma
+        ";",  // semicolon
+        "=",  // equals
+        "%",  // percent
+        "[",  // bracket open
+        "]",  // bracket close
+        "^",  // caret
+        "{",  // curly brace open
+        "}",  // curly brace close
+        "|",  // pipe
+        "~",  // tilde
+        "`",  // backtick
+        "<",  // less than
+        ">",  // greater than
+        "\"", // double quote
+    ];
+
+    for invalid_char in invalid_chars {
+        let register_subdomain_payload = json!({
+            "subdomain": invalid_char,
+        });
+        let sub_reg =
+            _make_register_subdomain_request(register_subdomain_payload, &app, &cookie).await;
+        assert!(
+            sub_reg.status().is_client_error(),
+            "Expected client error for invalid char: {:?}",
+            invalid_char
+        );
+    }
+}
