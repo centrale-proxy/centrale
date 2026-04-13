@@ -20,7 +20,7 @@ async fn api_test_ok() {
 
     let app = _create_test_app().await;
 
-    let req = test::TestRequest::get().uri("/api/test").to_request();
+    let req = test::TestRequest::get().uri("/api/tester").to_request();
 
     let resp = test::call_service(&app, req).await;
     //println!("resp {:?}", resp);
