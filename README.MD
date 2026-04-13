@@ -121,14 +121,14 @@ curl -b "centrale=LFivww5YEw0XINIw9QGzpQ" -H "Referer: http://test.domain.local"
 
 # WEBSOCKET PROXY TEST:
 ```
-curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: http://test.localhost.com" http://test.localhost.com:8080/api/user/air/token -vvv
+curl -b "centrale=aaaaaa" -H "Host: http://test.localhost.com" http://test.localhost.com:8080/api/user/air/token -vvv
 // GET RESULT AND PASTE data.air_token AS air_token
 RUST_LOG=info ws --header="Host: ws://test.localhost.com" "ws://test.localhost.com:8080/air?air_token=GmCNE1jehmk/7g9zSX5OOQ"
 ```
 
 # WSS WEBSOCKET PROXY TEST:
 ```
-curl -b "centrale=Uun1VmI3TBu3EvW6lkaXlQ" -H "Host: test.localhost.com" --cacert /Users/martin/yeah/centrale/proxy/test.localhost.com.pem  https://test.localhost.com/api/user/air/token -vvv
+curl -b "centrale=aaaaaa" -H "Host: test.localhost.com" --cacert /Users/user/app/centrale/proxy/test.localhost.com.pem  https://test.localhost.com/api/user/air/token -vvv
 
 RUST_LOG=info ws --header="Host: wss://test.localhost.com" "wss://test.localhost.com/air?air_token=YY3i1zhlYuXubB/vZWSmYg" -k
 
@@ -202,7 +202,7 @@ fetch("https://test.mydomain.local/api/user", {
   method: "POST",
   credentials: "include",         
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "martin", password: "hello" }),
+  body: JSON.stringify({ username: "test", password: "hello" }),
 
 })
   .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
@@ -212,7 +212,7 @@ fetch("https://test.mydomain.local/api/user", {
 fetch("https://test.domain.local/api/login", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "martin", password: "hello" }),
+  body: JSON.stringify({ username: "test", password: "hello" }),
 
 })
   .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
@@ -229,7 +229,7 @@ fetch("https://test.mydomain.local/api/subdomain", {
   .catch(console.error);
 
 # Token auth
-curl -H 'Authorization: Bearer uJ&$}r12A?CG:Ty*dP$jmoZY%^{3BAO[d<Y[jkd8Cv@BT?Ty7:*ftWvKiN;?9xD<' https://test.domain.local/api/user/
+curl -H 'Authorization: Bearer test' https://test.domain.local/api/user/
 ```
 
 

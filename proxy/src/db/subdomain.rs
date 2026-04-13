@@ -8,6 +8,7 @@ pub fn create_subdomain_table(
     // TBD address
     // TBD ip
     // TBD port
+    // TBD allowed_origin
     db.execute_batch(
         "
         CREATE TABLE IF NOT EXISTS subdomain (
