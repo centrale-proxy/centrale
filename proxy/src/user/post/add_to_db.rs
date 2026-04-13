@@ -76,4 +76,19 @@ mod tests {
 
         assert!(user_id.is_err());
     }
+    #[test]
+    fn pass_with_501_chars_produces_normal_size_hash_and_does_not_error() {
+        let manager = SqliteConnectionManager::memory();
+        let pool = Pool::new(manager).expect("Failed to create pool.");
+        init_db(&pool).unwrap();
+        let db = pool.get().expect("Couldn't get db connection from pool");
+
+        let (hash, salt) = hash_and_salt(&"01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567891012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678910123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789101234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567891012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678191".to_string()).unwrap();
+
+        assert!(hash.len() < 100);
+
+        let user_id = add_user_to_db(&db, &"user".to_string(), &hash, salt.as_str());
+
+        assert!(user_id.is_ok());
+    }
 }
