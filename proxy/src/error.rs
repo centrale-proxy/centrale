@@ -83,4 +83,7 @@ pub enum CentraleError {
 
     #[error("No cookie found")]
     NoCookie,
+
+    #[error("Unauthorized")]
+    Unauthorized,
 }
