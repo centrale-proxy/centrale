@@ -1,6 +1,12 @@
 pub struct CentraleConfig;
 
 impl CentraleConfig {
+    // ENVIRONMENT VARIABLES:
+    // MASTER KEY BETWEEN PROXY AND NODES
+    pub const CENTRALE_MASTER_BEARER_TOKEN: &str = "CENTRALE_MASTER_BEARER_TOKEN";
+    // MASTER PASSWORD FOR LOCAL DB ENCRYPTION
+    pub const CENTRALE_MASTER_PASSWORD: &str = "CENTRALE_MASTER_PASSWORD";
+    // NOT ENVIRONMENT VARIABLES:
     pub const SERVER_ADDRESS: &str = "0.0.0.0:443";
     pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
@@ -19,18 +25,14 @@ impl CentraleConfig {
     pub const WRITER_BUFFER_SIZE: usize = 1024;
     // SAMPLE SERVER
     pub const SAMPLE_SERVER_ADDRESS: &str = "http://127.0.0.1:11111";
-    // MASTER KEY BETWEEN PROXY AND NODES
-    pub const CENTRALE_MASTER_BEARER_TOKEN: &str = "CENTRALE_MASTER_BEARER_TOKEN";
-    // MASTER PASSWORD FOR LOCAL DB ENCRYPTION
-    pub const CENTRALE_MASTER_PASSWORD: &str = "CENTRALE_MASTER_PASSWORD";
     // WORKERS
     pub const PROXY_SERVER_WORKERS: usize = 4;
     pub const SAMPLE_SERVER_WORKERS: usize = 4;
     // AIR TOKEN
-    pub const AIR_TOKEN_TIMEOUT: i64 = 60; //
+    pub const AIR_TOKEN_TIMEOUT: i64 = 60;
     // CERT
     pub const CERT_PRIVATE_KEY: &str =
-        "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.proompt.local-key.pem"; //"test.localhost.com-key.pem";
+        "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.proompt.local-key.pem";
     pub const CERT_PUB_KEY: &str =
-        "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.proompt.local.pem"; //"test.localhost.com.pem";
+        "/Users/martin/yeah/centrale/proxy/ssl/_wildcard.proompt.local.pem";
 }
