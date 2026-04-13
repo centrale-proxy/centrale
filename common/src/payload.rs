@@ -107,7 +107,7 @@ pub struct CheckOut {
 
 use actix_web::body::to_bytes;
 
-async fn read_body(res: ServiceResponse) -> String {
+pub async fn read_response_body(res: ServiceResponse) -> String {
     let body_bytes = to_bytes(res.into_body()).await.unwrap();
     String::from_utf8(body_bytes.to_vec()).unwrap()
 }

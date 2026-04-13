@@ -12,7 +12,7 @@ pub fn create_subdomain_table(
         "
         CREATE TABLE IF NOT EXISTS subdomain (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            subdomain TEXT NOT NULL UNIQUE CHECK(subdomain <> ''),
+            subdomain TEXT NOT NULL UNIQUE CHECK(LENGTH(subdomain) >= 1 AND LENGTH(subdomain) <= 20),
             password TEXT NOT NULL CHECK(password <> ''),
             user_id INTEGER NOT NULL,
             FOREIGN KEY(user_id) REFERENCES user(id)

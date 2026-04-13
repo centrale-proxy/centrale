@@ -76,6 +76,7 @@ mod tests {
 
         assert!(user_id.is_err());
     }
+
     #[test]
     fn pass_with_501_chars_produces_normal_size_hash_and_does_not_error() {
         let manager = SqliteConnectionManager::memory();

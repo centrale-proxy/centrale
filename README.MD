@@ -45,7 +45,7 @@ Generate bearer token:
 GET /api/user/bearer/token
 (TBD) DELETE /api/user/bearer/:id
 
-POST /api/subdomain - add subdomain
+POST /api/subdomain - add subdomain (subdomain is max 20 chars, if over, will be tructuated)
 (TBD) GET /api/subdomain - get user subdomains
 (TBD) DELETE /api/subdomain - delete subdomain
 (TBD) GET /api/test-subdomain - see if subdomain is available
