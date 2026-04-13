@@ -157,6 +157,9 @@ WantedBy=multi-user.target
 
 
 ---
+debugging:  
+source /etc/env  
+---
 sudo systemctl enable centrale
 sudo systemctl start centrale
 
