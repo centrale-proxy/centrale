@@ -29,6 +29,7 @@ pub fn handle_register(
     let db = get_centrale_db(pool.get_ref())?;
     // CREATE HASH AND SALT
     let (hash, salt) = hash_and_salt(&password)?;
+    // TBD VALIDATE
     // SAVE USER TO DB
     let user_id = add_user_to_db(&db, &username, &hash, salt.as_str())?;
     // SAVE COOKIE

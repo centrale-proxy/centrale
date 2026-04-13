@@ -48,4 +48,32 @@ mod tests {
         let second = add_user_to_db(&db, &"username".to_string(), &hash, salt.as_str());
         assert!(second.is_err());
     }
+
+    #[test]
+    fn add_0_byte_user_errors() {
+        let manager = SqliteConnectionManager::memory();
+        let pool = Pool::new(manager).expect("Failed to create pool.");
+        init_db(&pool).unwrap();
+        let db = pool.get().expect("Couldn't get db connection from pool");
+
+        let (hash, salt) = hash_and_salt(&"password".to_string()).unwrap();
+
+        let user_id = add_user_to_db(&db, &"\0".to_string(), &hash, salt.as_str());
+
+        assert!(user_id.is_err());
+    }
+
+    #[test]
+    fn add_101_chars_user_errors() {
+        let manager = SqliteConnectionManager::memory();
+        let pool = Pool::new(manager).expect("Failed to create pool.");
+        init_db(&pool).unwrap();
+        let db = pool.get().expect("Couldn't get db connection from pool");
+
+        let (hash, salt) = hash_and_salt(&"password".to_string()).unwrap();
+
+        let user_id = add_user_to_db(&db, &"01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567891".to_string(), &hash, salt.as_str());
+
+        assert!(user_id.is_err());
+    }
 }

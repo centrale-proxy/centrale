@@ -9,7 +9,7 @@ pub fn create_user_table(
         "
         CREATE TABLE IF NOT EXISTS user (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE CHECK(username <> ''),
+            username TEXT NOT NULL UNIQUE CHECK(LENGTH(username) >= 1 AND LENGTH(username) <= 100),
             password TEXT NOT NULL CHECK(password <> ''),
             salt TEXT NOT NULL CHECK(salt <> ''),
             name TEXT,
