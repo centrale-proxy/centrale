@@ -53,6 +53,9 @@ Destination server:
 + Why is backend doing subodmains not DNS?
 + in DNS, they would be enuremable.
 
++ logging system Writer uses UDP connection, which is unreliable compared to TCP.
++ it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Proxy.
+
 ## NO AUTH endoints:
 ```
 GET /api/tester - ensures website is up and db is working
@@ -230,11 +233,13 @@ fetch("https://test.mydomain.local/api/user", {
   credentials: "include",         
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ username: "test", password: "hello" }),
-
 })
-  .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
-  .then(console.log)
-  .catch(console.error);
+
+fetch("https://test.mydomain.local/api/subdomain", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ subdomain: "test" })
+})
 
 fetch("https://test.domain.local/api/login", {
   method: "POST",
@@ -242,18 +247,7 @@ fetch("https://test.domain.local/api/login", {
   body: JSON.stringify({ username: "test", password: "hello" }),
 
 })
-  .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
-  .then(console.log)
-  .catch(console.error);
 
-fetch("https://test.mydomain.local/api/subdomain", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ subdomain: "test" })
-})
-  .then(r => r.text().then(t => ({ status: r.status, headers: Object.fromEntries(r.headers), body: t })))
-  .then(console.log)
-  .catch(console.error);
 
 # Token auth
 curl -H 'Authorization: Bearer test' https://test.domain.local/api/user/
