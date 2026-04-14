@@ -122,6 +122,7 @@ async fn post_subdomain_normal() {
     use crate::user::post::test::_make_request_with_cookie;
     use serde_json::json;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
     let cookie = _create_user_get_cookie(&app).await;
 
@@ -141,6 +142,7 @@ async fn post_subdomain_0_bytes_fails() {
     use crate::proxy::create_test_app::_create_test_app;
     use serde_json::json;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
     let cookie = _create_user_get_cookie(&app).await;
 
@@ -158,6 +160,7 @@ async fn post_subdomain_21_chars_cuts_to_20_chars() {
     use actix_web::body::to_bytes;
     use serde_json::json;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
     let cookie = _create_user_get_cookie(&app).await;
 
@@ -178,6 +181,7 @@ async fn post_subdomain_21_chars_cuts_to_20_chars() {
 async fn post_subdomain_invalid_url_chars_fails() {
     use crate::proxy::create_test_app::_create_test_app;
     use serde_json::json;
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
     let cookie = _create_user_get_cookie(&app).await;
 

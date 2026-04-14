@@ -60,6 +60,7 @@ async fn fails_without_cookie_and_token() {
     use crate::proxy::create_test_app::_create_test_app;
     use actix_web::test;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
 
     let req = test::TestRequest::get()
@@ -77,6 +78,7 @@ async fn random_token_does_not_work() {
     use actix_web::http::header::AUTHORIZATION;
     use actix_web::{http::header::HeaderValue, test};
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
 
     let req = test::TestRequest::get()
@@ -97,6 +99,7 @@ async fn random_cookie_not_working() {
     use crate::proxy::create_test_app::_create_test_app;
     use actix_web::{http::header::COOKIE, test};
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
 
     let req = test::TestRequest::get()

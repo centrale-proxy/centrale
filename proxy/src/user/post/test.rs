@@ -90,6 +90,7 @@ pub fn _create_payload_custom(username: &str, password: &str) -> Value {
 async fn post_new_user() {
     use crate::proxy::create_test_app::_create_test_app;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
     let payload = _create_payload();
     let resp = _make_user_register_test_request(payload, &app).await;
@@ -102,6 +103,7 @@ async fn post_new_user() {
 async fn same_username_twice_errors() {
     use crate::proxy::create_test_app::_create_test_app;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
     let payload = _create_payload();
     let resp = _make_user_register_test_request(payload.clone(), &app).await;
@@ -116,6 +118,7 @@ async fn same_username_twice_errors() {
 async fn post_user_get_user_with_cookie() {
     use crate::proxy::create_test_app::_create_test_app;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
     let payload = _create_payload();
     let resp = _make_user_register_test_request(payload, &app).await;
@@ -134,6 +137,7 @@ async fn post_user_get_user_with_cookie() {
 async fn post_0char_username_fails() {
     use crate::proxy::create_test_app::_create_test_app;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
     let payload = _create_payload_custom("\0", "password");
     let resp = _make_user_register_test_request(payload, &app).await;
@@ -179,6 +183,7 @@ async fn post_non_alphanumberic_username_fails() {
         "\"", // double quote
     ];
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
 
     for invalid_char in invalid_chars {

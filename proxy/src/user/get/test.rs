@@ -29,6 +29,7 @@ pub async fn _make_get_user_request(
 async fn get_user_not_authenticated() {
     use crate::proxy::create_test_app::_create_test_app;
 
+    dotenvy::dotenv().ok();
     let app = _create_test_app().await;
 
     let resp = _make_get_user_request(&"cookie".to_string(), app).await;
