@@ -20,7 +20,7 @@ impl CentraleConfig {
     /// How many requests are allowed to pipeline in total per one IP
     pub const RATE_LIMITER_BURST_SIZE: u32 = 10;
     /// How many places in pipeline are freed in a second for 1 IP
-    pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 500;
+    pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 10000;
     // RATE LIMITER FOR PUBLIC ENDPOINTS
     /// How many requests are allowed to pipeline in total per one IP
     pub const PUBLIC_RATE_LIMITER_BURST_SIZE: u32 = 1;

@@ -41,13 +41,13 @@ pub async fn handle_post(
             let master_token = CentraleConfig::master_bearer_token();
 
             let url = format!(
-                "{}/api/register_subdomain",
+                "http://{}/api/register_subdomain",
                 CentraleConfig::SAMPLE_SERVER_ADDRESS
             );
 
             let mut map = HashMap::new();
             map.insert("hello", "hello");
-            // println!("url {}", &url);
+
             let response = client
                 .post(&url)
                 .json(&map)
