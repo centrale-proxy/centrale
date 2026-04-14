@@ -31,7 +31,7 @@ impl CentraleConfig {
     pub const WRITER_DB_FILE: &str = "writer.db";
     pub const WRITER_BUFFER_SIZE: usize = 1024;
     // SAMPLE SERVER
-    pub const SAMPLE_SERVER_ADDRESS: &str = "127.0.0.1:11111"; // http://127.0.0.1:11111
+    pub const SAMPLE_SERVER_ADDRESS: &str = "127.0.0.1:11111";
     // WORKERS
     pub const PROXY_SERVER_WORKERS: usize = 1;
     pub const SAMPLE_SERVER_WORKERS: usize = 1;

@@ -7,5 +7,6 @@
 /config/src/lib.rs
 /archive/
 /proxy/ssl
+/sample_server/src/ssl
 .env
 ask.sh

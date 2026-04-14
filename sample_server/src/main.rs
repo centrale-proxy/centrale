@@ -8,7 +8,9 @@ pub mod routes;
 pub mod server;
 
 use crate::server::start_server;
+use dotenvy::dotenv;
 
 fn main() {
+    dotenv().ok();
     start_server().unwrap();
 }

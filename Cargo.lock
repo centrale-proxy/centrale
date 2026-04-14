@@ -2375,6 +2375,8 @@ dependencies = [
  "actix-web",
  "config",
  "dir_and_db_pool",
+ "dotenvy",
+ "openssl",
  "rusqlite",
  "serde_json",
  "thiserror 2.0.18",

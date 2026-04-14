@@ -3,6 +3,7 @@ use crate::{auth::auth_master_bearer_token, error::SampleServerError, routes::ro
 use actix_web::middleware::from_fn;
 use actix_web::{App, HttpServer, web};
 use config::CentraleConfig;
+// use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use std::sync::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
@@ -11,6 +12,18 @@ pub async fn start_server() -> Result<(), SampleServerError> {
     // CREATE REGISTRY
     let pools = HashMap::new();
     let registry = Arc::new(RwLock::new(DbPoolRegistry { pools }));
+    /*
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    builder
+        .set_private_key_file(
+            CentraleConfig::get("SAMPLE_SERVER_CERT_PRIVATE_KEY"),
+            SslFiletype::PEM,
+        )
+        .unwrap();
+    builder
+        .set_certificate_chain_file(CentraleConfig::get("SAMPLE_SERVER_CERT_PUB_KEY"))
+        .unwrap();
+     */
     // ANNOUNCE
     println!(
         "server started at {}",

@@ -29,7 +29,6 @@ pub fn authenticate_and_authorize(
     //println!("path {}", path);
     let domain = format!("{}", CentraleConfig::SAMPLE_SERVER_ADDRESS);
     let url = format!("{}{}", domain, path);
-    // println!("url {}", path);
 
     Ok((user_id, subdomain, subdomain_user_role, pass, url))
 }
