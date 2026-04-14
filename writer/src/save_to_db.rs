@@ -7,9 +7,10 @@ pub fn save_to_db(payload: WriterPayload, db: &DbConnection) {
         WriterPayload::CheckIn(payload) => {
             // SEND TX OR GO STRAIGHT TO DB?
             println!(
-                "{} {} {}",
+                "{} {} {} {}",
                 payload.method.unwrap_or("".to_string()),
                 payload.url.unwrap_or("".to_string()),
+                payload.ip.unwrap_or("".to_string()),
                 payload.checkin
             );
         }

@@ -31,15 +31,12 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::convert::string_to_vector;
 
 pub fn get_ip(req: &ServiceRequest) -> Option<String> {
-    req.headers()
-        .get("x-forwarded-for")
-        .and_then(|v| v.to_str().ok())
-        .map(|s| s.to_string())
-        .or_else(|| {
-            req.connection_info()
-                .realip_remote_addr()
-                .map(|s| s.to_string())
-        })
+    let conn_info = req.connection_info();
+    let peer_addr = conn_info.peer_addr();
+    match peer_addr {
+        Some(peer) => Some(peer.to_string()),
+        None => None,
+    }
 }
 
 pub fn get_ua(req: &ServiceRequest) -> Option<String> {
@@ -55,7 +52,7 @@ pub fn get_ua(req: &ServiceRequest) -> Option<String> {
         None => None,
     }
 }
-
+//
 impl CheckIn {
     pub fn new_vector(req: &ServiceRequest) -> Vec<u8> {
         let aaa = Self::new(req);
@@ -129,6 +126,7 @@ impl CheckOut {
             match body {
                 Some(body) => {
                     let err = String::from_utf8_lossy(body).to_string();
+                    println!("err: {}", err);
                     CheckOut {
                         checkout: epoch_time,
                         error: Some(err),
