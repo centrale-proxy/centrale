@@ -10,13 +10,20 @@ use crate::{
     },
 };
 use actix_web::{HttpResponse, web};
+use argon2::password_hash::SaltString;
 use dir_and_db_pool::db::DbBool;
+use rand::rngs::OsRng;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct LoginUser {
     pub username: String,
     pub password: String,
+}
+
+fn generate_random_salt() -> String {
+    let password = SaltString::generate(&mut OsRng);
+    password.to_string()
 }
 
 /// Main worker for user posting
@@ -29,7 +36,8 @@ pub fn process_login(
     let password = register_request.password;
     let db = get_centrale_db(pool.get_ref())?;
 
-    let salt = find_user_salt(&pool, &username).unwrap_or("none".to_string());
+    let salt = find_user_salt(&pool, &username).unwrap_or(generate_random_salt());
+
     // CREATE HASH AND SALT
     let hash = hash_with_salt(&password, &salt)?;
     // SAVE USER TO DB
