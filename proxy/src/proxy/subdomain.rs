@@ -13,7 +13,7 @@ pub fn get_subdomain(url: &str) -> Result<String, CentraleError> {
             let parts: Vec<&str> = host.split('.').collect();
             if parts.len() == 3 {
                 let domain = format!("{}.{}", parts[1], parts[2]);
-                if domain == CentraleConfig::DOMAIN {
+                if domain == CentraleConfig::get("DOMAIN") {
                     Ok(parts[0].to_string())
                 } else {
                     Err(CentraleError::InvalidDomain)

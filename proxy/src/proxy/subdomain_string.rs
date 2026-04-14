@@ -1,6 +1,6 @@
 use crate::{error::CentraleError, proxy::wildcard::_create_wildcard_request_with_referer};
 use actix_http::header::HeaderMap;
-use actix_web::{dev::ServiceResponse, http::header::HeaderValue};
+use actix_web::dev::ServiceResponse;
 use config::CentraleConfig;
 use url::Url;
 
@@ -12,7 +12,7 @@ pub fn get_subdomain_string(url: &str) -> Result<String, CentraleError> {
             let parts: Vec<&str> = host.split('.').collect();
             if parts.len() == 3 {
                 let domain = format!("{}.{}", parts[1], parts[2]);
-                if domain == CentraleConfig::DOMAIN {
+                if domain == CentraleConfig::get("DOMAIN") {
                     Ok(parts[0].to_string())
                 } else {
                     Err(CentraleError::InvalidDomain)

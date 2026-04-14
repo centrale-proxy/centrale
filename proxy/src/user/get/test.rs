@@ -12,7 +12,7 @@ pub async fn _make_get_user_request(
     app: impl Service<Request, Response = ServiceResponse, Error = Error>,
 ) -> ServiceResponse {
     let baked_cookie = Cookie::build("my_cookie", cookie)
-        .domain(CentraleConfig::DOMAIN)
+        .domain(CentraleConfig::get("DOMAIN"))
         .path("/")
         .finish();
 

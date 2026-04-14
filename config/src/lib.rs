@@ -13,7 +13,6 @@ impl CentraleConfig {
     pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
-    pub const DOMAIN: &str = "proompt.local";
     pub const COOKIE_TIMEOUT: i64 = 86400; // 60 * 60 * 24 * 30 // 86400 // 2592000
     pub const COOKIE_SECURE: bool = true; // FALSE FOR LOCAL
     pub const COOKIE_HTTP_ONLY: bool = true; // FALSE FOR LOCAL
@@ -57,10 +56,16 @@ impl CentraleConfig {
         std::env::var(Self::CENTRALE_CERT_PUB_KEY).expect("CENTRALE_CERT_PUB_KEY must be set")
     }
 
+    pub fn get(env_var: &str) -> String {
+        let err = format!("{} must be set", env_var);
+        std::env::var(env_var).expect(&err)
+    }
+
     pub fn test() {
         Self::master_bearer_token();
         Self::master_password();
         Self::cert_private_key();
         Self::cert_pub_key();
+        Self::get("DOMAIN");
     }
 }
