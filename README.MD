@@ -50,6 +50,9 @@ Destination server:
 + Why subdomains?
 + API looks better
 
++ Why is backend doing subodmains not DNS?
++ in DNS, they would be enuremable.
+
 ## NO AUTH endoints:
 ```
 GET /api/tester - ensures website is up and db is working
