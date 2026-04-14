@@ -44,6 +44,12 @@ Destination server:
 + Client errors are logged to Writer
 + + Previously customer support had to ask a programmer.
 
++ So... an Actix server is connected straight to internet.
++ Yes - and I'm totally waiting for ideas what should be in front of it which is not Nginx.
+
++ Why subdomains?
++ API looks better
+
 ## NO AUTH endoints:
 ```
 GET /api/tester - ensures website is up and db is working

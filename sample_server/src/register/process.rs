@@ -37,17 +37,19 @@ pub fn process_register(
             centrale_password.unwrap(),
         )?;
 
-        //let db = conn.get().unwrap();
-
-        //let conn = get_subdomain_db(&subdomain_id.unwrap(), &centrale_password.unwrap()).unwrap();
         create_subdomain_db(&conn, centrale_password.unwrap()).unwrap();
 
-        let c = conn.get().unwrap();
-        c.execute_batch(&format!("PRAGMA key = '{}';", &centrale_password.unwrap()))
-            .unwrap();
+        let db = conn.get().unwrap();
+
+        let query = format!(
+            "PRAGMA key = '{}';",
+            centrale_password.unwrap().replace("'", "''")
+        );
+
+        db.execute_batch(&query).unwrap();
 
         // CREATE SUBDOMAIN DB
-        c.execute_batch(&format!(
+        db.execute_batch(&format!(
             "INSERT INTO secrets (data) VALUES ('this is test value');",
         ))
         .unwrap();

@@ -28,10 +28,9 @@ pub fn get_subdomain_db(subdomain: &str, pass: &str) -> Result<DbBool, SampleSer
 }
 
 pub fn create_subdomain_db(conn: &DbBool, pass: &str) -> Result<(), DirsqlError> {
-    // let conn = Connection::open(path)?;
-    // conn.execute_batch(&format!("PRAGMA key = '{}';", passphrase))?;
     let db = conn.get().unwrap();
-    db.execute_batch(&format!("PRAGMA key = '{}';", pass))?;
+    let query = format!("PRAGMA key = '{}';", pass.replace("'", "''"));
+    db.execute_batch(&query)?;
     db.execute_batch(
         "
         CREATE TABLE IF NOT EXISTS secrets (

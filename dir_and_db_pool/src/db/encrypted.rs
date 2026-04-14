@@ -10,8 +10,8 @@ struct SqlCipherCustomizer {
 
 impl CustomizeConnection<Connection, Error> for SqlCipherCustomizer {
     fn on_acquire(&self, conn: &mut Connection) -> Result<(), Error> {
-        conn.execute_batch(&format!("PRAGMA key = '{}';", self.passphrase))?;
-        conn.execute_batch("SELECT count(*) FROM sqlite_master;")?;
+        let query = format!("PRAGMA key = '{}';", self.passphrase.replace("'", "''"));
+        conn.execute_batch(&query)?;
         Ok(())
     }
 }
