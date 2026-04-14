@@ -18,9 +18,9 @@ impl CentraleConfig {
     pub const COOKIE_HTTP_ONLY: bool = true; // FALSE FOR LOCAL
     // RATE LIMITER
     /// How many requests are allowed to pipeline in total per one IP
-    pub const RATE_LIMITER_BURST_SIZE: u32 = 120000;
+    pub const RATE_LIMITER_BURST_SIZE: u32 = 1;
     /// How many places in pipeline are freed in a second for 1 IP
-    pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 120000;
+    pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 5000;
     // RATE LIMITER FOR PUBLIC ENDPOINTS
     /// How many requests are allowed to pipeline in total per one IP
     pub const PUBLIC_RATE_LIMITER_BURST_SIZE: u32 = 1;
