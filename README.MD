@@ -20,6 +20,8 @@ Proxy:
 + proxies request (http + websocket) to destination server
 + + add id, password and role to (destination server db) request headers
 + Forwards request data to Writer (logging service)
++ + If response status is not 200, error body is saved
++ + This helps customer support know the userfacing error as it happens
 
 Destination server:
 + each subdomain gets own (sqlite + sqlcipher password) db
@@ -27,10 +29,25 @@ Destination server:
 
 ***
 
+# Oppinionated parts:
++ If proxy is down, whole service is immediately down
++ + Reasoning: would be the same, if your auth server were down.
+
++ Token and cookie are allowed for same endpoints
++ + Reasoning: It seams double the work to make own endpoints for app and web,
++ + Especcialy if you use CapacitorJS or similar and your webapp is your ios app,
++ + This will also affected the TBD Access-Control-Allow-Origin part
+
++ Auth + proxy is done by the same part
++ + I have no good solution for that
+
++ Client errors are logged to Writer
++ + Previously customer support had to ask a programmer.
+
 ## NO AUTH endoints:
 ```
 GET /api/tester - ensures website is up and db is working
-POST /api/user - register user (password can be 1-200 chars, username can be 1-100 chars)
+POST /api/user - register user (password can be 1-200 chars, username can be 1-100 chars, must be alphanumeric)
 POST /login - login
 ```
 ## AUTH endpoints
@@ -46,7 +63,7 @@ GET /logout
 
 GET /api/user/air/token - Genereate air token for websockets
 
-POST /api/subdomain - add subdomain (subdomain is min 1, max 20 chars, if over, will be tructuated)
+POST /api/subdomain - add subdomain (subdomain is min 1, max 20 chars, if over, will be tructuated, must be alphanumeric)
 (TBD) GET /api/subdomain - get user subdomains
 (TBD) DELETE /api/subdomain - delete subdomain
 (TBD) GET /api/test-subdomain - see if subdomain is available

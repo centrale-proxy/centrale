@@ -78,6 +78,14 @@ pub fn _create_payload() -> Value {
     payload
 }
 
+pub fn _create_payload_custom(username: &str, password: &str) -> Value {
+    let payload = json!({
+        "username": username,
+        "password": password
+    });
+    payload
+}
+
 #[actix_rt::test]
 async fn post_new_user() {
     use crate::proxy::create_test_app::_create_test_app;
@@ -122,8 +130,66 @@ async fn post_user_get_user_with_cookie() {
     assert!(auth_resp.status().is_success());
 }
 
+#[actix_rt::test]
+async fn post_0char_username_fails() {
+    use crate::proxy::create_test_app::_create_test_app;
+
+    let app = _create_test_app().await;
+    let payload = _create_payload_custom("\0", "password");
+    let resp = _make_user_register_test_request(payload, &app).await;
+    assert!(resp.status().is_client_error());
+}
+
+#[actix_rt::test]
+async fn post_non_alphanumberic_username_fails() {
+    use crate::proxy::create_test_app::_create_test_app;
+
+    let invalid_chars = [
+        /*x
+        " ",  // space
+        "\0", // null byte
+        "/",  // slash
+        "\\", // backslash
+        "?",  // query string delimiter
+        "#",  // fragment delimiter
+        "@",  // at sign
+        "!",  // exclamation mark
+        "$",  // dollar sign
+        "&",  // ampersand
+        "'",  // single quote
+        "(",  // parenthesis open
+        ")",  // parenthesis close
+        "*",  // asterisk
+        "+",  // plus
+        ",",  // comma
+        ";",  // semicolon
+        "=",  // equals
+        "%",  // percent
+        "[",  // bracket open
+        "]",  // bracket close
+        */
+        "^",  // caret
+        "{",  // curly brace open
+        "}",  // curly brace close
+        "|",  // pipe
+        "~",  // tilde
+        "`",  // backtick
+        "<",  // less than
+        ">",  // greater than
+        "\"", // double quote
+    ];
+
+    let app = _create_test_app().await;
+
+    for invalid_char in invalid_chars {
+        let payload = _create_payload_custom(invalid_char, "password");
+        let resp = _make_user_register_test_request(payload, &app).await;
+        assert!(resp.status().is_client_error());
+    }
+}
+
 // #[actix_rt::test]
-async fn million_users() {
+async fn _million_users() {
     use crate::proxy::create_test_app::_create_test_app;
 
     let app = _create_test_app().await;

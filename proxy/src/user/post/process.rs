@@ -23,6 +23,7 @@ pub fn handle_register(
     pool: web::Data<DbBool>,
     json: web::Json<RegisterUser>,
 ) -> Result<HttpResponse, CentraleError> {
+    //
     let register_request = json.into_inner();
     let username = register_request.username;
     let password = register_request.password;
