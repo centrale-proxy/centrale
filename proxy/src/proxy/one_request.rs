@@ -10,8 +10,8 @@ use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
-use reqwest::{Method, header};
-use std::str::FromStr;
+use reqwest::{Certificate, Client, Method, header};
+use std::{fs, str::FromStr};
 
 /// Process one wildcard request
 pub async fn process_one_request(
@@ -29,12 +29,14 @@ pub async fn process_one_request(
         let socket = ws_proxy(req, stream, url, subdomain, pass, role).await?;
         Ok(socket)
     } else {
-        // IS NORMAL
+        // IS HTTPS REQUEST
         let (_user_id, subdomain, subdomain_user_role, pass, url) =
             authenticate_and_authorize(pool, &req)?;
-        // PROXY
-        let client = reqwest::Client::new();
 
+        // ADD CERT
+        let cert = fs::read(CentraleConfig::cert_private_key())?;
+        let cert = Certificate::from_pem(&cert)?;
+        let client = Client::builder().add_root_certificate(cert).build()?;
         let master_token = CentraleConfig::master_bearer_token();
 
         let method = Method::from_str(req.method().as_str());
@@ -44,7 +46,8 @@ pub async fn process_one_request(
             Err(_err) => return Err(CentraleError::InvalidMethod),
         };
 
-        let url_local = format!("http://{}", url);
+        let url_local = format!("https://{}", url);
+
         let request = client
             .request(unwrapped_method.clone(), url_local)
             .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
@@ -52,10 +55,11 @@ pub async fn process_one_request(
             .header("centrale_password", format!("{}", pass))
             .header("centrale_role", format!("{}", subdomain_user_role));
 
-        let response = request.send().await?;
-
+        let response = request.send().await;
+        let response = response?;
         let status = response.status();
         let body = response.bytes().await?;
+
         let res = HttpResponse::build(StatusCode::from_u16(status.as_u16()).unwrap()).body(body);
 
         Ok(res)

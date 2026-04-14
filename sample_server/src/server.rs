@@ -3,7 +3,7 @@ use crate::{auth::auth_master_bearer_token, error::SampleServerError, routes::ro
 use actix_web::middleware::from_fn;
 use actix_web::{App, HttpServer, web};
 use config::CentraleConfig;
-// use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use std::sync::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
@@ -12,22 +12,19 @@ pub async fn start_server() -> Result<(), SampleServerError> {
     // CREATE REGISTRY
     let pools = HashMap::new();
     let registry = Arc::new(RwLock::new(DbPoolRegistry { pools }));
-    /*
+    // SET HTTPS
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
-        .set_private_key_file(
-            CentraleConfig::get("SAMPLE_SERVER_CERT_PRIVATE_KEY"),
-            SslFiletype::PEM,
-        )
+        .set_private_key_file(CentraleConfig::cert_private_key(), SslFiletype::PEM)
         .unwrap();
     builder
-        .set_certificate_chain_file(CentraleConfig::get("SAMPLE_SERVER_CERT_PUB_KEY"))
+        .set_certificate_chain_file(CentraleConfig::cert_pub_key())
         .unwrap();
-     */
+
     // ANNOUNCE
     println!(
         "server started at {}",
-        CentraleConfig::SAMPLE_SERVER_ADDRESS
+        CentraleConfig::get("SAMPLE_SERVER_ADDRESS")
     );
     //START
     HttpServer::new(move || {
@@ -37,7 +34,7 @@ pub async fn start_server() -> Result<(), SampleServerError> {
             .app_data(web::Data::new(registry.clone()))
     })
     .workers(CentraleConfig::SAMPLE_SERVER_WORKERS)
-    .bind(CentraleConfig::SAMPLE_SERVER_ADDRESS)?
+    .bind_openssl(CentraleConfig::get("SAMPLE_SERVER_ADDRESS"), builder)?
     .run()
     .await?;
 

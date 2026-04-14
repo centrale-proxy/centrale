@@ -42,7 +42,7 @@ pub async fn handle_post(
 
             let url = format!(
                 "http://{}/api/register_subdomain",
-                CentraleConfig::SAMPLE_SERVER_ADDRESS
+                CentraleConfig::get("SAMPLE_SERVER_ADDRESS")
             );
 
             let mut map = HashMap::new();
