@@ -15,19 +15,25 @@ use serde_json::Value;
 pub async fn process_one_request_with_payload(
     pool: web::Data<DbBool>,
     req: HttpRequest,
-    //  stream: web::Payload,
     _query: web::Query<QueryParams>,
     body: web::Bytes,
 ) -> Result<HttpResponse, CentraleError> {
-    //println!("body {:?}", &body);
     // IS NORMAL
     let (_user_id, subdomain, subdomain_user_role, pass, url) =
         authenticate_and_authorize(pool, &req)?;
     // PROXY
     let client = reqwest::Client::new();
     let master_token = CentraleConfig::master_bearer_token();
-    //let method = req.method();
-    let method = Method::from_str(req.method().as_str()).unwrap();
+
+    let is_method = Method::from_str(req.method().as_str());
+
+    let method = match is_method {
+        Ok(method) => method,
+        Err(_err) => {
+            return Err(CentraleError::InvalidMethod);
+        }
+    };
+
     //println!("method: {:?}", method);
     let mut request = client
         .request(method.clone(), url)
