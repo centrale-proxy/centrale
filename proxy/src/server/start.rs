@@ -1,6 +1,6 @@
-use crate::server::log::log_middleware;
 use crate::server::rate_limiter::get_rate_limiter_config;
 use crate::server::routes::routes;
+use crate::{proxy::create_client::create_client_with_cert, server::log::log_middleware};
 use actix_governor::Governor;
 use actix_web::{App, HttpServer, web};
 use config::CentraleConfig;
@@ -25,6 +25,8 @@ pub async fn start_server(db: DbBool) -> std::io::Result<()> {
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder.set_private_key_file(CentraleConfig::cert_private_key(), SslFiletype::PEM)?;
     builder.set_certificate_chain_file(CentraleConfig::cert_pub_key())?;
+    // CREATE CLIENT WITH CERT
+    let client = create_client_with_cert().unwrap();
     // SERVER ITSELF
     HttpServer::new(move || {
         App::new()
@@ -35,6 +37,7 @@ pub async fn start_server(db: DbBool) -> std::io::Result<()> {
             })
             .wrap(Governor::new(&governor_conf))
             .app_data(web::Data::new(db.clone()))
+            .app_data(web::Data::new(client.clone()))
     })
     .workers(CentraleConfig::PROXY_SERVER_WORKERS)
     .bind_openssl(CentraleConfig::SERVER_ADDRESS, builder)?

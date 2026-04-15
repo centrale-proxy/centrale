@@ -15,9 +15,9 @@ pub async fn handle_wildcard(
     req: HttpRequest,
     stream: web::Payload,
     query: web::Query<QueryParams>,
-    //  payload: web::Json<Value>,
+    client: web::Data<reqwest::Client>,
 ) -> impl Responder {
-    match process_one_request(pool, req, stream, query).await {
+    match process_one_request(pool, req, stream, query, client).await {
         Ok(result) => result,
         Err(err) => {
             error!("Centrale wildcard error: {}", err);

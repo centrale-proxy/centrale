@@ -48,7 +48,7 @@ pub async fn _make_request_with_cookie_to_wildcard(
     let req = test::TestRequest::get()
         .uri("/")
         .insert_header((header::COOKIE, cookie))
-        .insert_header(("Referer", "http://subdomain.localhost.com"))
+        .insert_header(("Referer", "https://subdomain.localhost.com"))
         .insert_header(("Content-Type", "application/json"))
         .to_request();
 

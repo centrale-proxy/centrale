@@ -36,7 +36,7 @@ pub fn process_register(
             subdomain_id.unwrap(),
             centrale_password.unwrap(),
         )?;
-
+        //
         create_subdomain_db(&conn, centrale_password.unwrap()).unwrap();
 
         let db = conn.get().unwrap();

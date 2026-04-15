@@ -1,17 +1,17 @@
 use crate::{
     error::CentraleError,
     proxy::{
-        authenticate_and_authorize::authenticate_and_authorize, is_ws::is_streaming_request,
-        proxy_ws::ws_proxy, wildcard::QueryParams,
-        ws_authenticate_and_authorize::ws_authenticate_and_authorize,
+        authenticate_and_authorize::authenticate_and_authorize,
+        create_client::create_client_with_cert, is_ws::is_streaming_request, proxy_ws::ws_proxy,
+        wildcard::QueryParams, ws_authenticate_and_authorize::ws_authenticate_and_authorize,
     },
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
-use reqwest::{Certificate, Client, Method, header};
-use std::{fs, str::FromStr};
+use reqwest::{Method, header};
+use std::str::FromStr;
 
 /// Process one wildcard request
 pub async fn process_one_request(
@@ -19,7 +19,7 @@ pub async fn process_one_request(
     req: HttpRequest,
     stream: web::Payload,
     query: web::Query<QueryParams>,
-    //  payload: web::Json<Value>,
+    client: web::Data<reqwest::Client>,
 ) -> Result<HttpResponse, CentraleError> {
     if is_streaming_request(&req) {
         // IS STEAM
@@ -33,12 +33,9 @@ pub async fn process_one_request(
         let (_user_id, subdomain, subdomain_user_role, pass, url) =
             authenticate_and_authorize(pool, &req)?;
 
-        // ADD CERT
-        let cert = fs::read(CentraleConfig::cert_private_key())?;
-        let cert = Certificate::from_pem(&cert)?;
-        let client = Client::builder().add_root_certificate(cert).build()?;
-        let master_token = CentraleConfig::master_bearer_token();
+        // let client = create_client_with_cert()?;
 
+        let master_token = CentraleConfig::master_bearer_token();
         let method = Method::from_str(req.method().as_str());
 
         let unwrapped_method = match method {
@@ -47,7 +44,7 @@ pub async fn process_one_request(
         };
 
         let url_local = format!("https://{}", url);
-
+        //
         let request = client
             .request(unwrapped_method.clone(), url_local)
             .header(header::AUTHORIZATION, format!("Bearer {}", master_token))

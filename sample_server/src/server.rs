@@ -9,7 +9,7 @@ use std::{collections::HashMap, sync::Arc};
 
 #[actix_web::main]
 pub async fn start_server() -> Result<(), SampleServerError> {
-    // CREATE REGISTRY
+    // CREATE REGISTRY //
     let pools = HashMap::new();
     let registry = Arc::new(RwLock::new(DbPoolRegistry { pools }));
     // SET HTTPS

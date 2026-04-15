@@ -1,5 +1,6 @@
 pub mod api_test;
 pub mod authenticate_and_authorize;
+pub mod create_client;
 pub mod create_test_app;
 pub mod get_user_id;
 pub mod handle_test;

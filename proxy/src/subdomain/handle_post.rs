@@ -8,14 +8,15 @@ use actix_web::{
     dev::{Service, ServiceResponse},
     web,
 };
-use common::truncate;
+use common::{random::random_numbers, truncate};
 use config::CentraleConfig;
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::{DbBool, db_file::db_file};
 use log::error;
+use rand::distributions::Alphanumeric;
 use reqwest::header;
 use serde::Deserialize;
 use serde_json::Value;
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
 #[derive(Deserialize, Debug)]
 pub struct RegisterSubdomain {
@@ -41,7 +42,7 @@ pub async fn handle_post(
             let master_token = CentraleConfig::master_bearer_token();
 
             let url = format!(
-                "http://{}/api/register_subdomain",
+                "https://{}/api/register_subdomain",
                 CentraleConfig::get("SAMPLE_SERVER_ADDRESS")
             );
 
@@ -120,9 +121,24 @@ async fn _create_user_get_cookie(
 async fn post_subdomain_normal() {
     use crate::proxy::create_test_app::_create_test_app;
     use crate::user::post::test::_make_request_with_cookie;
+    use rand::Rng;
     use serde_json::json;
 
     dotenvy::dotenv().ok();
+
+    //  let nums = random_numbers(20);
+
+    // let nums_str = String::from_utf8(nums).unwrap();
+    let nums_str: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(20)
+        .map(char::from)
+        .collect();
+
+    let folder = format!("{}{}", CentraleConfig::DB_FOLDER, "/subdomains");
+    let file_path = db_file(&nums_str, &folder).unwrap();
+    fs::remove_file(&file_path).unwrap_or(());
+
     let app = _create_test_app().await;
     let cookie = _create_user_get_cookie(&app).await;
 
@@ -130,12 +146,14 @@ async fn post_subdomain_normal() {
     assert!(auth_resp.status().is_success());
 
     let register_subdomain_payload = json!({
-        "subdomain": "test",
+        "subdomain": nums_str,
     });
 
     let sub_reg = _make_register_subdomain_request(register_subdomain_payload, &app, &cookie).await;
 
     assert!(sub_reg.status().is_success());
+
+    fs::remove_file(file_path).unwrap();
 }
 #[actix_rt::test]
 async fn post_subdomain_0_bytes_fails() {
@@ -158,14 +176,29 @@ async fn post_subdomain_0_bytes_fails() {
 async fn post_subdomain_21_chars_cuts_to_20_chars() {
     use crate::proxy::create_test_app::_create_test_app;
     use actix_web::body::to_bytes;
+    use rand::Rng;
     use serde_json::json;
 
     dotenvy::dotenv().ok();
+
+    let nums_str: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(21)
+        .map(char::from)
+        .collect();
+
+    let folder = format!("{}{}", CentraleConfig::DB_FOLDER, "/subdomains");
+
+    let mut nums_2 = nums_str.clone();
+    nums_2.truncate(nums_str.len() - 1);
+
+    let file_path = db_file(&nums_2, &folder).unwrap();
+
     let app = _create_test_app().await;
     let cookie = _create_user_get_cookie(&app).await;
 
     let register_subdomain_payload = json!({
-        "subdomain": "012345678901234567891",
+        "subdomain": nums_str,
     });
 
     let sub_reg = _make_register_subdomain_request(register_subdomain_payload, &app, &cookie).await;
@@ -176,6 +209,8 @@ async fn post_subdomain_21_chars_cuts_to_20_chars() {
     let subdomain: RegisterSubdomain = serde_json::from_str(&str).unwrap();
 
     assert!(subdomain.subdomain.len() == 20);
+
+    fs::remove_file(file_path).unwrap_or(());
 }
 #[actix_rt::test]
 async fn post_subdomain_invalid_url_chars_fails() {

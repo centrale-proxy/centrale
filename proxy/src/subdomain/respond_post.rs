@@ -12,6 +12,8 @@ pub async fn respond_subdomain(
         Ok(result) => result,
         Err(err) => {
             error!("Add subdomain error: {}", err);
+            eprintln!(" err {:?}", err);
+
             HttpResponse::UnprocessableEntity()
                 .json(serde_json::json!({ "error": "Cannot post subdomain" }))
         }

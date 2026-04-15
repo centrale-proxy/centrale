@@ -63,12 +63,10 @@ async fn fails_without_cookie_and_token() {
     dotenvy::dotenv().ok();
     let app = _create_test_app().await;
 
-    let req = test::TestRequest::get()
-        .uri("/")
-        .insert_header(("Host", "https://hello.hello.ee"))
-        .to_request();
+    let req = test::TestRequest::get().uri("/").to_request();
 
     let resp = test::call_service(&app, req).await;
+
     assert!(resp.status().is_client_error());
 }
 
@@ -83,7 +81,6 @@ async fn random_token_does_not_work() {
 
     let req = test::TestRequest::get()
         .uri("/")
-        .insert_header(("Host", "https://hello.hello.ee"))
         .insert_header((
             AUTHORIZATION,
             HeaderValue::from_str(&format!("Bearer {}", "token")).unwrap(),
@@ -104,7 +101,6 @@ async fn random_cookie_not_working() {
 
     let req = test::TestRequest::get()
         .uri("/")
-        .insert_header(("Host", "https://hello.hello.ee"))
         .insert_header((COOKIE, format!("centrale={}", "your_cookie_value_here")))
         .to_request();
 
