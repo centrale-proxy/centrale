@@ -24,7 +24,7 @@ pub async fn start_server() -> Result<(), SampleServerError> {
     // ANNOUNCE
     println!(
         "server started at {}",
-        CentraleConfig::get("SAMPLE_SERVER_ADDRESS")
+        CentraleConfig::get("SAMPLE_SERVER_IP")
     );
     //START
     HttpServer::new(move || {
@@ -34,7 +34,7 @@ pub async fn start_server() -> Result<(), SampleServerError> {
             .app_data(web::Data::new(registry.clone()))
     })
     .workers(CentraleConfig::SAMPLE_SERVER_WORKERS)
-    .bind_openssl(CentraleConfig::get("SAMPLE_SERVER_ADDRESS"), builder)?
+    .bind_openssl(CentraleConfig::get("SAMPLE_SERVER_IP"), builder)?
     .run()
     .await?;
 
