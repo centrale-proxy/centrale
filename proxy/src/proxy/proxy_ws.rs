@@ -15,9 +15,10 @@ pub async fn ws_proxy(
     role: String,
 ) -> actix_web::Result<HttpResponse> {
     // 1. Upgrade the client connection
+    println!("Starting proxy to {}", &url);
+
     let (response, client_session, mut client_stream) = actix_ws::handle(&req, stream)?;
 
-    println!("connecting to {}", &url);
     let mut upstream_req = url
         .into_client_request()
         .map_err(|e| actix_web::error::ErrorBadGateway(e))?;
@@ -45,7 +46,7 @@ pub async fn ws_proxy(
         .map_err(|e| actix_web::error::ErrorBadGateway(e))?;
 
     let (mut upstream_sink, mut upstream_stream) = upstream_ws.split();
-
+    println!("Socket is ready");
     // 3. Spawn a task to forward client → upstream
     let mut session_clone = client_session.clone();
     actix_web::rt::spawn(async move {
