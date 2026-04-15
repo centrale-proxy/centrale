@@ -27,13 +27,6 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     );
 
     cfg.service(
-        web::resource("/api/login")
-            .wrap(Governor::new(&public_governor_conf))
-            .route(web::post().to(handle_login))
-            .route(web::head().to(|| HttpResponse::Ok())),
-    );
-
-    cfg.service(
         web::resource("/api/user/air/token")
             .route(web::get().to(generate_air_token))
             .route(web::head().to(|| HttpResponse::Ok())),
@@ -52,13 +45,24 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     );
 
     cfg.service(
+        web::resource("/api/login")
+            .wrap(Governor::new(&public_governor_conf))
+            .route(web::post().to(handle_login))
+            .route(web::head().to(|| HttpResponse::Ok())),
+    );
+
+    cfg.service(
         web::resource("/api/subdomain")
             .wrap(Governor::new(&public_governor_conf))
             .route(web::post().to(respond_subdomain))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
-    cfg.service(web::resource("/api/tester").route(web::get().to(handle_test)));
+    cfg.service(
+        web::resource("/api/tester")
+            .wrap(Governor::new(&public_governor_conf))
+            .route(web::get().to(handle_test)),
+    );
 
     cfg.service(
         web::resource("/{_:.*}")

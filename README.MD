@@ -30,34 +30,34 @@ Destination server:
 ***
 
 # Oppinionated parts:
-+ If proxy is down, whole service is immediately down
-+ + Reasoning: would be the same, if your auth server were down.
+Q: If proxy is down, whole service is immediately down
+A: It would be the same, if your auth server were down.
 
-+ Token and cookie are allowed for same endpoints
-+ + Reasoning: It seams double the work to make own endpoints for app and web,
-+ + Especcialy if you use CapacitorJS or similar and your webapp is your ios app,
-+ + This will also affected the TBD Access-Control-Allow-Origin part
+Q: Auth + proxy is done by the same part
+A: I have no good solution for that
+  
+Q: Client errors body is logged to Writer
+A: Previously customer support had to ask a programmer to find what the error was.
 
-+ Auth + proxy is done by the same part
-+ + I have no good solution for that
+Q: So... an Actix server is connected straight to internet.
+A: Yes - and I'm totally waiting for ideas what should be in front of it which is not Nginx.
 
-+ Client errors are logged to Writer
-+ + Previously customer support had to ask a programmer.
+Q: Why subdomains?
+A: API looks better
 
-+ So... an Actix server is connected straight to internet.
-+ Yes - and I'm totally waiting for ideas what should be in front of it which is not Nginx.
+Q: Why is backend doing subodmains not DNS?
+A: in DNS, they would be enuremable.
 
-+ Why subdomains?
-+ API looks better
+A: logging system Writer uses UDP connection, which is unreliable compared to TCP.
+A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Proxy.
 
-+ Why is backend doing subodmains not DNS?
-+ in DNS, they would be enuremable.
+Q: Encryption key is in the header of request.
+A: My main idea here is that the destination server itself would not have the key(s), only the encrypted db. Totally waiting for ideas on how to transport the secret.
 
-+ logging system Writer uses UDP connection, which is unreliable compared to TCP.
-+ it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Proxy.
-
-+ Encryption key is in the header of request.
-+ My main idea here is that the destination server itself would not have the key, only the safe. Totally waiting for ideas on how to transport the secret.
+Q: Token and cookie are both allowed for same endpoints
+A:: It seams double the work to make own endpoints for app and web,
+Especcialy if you use CapacitorJS or similar and your webapp is your ios app,
+This will also affected the TBD Access-Control-Allow-Origin part
 
 ## NO AUTH endoints:
 ```
