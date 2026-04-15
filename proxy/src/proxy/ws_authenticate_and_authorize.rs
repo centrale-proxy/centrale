@@ -5,6 +5,7 @@ use crate::{
     user::air_token::find_user_by_air_token::find_user_by_air_token,
 };
 use actix_web::{HttpRequest, web};
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
 ///
 pub fn ws_authenticate_and_authorize(
@@ -30,7 +31,7 @@ pub fn ws_authenticate_and_authorize(
     let pass = get_subdomain_pass(&pool, &subdomain)?;
     // PREPARE TO PROXY
     let path = req.path().to_string();
-    let domain = format!("ws://localhost:11111");
+    let domain = format!("wss://{}", CentraleConfig::get("SAMPLE_SERVER_ADDRESS"));
     let url = format!("{}{}", domain, path);
 
     Ok((user_id, subdomain, subdomain_user_role, pass, url))
