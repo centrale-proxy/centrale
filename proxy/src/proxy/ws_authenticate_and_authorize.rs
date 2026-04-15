@@ -17,6 +17,8 @@ pub fn ws_authenticate_and_authorize(
     let host = get_host(req)?;
     // VALIDATE SUBDOMAIN
     let full_url = format!("https://{}", host);
+    println!("full_url {}", full_url);
+
     let subdomain = get_subdomain_string(&full_url)?;
 
     let air_token = match &query.air_token {
