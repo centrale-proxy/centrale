@@ -33,6 +33,7 @@ pub fn ws_authenticate_and_authorize(
     let path = req.path().to_string();
     let domain = format!("wss://{}", CentraleConfig::get("SAMPLE_SERVER_ADDRESS"));
     let url = format!("{}{}", domain, path);
+    println!("Connect socket to: {}", &url);
 
     Ok((user_id, subdomain, subdomain_user_role, pass, url))
 }
