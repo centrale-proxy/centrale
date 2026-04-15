@@ -57,7 +57,7 @@ Destination server:
 + it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Proxy.
 
 + Encryption key is in the header of request.
-+ My main idea here is that the destination server itself would not have the key, only the safe. Totally waiting for ideas on how to transport the secret
++ My main idea here is that the destination server itself would not have the key, only the safe. Totally waiting for ideas on how to transport the secret.
 
 ## NO AUTH endoints:
 ```
