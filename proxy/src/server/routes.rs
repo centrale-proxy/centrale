@@ -27,20 +27,20 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     );
 
     cfg.service(
-        web::resource("/api/user/air/token")
-            .route(web::get().to(generate_air_token))
-            .route(web::head().to(|| HttpResponse::Ok())),
-    );
-
-    cfg.service(
-        web::resource("/api/user/bearer/token")
+        web::resource("/api/user/{user_id}/bearer/generate")
             .route(web::get().to(generate_bearer_token))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
     cfg.service(
-        web::resource("/api/user/bearer/view")
+        web::resource("/api/user/{user_id}/bearer/view")
             .route(web::get().to(view_bearer_tokens))
+            .route(web::head().to(|| HttpResponse::Ok())),
+    );
+
+    cfg.service(
+        web::resource("/api/user/air/token")
+            .route(web::get().to(generate_air_token))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 

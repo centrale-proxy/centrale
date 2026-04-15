@@ -86,4 +86,7 @@ pub enum CentraleError {
 
     #[error("Unauthorized")]
     Unauthorized,
+
+    #[error("Wrong user for token")]
+    WrongUser,
 }
