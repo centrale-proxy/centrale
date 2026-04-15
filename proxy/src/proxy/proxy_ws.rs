@@ -16,6 +16,8 @@ pub async fn ws_proxy(
 ) -> actix_web::Result<HttpResponse> {
     // 1. Upgrade the client connection
     let (response, client_session, mut client_stream) = actix_ws::handle(&req, stream)?;
+
+    println!("connecting to {}", &url);
     let mut upstream_req = url
         .into_client_request()
         .map_err(|e| actix_web::error::ErrorBadGateway(e))?;
