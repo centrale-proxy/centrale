@@ -17,16 +17,14 @@ pub async fn process_one_request_with_payload(
     req: HttpRequest,
     _query: web::Query<QueryParams>,
     body: web::Bytes,
+    client: web::Data<reqwest::Client>,
 ) -> Result<HttpResponse, CentraleError> {
     // IS NORMAL
     let (_user_id, subdomain, subdomain_user_role, pass, url) =
         authenticate_and_authorize(pool, &req)?;
-    // PROXY
-    let client = reqwest::Client::new();
+
     let master_token = CentraleConfig::master_bearer_token();
-
     let is_method = Method::from_str(req.method().as_str());
-
     let method = match is_method {
         Ok(method) => method,
         Err(_err) => {
@@ -34,17 +32,14 @@ pub async fn process_one_request_with_payload(
         }
     };
 
-    //println!("method: {:?}", method);
+    let https = format!("https://{}", url);
     let mut request = client
-        .request(method.clone(), url)
+        .request(method.clone(), https)
         .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
         .header("centrale_subdomain", format!("{}", subdomain))
         .header("centrale_password", format!("{}", pass))
         .header("centrale_role", format!("{}", subdomain_user_role));
-    // .json(&payload)
-    //.send()
-    //.await?;
-    //
+
     let payload: Value = if body.is_empty() {
         Value::Null
     } else {

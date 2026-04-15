@@ -34,7 +34,8 @@ pub fn get_secret_db(
 
 pub fn create_secret_db(path: &str, passphrase: &str) -> Result<Connection, DirsqlError> {
     let conn = Connection::open(path)?;
-    conn.execute_batch(&format!("PRAGMA key = '{}';", passphrase))?;
+    let query = format!("PRAGMA key = '{}';", passphrase.replace("'", "''"));
+    conn.execute_batch(&query)?;
 
     conn.execute_batch(
         "

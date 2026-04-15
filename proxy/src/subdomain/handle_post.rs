@@ -27,6 +27,7 @@ pub async fn handle_post(
     pool: web::Data<DbBool>,
     payload: web::Json<RegisterSubdomain>,
     req: HttpRequest,
+    client: web::Data<reqwest::Client>,
 ) -> Result<HttpResponse, CentraleError> {
     let subdomain_original = payload.subdomain.clone();
     let subdomain = truncate(&subdomain_original, 20);
@@ -38,7 +39,6 @@ pub async fn handle_post(
     match post_subdomain(&db, &subdomain, user_id) {
         Ok(password) => {
             // SEND TO DESTINATION SERVER
-            let client = reqwest::Client::new();
             let master_token = CentraleConfig::master_bearer_token();
 
             let url = format!(

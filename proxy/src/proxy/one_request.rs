@@ -22,19 +22,15 @@ pub async fn process_one_request(
     client: web::Data<reqwest::Client>,
 ) -> Result<HttpResponse, CentraleError> {
     if is_streaming_request(&req) {
-        println!("new stream");
         // IS STEAM
         let (_user_id, subdomain, role, pass, url) =
             ws_authenticate_and_authorize(pool, &req, query)?;
-        println!("new stream url {}", {:?});
         let socket = ws_proxy(req, stream, url, subdomain, pass, role).await?;
         Ok(socket)
     } else {
         // IS HTTPS REQUEST
         let (_user_id, subdomain, subdomain_user_role, pass, url) =
             authenticate_and_authorize(pool, &req)?;
-
-        // let client = create_client_with_cert()?;
 
         let master_token = CentraleConfig::master_bearer_token();
         let method = Method::from_str(req.method().as_str());

@@ -10,8 +10,9 @@ pub async fn handle_wildcard_with_payload(
     req: HttpRequest,
     query: web::Query<QueryParams>,
     body: web::Bytes,
+    client: web::Data<reqwest::Client>,
 ) -> impl Responder {
-    match process_one_request_with_payload(pool, req, query, body).await {
+    match process_one_request_with_payload(pool, req, query, body, client).await {
         Ok(result) => result,
         Err(err) => {
             error!("Centrale wildcard payload error: {}", err);
