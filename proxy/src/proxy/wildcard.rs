@@ -101,7 +101,7 @@ async fn has_host_ok() {
  */
 #[actix_rt::test]
 async fn has_one_work_host_err() {
-    use crate::proxy::subdomain::_one_wildcard_test_case_with_host;
+    use crate::proxy::auth::subdomain::_one_wildcard_test_case_with_host;
 
     let auth_resp = _one_wildcard_test_case_with_host("Some").await;
     assert!(auth_resp.status().is_client_error());

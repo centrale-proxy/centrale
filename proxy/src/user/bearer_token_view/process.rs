@@ -1,5 +1,5 @@
 use crate::{
-    error::CentraleError, proxy::get_user_id::get_user_id,
+    error::CentraleError, proxy::auth::get_user_id::get_user_id,
     user::bearer_token_view::find_bearer_tokens::find_bearer_tokens,
 };
 use actix_web::{HttpRequest, HttpResponse, web};

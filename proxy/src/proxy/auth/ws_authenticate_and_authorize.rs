@@ -1,6 +1,6 @@
 use crate::{
     error::CentraleError,
-    proxy::{host::get_host, subdomain_string::get_subdomain_string, wildcard::QueryParams},
+    proxy::{auth::host::get_host, subdomain_string::get_subdomain_string, wildcard::QueryParams},
     subdomain::{get::get_subdomain_pass, get_subdomain_user::get_subdomain_user_role},
     user::air_token::find_user_by_air_token::find_user_by_air_token,
 };

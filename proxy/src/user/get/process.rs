@@ -1,7 +1,6 @@
+use crate::{error::CentraleError, proxy::auth::get_user_id::get_user_id};
 use actix_web::{HttpRequest, HttpResponse, web};
 use dir_and_db_pool::db::DbBool;
-
-use crate::{error::CentraleError, proxy::get_user_id::get_user_id};
 //
 pub fn get_user_process(
     pool: web::Data<DbBool>,

@@ -1,5 +1,5 @@
 use crate::{
-    db::get_db::get_centrale_db, error::CentraleError, proxy::get_user_id::get_user_id,
+    db::get_db::get_centrale_db, error::CentraleError, proxy::auth::get_user_id::get_user_id,
     subdomain::post::post_subdomain,
 };
 use actix_http::Request;
@@ -8,15 +8,14 @@ use actix_web::{
     dev::{Service, ServiceResponse},
     web,
 };
-use common::{random::random_numbers, truncate};
+use common::truncate;
 use config::CentraleConfig;
-use dir_and_db_pool::db::{DbBool, db_file::db_file};
+use dir_and_db_pool::db::DbBool;
 use log::error;
-use rand::distributions::Alphanumeric;
 use reqwest::header;
 use serde::Deserialize;
 use serde_json::Value;
-use std::{collections::HashMap, fs};
+use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]
 pub struct RegisterSubdomain {
@@ -121,14 +120,14 @@ async fn _create_user_get_cookie(
 async fn post_subdomain_normal() {
     use crate::proxy::create_test_app::_create_test_app;
     use crate::user::post::test::_make_request_with_cookie;
+    use dir_and_db_pool::db::db_file::db_file;
     use rand::Rng;
+    use rand::distributions::Alphanumeric;
     use serde_json::json;
+    use std::fs;
 
     dotenvy::dotenv().ok();
 
-    //  let nums = random_numbers(20);
-
-    // let nums_str = String::from_utf8(nums).unwrap();
     let nums_str: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(20)
@@ -176,8 +175,11 @@ async fn post_subdomain_0_bytes_fails() {
 async fn post_subdomain_21_chars_cuts_to_20_chars() {
     use crate::proxy::create_test_app::_create_test_app;
     use actix_web::body::to_bytes;
+    use dir_and_db_pool::db::db_file::db_file;
     use rand::Rng;
+    use rand::distributions::Alphanumeric;
     use serde_json::json;
+    use std::fs;
 
     dotenvy::dotenv().ok();
 

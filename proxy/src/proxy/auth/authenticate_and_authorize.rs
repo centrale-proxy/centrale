@@ -1,6 +1,6 @@
 use crate::{
     error::CentraleError,
-    proxy::{get_user_id::get_user_id, host::get_host, subdomain::get_subdomain},
+    proxy::auth::{get_user_id::get_user_id, host::get_host, subdomain::get_subdomain},
     subdomain::{get::get_subdomain_pass, get_subdomain_user::get_subdomain_user_role},
 };
 use actix_web::{HttpRequest, web};

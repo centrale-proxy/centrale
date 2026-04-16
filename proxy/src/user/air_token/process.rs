@@ -1,5 +1,6 @@
 use crate::{
-    error::CentraleError, proxy::get_user_id::get_user_id, user::air_token::save::save_air_token,
+    error::CentraleError, proxy::auth::get_user_id::get_user_id,
+    user::air_token::save::save_air_token,
 };
 use actix_web::{HttpRequest, HttpResponse, web};
 use dir_and_db_pool::db::DbBool;
