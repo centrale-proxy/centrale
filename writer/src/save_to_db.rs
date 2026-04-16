@@ -1,7 +1,7 @@
 use common::payload::WriterPayload;
 use dir_and_db_pool::db::DbConnection;
 
-pub fn save_to_db(payload: WriterPayload, db: &DbConnection) {
+pub fn save_to_db(payload: WriterPayload, _db: &DbConnection) {
     // println!("payload: {:?}", &payload);
     match payload {
         WriterPayload::CheckIn(payload) => {

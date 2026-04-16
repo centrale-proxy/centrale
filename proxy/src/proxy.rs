@@ -1,9 +1,7 @@
 pub mod api_test;
 pub mod auth;
-pub mod create_client;
 pub mod create_test_app;
 pub mod handle_test;
-pub mod subdomain_string;
 pub mod websocket;
 pub mod wildcard;
 pub mod wildcard_with_payload;

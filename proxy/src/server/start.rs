@@ -1,6 +1,6 @@
 use crate::server::rate_limiter::get_rate_limiter_config;
 use crate::server::routes::routes;
-use crate::{proxy::create_client::create_client_with_cert, server::log::log_middleware};
+use crate::{proxy::wildcard::create_client::create_client_with_cert, server::log::log_middleware};
 use actix_governor::Governor;
 use actix_web::{App, HttpServer, web};
 use config::CentraleConfig;

@@ -6,7 +6,7 @@ use actix_web::{
 };
 
 use crate::user::post::test::_create_test_pool;
-use crate::{proxy::create_client::create_client_with_cert, server::routes::routes};
+use crate::{proxy::wildcard::create_client::create_client_with_cert, server::routes::routes};
 use actix_web::{App, test};
 
 pub async fn _create_test_app() -> impl Service<Request, Response = ServiceResponse, Error = Error>

@@ -4,10 +4,7 @@ pub mod rate_limiter;
 pub mod routes;
 pub mod start;
 
-use crate::{
-    db::init::init_db, error::CentraleError, proxy::create_client::create_client_with_cert,
-    server::start::start_server,
-};
+use crate::{db::init::init_db, error::CentraleError, server::start::start_server};
 use config::CentraleConfig;
 use dir_and_db_pool::db::{db_file::db_file, encrypted::get_secret_db};
 

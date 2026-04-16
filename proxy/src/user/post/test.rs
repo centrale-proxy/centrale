@@ -227,6 +227,7 @@ async fn _million_users() {
         // let auth_resp = _make_request_with_cookie(&app, cookie).await;
         // assert!(auth_resp.status().is_success());
     }
+    println!("{}", last_cookie);
     /*
          for i in 0..1000 {
         let auth_resp = _make_request_with_cookie(&app, &last_cookie).await;
