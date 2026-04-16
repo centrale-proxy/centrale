@@ -5,8 +5,7 @@ use crate::{
             authenticate_and_authorize::authenticate_and_authorize,
             ws_authenticate_and_authorize::ws_authenticate_and_authorize,
         },
-        is_ws::is_streaming_request,
-        proxy_ws::ws_proxy,
+        websocket::{is_ws::is_streaming_request, proxy_ws::ws_proxy},
         wildcard::QueryParams,
     },
 };
@@ -26,7 +25,7 @@ pub async fn process_one_request(
     client: web::Data<reqwest::Client>,
 ) -> Result<HttpResponse, CentraleError> {
     if is_streaming_request(&req) {
-        // IS STEAM
+        // IS STREAM
         let (_user_id, subdomain, role, pass, url) =
             ws_authenticate_and_authorize(pool, &req, query)?;
         let socket = ws_proxy(req, stream, url, subdomain, pass, role).await?;

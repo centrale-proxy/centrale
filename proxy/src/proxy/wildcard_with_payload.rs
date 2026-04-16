@@ -5,7 +5,7 @@ use actix_web::{HttpRequest, HttpResponse, Responder, web};
 use dir_and_db_pool::db::DbBool;
 use log::error;
 
-/// HANDLES ALL WILDCARD REQUESTS
+/// HANDLES WILDCARD REQUESTS WITH PAYLOAD. Separate file because websocket and body are the same thing.
 pub async fn handle_wildcard_with_payload(
     pool: web::Data<DbBool>,
     req: HttpRequest,
