@@ -1,8 +1,6 @@
-use std::str::FromStr;
-
 use crate::{
     error::CentraleError,
-    proxy::{authenticate_and_authorize::authenticate_and_authorize, wildcard::QueryParams},
+    proxy::{auth::authenticate_and_authorize::authenticate_and_authorize, wildcard::QueryParams},
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
@@ -10,6 +8,7 @@ use config::CentraleConfig;
 use dir_and_db_pool::db::DbBool;
 use reqwest::{Method, header};
 use serde_json::Value;
+use std::str::FromStr;
 
 /// Process one wildcard request
 pub async fn process_one_request_with_payload(

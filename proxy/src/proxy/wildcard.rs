@@ -1,4 +1,6 @@
-use crate::proxy::one_request::process_one_request;
+pub mod one_request;
+pub mod one_request_with_payload;
+
 use actix_http::Request;
 use actix_web::http::header;
 use actix_web::{HttpRequest, web};
@@ -64,6 +66,8 @@ pub fn _create_wildcard_request_with_referer(cookie: String, referer: &str) -> R
 
 use actix_web::test;
 use serde_json::json;
+
+use crate::proxy::wildcard::one_request::process_one_request;
 
 pub fn _user_create_request() -> Request {
     let payload = json!({

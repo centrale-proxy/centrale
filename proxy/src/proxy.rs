@@ -1,16 +1,13 @@
 pub mod api_test;
-pub mod authenticate_and_authorize;
+pub mod auth;
 pub mod create_client;
 pub mod create_test_app;
 pub mod get_user_id;
 pub mod handle_test;
 pub mod host;
 pub mod is_ws;
-pub mod one_request;
-pub mod one_request_with_payload;
 pub mod proxy_ws;
 pub mod subdomain;
 pub mod subdomain_string;
 pub mod wildcard;
 pub mod wildcard_with_payload;
-pub mod ws_authenticate_and_authorize;

@@ -1,9 +1,13 @@
 use crate::{
     error::CentraleError,
     proxy::{
-        authenticate_and_authorize::authenticate_and_authorize, is_ws::is_streaming_request,
-        proxy_ws::ws_proxy, wildcard::QueryParams,
-        ws_authenticate_and_authorize::ws_authenticate_and_authorize,
+        auth::{
+            authenticate_and_authorize::authenticate_and_authorize,
+            ws_authenticate_and_authorize::ws_authenticate_and_authorize,
+        },
+        is_ws::is_streaming_request,
+        proxy_ws::ws_proxy,
+        wildcard::QueryParams,
     },
 };
 use actix_http::StatusCode;

@@ -1,5 +1,6 @@
-use crate::proxy::one_request_with_payload::process_one_request_with_payload;
-use crate::proxy::wildcard::QueryParams;
+use crate::proxy::wildcard::{
+    QueryParams, one_request_with_payload::process_one_request_with_payload,
+};
 use actix_web::{HttpRequest, HttpResponse, Responder, web};
 use dir_and_db_pool::db::DbBool;
 use log::error;
