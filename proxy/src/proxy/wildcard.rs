@@ -14,7 +14,7 @@ pub struct QueryParams {
     pub air_token: Option<String>,
 }
 
-/// HANDLES ALL WILDCARD REQUESTS
+/// HANDLES ALL WILDCARD REQUESTS. Responds to client
 pub async fn handle_wildcard(
     pool: web::Data<DbBool>,
     req: HttpRequest,
