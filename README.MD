@@ -35,6 +35,9 @@ A: It would be the same, if your auth server were down.
 
 Q: Auth + proxy is done by the same part
 A: I have no good solution for that
+
+Q: User registration gives an immediate cookie (instead of requiring log in).
+A: I've been in the position of asking for this feature "later" (when the auth was built already).
   
 Q: Client errors body is logged to Writer
 A: Previously customer support had to ask a programmer to find what the error was.

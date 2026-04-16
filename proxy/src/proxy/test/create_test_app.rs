@@ -11,6 +11,7 @@ use actix_web::{App, test};
 
 pub async fn _create_test_app() -> impl Service<Request, Response = ServiceResponse, Error = Error>
 {
+    dotenvy::dotenv().ok();
     let db = _create_test_pool();
     let client = create_client_with_cert().unwrap();
 
