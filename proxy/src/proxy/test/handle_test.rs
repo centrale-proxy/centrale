@@ -1,7 +1,8 @@
-use crate::proxy::api_test::api_test;
 use actix_web::{HttpResponse, Responder, web};
 use dir_and_db_pool::db::DbBool;
 use log::error;
+
+use crate::proxy::test::api_test::api_test;
 
 pub async fn handle_test(pool: web::Data<DbBool>) -> impl Responder {
     match api_test(pool) {
@@ -15,7 +16,7 @@ pub async fn handle_test(pool: web::Data<DbBool>) -> impl Responder {
 
 #[actix_rt::test]
 async fn api_test_ok() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use actix_web::test;
 
     let app = _create_test_app().await;

@@ -58,7 +58,7 @@ pub async fn _make_get_user_request(
 }
 #[actix_rt::test]
 async fn get_user_not_authenticated() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
 
     let app = _create_test_app().await;
 

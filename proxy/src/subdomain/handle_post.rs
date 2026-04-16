@@ -118,7 +118,7 @@ async fn _create_user_get_cookie(
 }
 #[actix_rt::test]
 async fn post_subdomain_normal() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use crate::user::post::test::_make_request_with_cookie;
     use dir_and_db_pool::db::db_file::db_file;
     use rand::Rng;
@@ -156,7 +156,7 @@ async fn post_subdomain_normal() {
 }
 #[actix_rt::test]
 async fn post_subdomain_0_bytes_fails() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use serde_json::json;
 
     dotenvy::dotenv().ok();
@@ -173,7 +173,7 @@ async fn post_subdomain_0_bytes_fails() {
 }
 #[actix_rt::test]
 async fn post_subdomain_21_chars_cuts_to_20_chars() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use actix_web::body::to_bytes;
     use dir_and_db_pool::db::db_file::db_file;
     use rand::Rng;
@@ -216,7 +216,7 @@ async fn post_subdomain_21_chars_cuts_to_20_chars() {
 }
 #[actix_rt::test]
 async fn post_subdomain_invalid_url_chars_fails() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use serde_json::json;
     dotenvy::dotenv().ok();
     let app = _create_test_app().await;

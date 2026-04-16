@@ -57,7 +57,7 @@ pub fn get_user_id(
 
 #[actix_rt::test]
 async fn fails_without_cookie_and_token() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use actix_web::test;
 
     dotenvy::dotenv().ok();
@@ -72,7 +72,7 @@ async fn fails_without_cookie_and_token() {
 
 #[actix_rt::test]
 async fn random_token_does_not_work() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use actix_web::http::header::AUTHORIZATION;
     use actix_web::{http::header::HeaderValue, test};
 
@@ -93,7 +93,7 @@ async fn random_token_does_not_work() {
 
 #[actix_rt::test]
 async fn random_cookie_not_working() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use actix_web::{http::header::COOKIE, test};
 
     dotenvy::dotenv().ok();

@@ -3,7 +3,7 @@ use actix_web::http::header;
 
 #[actix_rt::test]
 async fn test_empty_host_header() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
     use actix_web::test;
 
     let app = _create_test_app().await;

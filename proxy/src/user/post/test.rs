@@ -88,7 +88,7 @@ pub fn _create_payload_custom(username: &str, password: &str) -> Value {
 
 #[actix_rt::test]
 async fn post_new_user() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
 
     dotenvy::dotenv().ok();
     let app = _create_test_app().await;
@@ -101,7 +101,7 @@ async fn post_new_user() {
 
 #[actix_rt::test]
 async fn same_username_twice_errors() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
 
     dotenvy::dotenv().ok();
     let app = _create_test_app().await;
@@ -116,7 +116,7 @@ async fn same_username_twice_errors() {
 
 #[actix_rt::test]
 async fn post_user_get_user_with_cookie() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
 
     dotenvy::dotenv().ok();
     let app = _create_test_app().await;
@@ -135,7 +135,7 @@ async fn post_user_get_user_with_cookie() {
 
 #[actix_rt::test]
 async fn post_0char_username_fails() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
 
     dotenvy::dotenv().ok();
     let app = _create_test_app().await;
@@ -146,7 +146,7 @@ async fn post_0char_username_fails() {
 
 #[actix_rt::test]
 async fn post_non_alphanumberic_username_fails() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
 
     let invalid_chars = [
         /*x
@@ -195,7 +195,7 @@ async fn post_non_alphanumberic_username_fails() {
 
 // #[actix_rt::test]
 async fn _million_users() {
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
 
     let app = _create_test_app().await;
 

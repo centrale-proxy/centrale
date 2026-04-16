@@ -71,7 +71,7 @@ pub fn _get_centrale_cookie(headers: &HeaderMap) -> Result<String, CentraleError
 pub async fn _one_wildcard_test_case_with_host(host: &str) -> ServiceResponse {
     use actix_web::test;
     // DB AND SERVER
-    use crate::proxy::create_test_app::_create_test_app;
+    use crate::proxy::test::create_test_app::_create_test_app;
 
     let app = _create_test_app().await;
 

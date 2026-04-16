@@ -1,6 +1,6 @@
 use crate::{
     proxy::{
-        handle_test::handle_test, wildcard::handle_wildcard,
+        test::handle_test::handle_test, wildcard::handle_wildcard,
         wildcard_with_payload::handle_wildcard_with_payload,
     },
     server::public_rate_limiter::public_rate_limiter_config,
