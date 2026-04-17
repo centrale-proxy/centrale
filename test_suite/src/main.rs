@@ -1,8 +1,5 @@
 mod error;
 
-use std::collections::HashMap;
-use std::env;
-
 use crate::error::TestSuiteError;
 use chrono::Utc;
 use config::CentraleConfig;
@@ -16,7 +13,7 @@ use fake::faker::name::en::Name;
 use fake::faker::name::en::{FirstName, LastName};
 use fake::{Dummy, Fake, Faker};
 use r2d2_sqlite::rusqlite::params;
-use reqwest::header::{self, COOKIE};
+//use reqwest::header::{self, COOKIE};
 
 #[derive(Debug, Dummy)]
 pub struct User {
@@ -98,7 +95,7 @@ async fn main() {
     let password = CentraleConfig::master_password();
 
     let db = get_encrypted_connection(&pool, &password).unwrap();
-    let client = reqwest::Client::new();
+    let _client = reqwest::Client::new();
 
     //let db = pool.get().expect("Couldn't get db connection from pool");
     // CREATE MILION ENTRIES
@@ -107,7 +104,7 @@ async fn main() {
         let salt = user.salt.clone();
         match add_user_to_db(&db, user, i) {
             Ok(id) => {
-                let cookie = save_cookie(&db, id, salt).unwrap();
+                let _cookie = save_cookie(&db, id, salt).unwrap();
                 // MAKE REQUEST TO ADD
                 // let master_token = CentraleConfig::CENTRALE_MASTER_BEARER_TOKEN;
                 /*

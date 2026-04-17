@@ -42,12 +42,6 @@ pub enum CentraleError {
     #[error("No token or cookie present")]
     NoTokenOrCookiePresent,
 
-    #[error("Air token expired")]
-    AirTokenExpired,
-
-    #[error("No air token")]
-    NoAirToken,
-
     #[error("Database error: {0}")]
     DatabaseError(#[from] rusqlite::Error),
 

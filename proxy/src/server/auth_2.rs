@@ -7,7 +7,7 @@ use actix_web::{Error, HttpMessage, error::ErrorUnauthorized, web};
 use dir_and_db_pool::db::DbBool;
 
 pub async fn auth_middleware_2(
-    mut req: ServiceRequest,
+    req: ServiceRequest,
     srv: actix_web::middleware::Next<BoxBody>,
 ) -> Result<ServiceResponse<EitherBody<BoxBody>>, Error> {
     let pool = req
@@ -28,6 +28,7 @@ pub async fn auth_middleware_2(
             srv.call(req).await.map(|res| res.map_into_right_body())
         }
         Err(e) => {
+            eprintln!("auth err {}", e);
             // Convert the error into a ServiceResponse
             let (http_req, _) = req.into_parts();
             let response = HttpResponse::Unauthorized()
