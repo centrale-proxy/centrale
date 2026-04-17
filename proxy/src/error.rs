@@ -87,6 +87,9 @@ pub enum CentraleError {
 
     #[error("Wrong cookie")]
     InvalidCookie,
+
+    #[error("Wrong token")]
+    InvalidToken,
 }
 
 impl ResponseError for CentraleError {

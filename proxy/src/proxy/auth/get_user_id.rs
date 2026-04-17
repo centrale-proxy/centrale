@@ -23,13 +23,17 @@ pub fn get_user_id(
     // PREFER TOKEN
     if token.is_some() {
         // BEARER TOKEN
-        let token_string = token
+        let token_option = token
             .and_then(|v| v.to_str().ok())
-            .and_then(|v| v.strip_prefix("Bearer "))
-            .unwrap_or("none");
-        // let token_string = token.unwrap().to_str()?;
-        let user = find_user_by_token(&pool, &token_string)?;
-        Ok(user)
+            .and_then(|v| v.strip_prefix("Bearer "));
+
+        match token_option {
+            Some(token_string) => {
+                let user = find_user_by_token(&pool, &token_string)?;
+                Ok(user)
+            }
+            None => return Err(CentraleError::InvalidToken),
+        }
     } else if cookie.is_some() {
         // COOKIE
         match &cookie {
