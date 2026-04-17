@@ -59,7 +59,7 @@ async fn normal_subdomain_1() {
 #[actix_rt::test]
 async fn domain_with_two_subdomains_fails() {
     let auth_resp = _one_wildcard_test_case_with_host("https://hello.hello.hello.ee").await;
-    assert!(auth_resp.status().is_server_error());
+    assert!(auth_resp.status().is_client_error());
 }
 
 #[actix_rt::test]
@@ -100,15 +100,10 @@ pub async fn _one_wildcard_test_case_with_host(host: &str) -> ServiceResponse {
     let resp = test::call_service(&app, req).await;
     // GET COOKIE
     let cookie_value = _get_centrale_cookie(resp.headers()).unwrap();
-    println!("cookie_value: {}", &cookie_value);
     let cookie = format!("centrale={}", cookie_value);
-    println!("cookie: {}", &cookie);
     // MAKE WILDCARD REQUEST WITH COOKIE
     let wild_req = _create_wildcard_request_with_host(cookie, host.to_string());
-    //
     let auth_resp = test::call_service(&app, wild_req).await;
-    //
-    println!("auth_resp: {:?}", &auth_resp);
 
     auth_resp
 }

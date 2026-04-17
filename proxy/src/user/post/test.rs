@@ -125,7 +125,6 @@ async fn same_username_twice_errors() {
 
 #[actix_rt::test]
 async fn post_user_get_user_with_cookie() {
-    use crate::proxy::auth::subdomain_string::_get_centrale_cookie;
     use crate::proxy::test::create_test_app::_create_test_app;
 
     dotenvy::dotenv().ok();
@@ -133,27 +132,14 @@ async fn post_user_get_user_with_cookie() {
     let payload = _create_payload();
     let resp = _make_user_register_test_request(payload, &app).await;
 
-    println!("resp: {:?}", &resp);
-
     assert!(resp.status().is_success());
     assert!(resp.headers().contains_key("set-cookie"));
 
-    // let cookie_header = resp.headers().get("set-cookie").unwrap();
-    // let cookie = cookie_header.to_str().unwrap();
+    let cookie_header = resp.headers().get("set-cookie").unwrap();
+    let cookie = cookie_header.to_str().unwrap();
+    let auth_resp = _make_request_with_cookie(&app, &cookie).await.unwrap();
 
-    let cookie = _get_centrale_cookie(resp.headers()).unwrap();
-    println!("cookie n: {}", &cookie);
-
-    let auth_resp = _make_request_with_cookie(&app, &cookie).await;
-    match auth_resp {
-        Ok(au) => {
-            assert!(au.status().is_success());
-        }
-        Err(err) => {
-            println!("err {}", err);
-            panic!("never")
-        }
-    }
+    assert!(auth_resp.status().is_success());
 }
 
 #[actix_rt::test]

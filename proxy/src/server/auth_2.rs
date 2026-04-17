@@ -1,5 +1,6 @@
 use crate::proxy::auth::authenticate_and_authorize::authenticate_and_authorize;
 use crate::server::auth::CentraleUser;
+use actix_web::HttpResponse;
 use actix_web::body::{BoxBody, EitherBody};
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::{Error, HttpMessage, error::ErrorUnauthorized, web};
@@ -13,6 +14,7 @@ pub async fn auth_middleware_2(
         .app_data::<web::Data<DbBool>>()
         .cloned()
         .ok_or_else(|| ErrorUnauthorized("Database pool not available"))?;
+
     match authenticate_and_authorize(pool, req.request()) {
         Ok((user_id, subdomain, role, pass, url)) => {
             let user = CentraleUser {
@@ -25,6 +27,13 @@ pub async fn auth_middleware_2(
             req.extensions_mut().insert(user);
             srv.call(req).await.map(|res| res.map_into_right_body())
         }
-        Err(e) => Err(ErrorUnauthorized("Unauthorized")),
+        Err(e) => {
+            // Convert the error into a ServiceResponse
+            let (http_req, _) = req.into_parts();
+            let response = HttpResponse::Unauthorized()
+                .json(serde_json::json!({ "error": "Unauthorized" }))
+                .map_into_right_body();
+            Ok(ServiceResponse::new(http_req, response))
+        }
     }
 }
