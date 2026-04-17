@@ -1,10 +1,10 @@
 use actix_web::{HttpResponse, Responder, web};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use log::error;
 
 use crate::proxy::test::api_test::api_test;
 
-pub async fn handle_test(pool: web::Data<DbBool>) -> impl Responder {
+pub async fn handle_test(pool: web::Data<DbPool>) -> impl Responder {
     match api_test(pool) {
         Ok(result) => result,
         Err(err) => {

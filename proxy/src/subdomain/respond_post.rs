@@ -3,11 +3,11 @@ use crate::{
     subdomain::handle_post::{RegisterSubdomain, handle_post},
 };
 use actix_web::{HttpResponse, Responder, web};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use log::error;
 
 pub async fn respond_subdomain(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     json: web::Json<RegisterSubdomain>,
     client: web::Data<reqwest::Client>,
     user: CentraleUser,

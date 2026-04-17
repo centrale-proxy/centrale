@@ -2,11 +2,11 @@ use crate::{
     server::auth::CentraleUser, user::bearer_token::process::process_generate_bearer_token,
 };
 use actix_web::{HttpResponse, Responder, web};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use log::error;
 
 pub async fn generate_bearer_token(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     user_id: web::Path<i64>,
     user: CentraleUser,
 ) -> impl Responder {

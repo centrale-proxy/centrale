@@ -11,7 +11,7 @@ use crate::{
 };
 use actix_web::{HttpResponse, web};
 use argon2::password_hash::SaltString;
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use rand::rngs::OsRng;
 use serde::Deserialize;
 
@@ -28,7 +28,7 @@ fn generate_random_salt() -> String {
 
 /// Main worker for user posting
 pub fn process_login(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     json: web::Json<LoginUser>,
 ) -> Result<HttpResponse, CentraleError> {
     let register_request = json.into_inner();

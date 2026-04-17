@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use actix_web::{HttpResponse, web};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -20,7 +20,7 @@ pub struct RegisterUser {
 
 /// Main worker for user posting
 pub fn handle_register(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     json: web::Json<RegisterUser>,
 ) -> Result<HttpResponse, CentraleError> {
     //

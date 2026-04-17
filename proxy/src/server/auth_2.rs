@@ -4,14 +4,14 @@ use actix_web::HttpResponse;
 use actix_web::body::{BoxBody, EitherBody};
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::{Error, HttpMessage, error::ErrorUnauthorized, web};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 
 pub async fn auth_middleware_2(
     req: ServiceRequest,
     srv: actix_web::middleware::Next<BoxBody>,
 ) -> Result<ServiceResponse<EitherBody<BoxBody>>, Error> {
     let pool = req
-        .app_data::<web::Data<DbBool>>()
+        .app_data::<web::Data<DbPool>>()
         .cloned()
         .ok_or_else(|| ErrorUnauthorized("Database pool not available"))?;
 

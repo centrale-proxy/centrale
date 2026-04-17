@@ -2,11 +2,11 @@ use crate::{
     server::auth::CentraleUser, user::bearer_token_view::process::process_view_bearer_tokens,
 };
 use actix_web::{HttpResponse, Responder, web};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use log::error;
 
 pub async fn view_bearer_tokens(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     user_id: web::Path<i64>,
     user: CentraleUser,
 ) -> impl Responder {

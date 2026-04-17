@@ -9,13 +9,13 @@ use crate::{
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
 use config::CentraleConfig;
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use reqwest::{Method, header};
 use std::str::FromStr;
 
 /// Process one wildcard request
 pub async fn process_one_request(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     req: HttpRequest,
     stream: web::Payload,
     // query: web::Query<QueryParams>,

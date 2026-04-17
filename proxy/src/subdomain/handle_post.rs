@@ -10,7 +10,7 @@ use actix_web::{
 };
 use common::truncate;
 use config::CentraleConfig;
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use log::error;
 use reqwest::header;
 use serde::Deserialize;
@@ -23,7 +23,7 @@ pub struct RegisterSubdomain {
 }
 
 pub async fn handle_post(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     payload: web::Json<RegisterSubdomain>,
     client: web::Data<reqwest::Client>,
     user: CentraleUser,

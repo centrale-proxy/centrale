@@ -6,9 +6,9 @@ use crate::{
     },
     error::CentraleError,
 };
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 
-pub fn init_db(pool: &DbBool) -> Result<(), CentraleError> {
+pub fn init_db(pool: &DbPool) -> Result<(), CentraleError> {
     // USER TABLE
     let db = get_centrale_db(pool)?;
     // USER TABLE

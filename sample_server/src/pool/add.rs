@@ -1,11 +1,11 @@
 use crate::{error::SampleServerError, pool::DbPoolRegistry};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use std::sync::{Arc, RwLock};
 
 pub fn add_to_registry(
     registry: &Arc<RwLock<DbPoolRegistry>>,
     subdomain: String,
-    pool: DbBool,
+    pool: DbPool,
 ) -> Result<(), SampleServerError> {
     let mut reg = registry
         .write()

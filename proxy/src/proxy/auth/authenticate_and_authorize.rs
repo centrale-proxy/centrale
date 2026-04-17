@@ -5,10 +5,10 @@ use crate::{
 };
 use actix_web::{HttpRequest, web};
 use config::CentraleConfig;
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 ///
 pub fn authenticate_and_authorize(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     req: &HttpRequest,
 ) -> Result<(i64, String, String, String, String), CentraleError> {
     // println!("req {:?}", &req);

@@ -11,9 +11,9 @@ use actix_web::{
     web,
 };
 use config::CentraleConfig;
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 pub fn get_user_process(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     req: HttpRequest,
 ) -> Result<HttpResponse, CentraleError> {
     let headers = req.headers();
@@ -22,7 +22,7 @@ pub fn get_user_process(
     Ok(resp)
 }
 
-pub async fn get_user(pool: web::Data<DbBool>, req: HttpRequest) -> impl Responder {
+pub async fn get_user(pool: web::Data<DbPool>, req: HttpRequest) -> impl Responder {
     match get_user_process(pool, req) {
         Ok(result) => result,
         Err(err) => {

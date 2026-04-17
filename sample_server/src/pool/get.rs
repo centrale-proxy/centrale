@@ -1,12 +1,12 @@
 use crate::{db::get_subdomain_db, error::SampleServerError, pool::DbPoolRegistry};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use std::sync::{Arc, RwLock};
 
 pub fn get_or_create_from_registry(
     registry: &Arc<RwLock<DbPoolRegistry>>,
     subdomain: &str,
     pass: &str,
-) -> Result<DbBool, SampleServerError> {
+) -> Result<DbPool, SampleServerError> {
     // First try with just a read lock
     {
         let reg = registry

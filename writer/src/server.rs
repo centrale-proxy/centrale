@@ -2,7 +2,7 @@ use crate::poll::get_server_poll;
 use crate::save_to_db::save_to_db;
 use common::payload::WriterPayload;
 use config::CentraleConfig;
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use mio::{Events, Token};
 use std::error::Error;
 use std::io::ErrorKind;
@@ -10,7 +10,7 @@ use std::str::from_utf8;
 
 const SERVER: Token = Token(0);
 
-pub fn start_server(pool: DbBool) -> Result<(), Box<dyn Error>> {
+pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
     // Create a poll instance.
     let (mut poll, server) = get_server_poll(SERVER)?;
     let mut events = Events::with_capacity(CentraleConfig::WRITER_EVENTS_CAPACITY);

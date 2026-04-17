@@ -4,7 +4,7 @@ use crate::{proxy::wildcard::create_client::create_client_with_cert, server::log
 use actix_governor::Governor;
 use actix_web::{App, HttpServer, web};
 use config::CentraleConfig;
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use mio::net::UdpSocket;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use std::{
@@ -13,7 +13,7 @@ use std::{
 };
 
 #[actix_web::main]
-pub async fn start_server(db: DbBool) -> std::io::Result<()> {
+pub async fn start_server(db: DbPool) -> std::io::Result<()> {
     // RATE LIMITING SETTINGS
     let governor_conf = get_rate_limiter_config();
     // SET UP CONNECTION TO WRITER

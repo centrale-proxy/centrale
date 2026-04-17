@@ -5,7 +5,7 @@ pub mod test;
 
 use crate::{proxy::wildcard::one_request::process_one_request, server::auth::CentraleUser};
 use actix_web::{HttpRequest, HttpResponse, Responder, web};
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 use log::error;
 use serde_derive::{Deserialize, Serialize};
 
@@ -16,7 +16,7 @@ pub struct QueryParams {
 
 /// HANDLES ALL WILDCARD REQUESTS. Responds to client
 pub async fn handle_wildcard(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     req: HttpRequest,
     stream: web::Payload,
     //  query: web::Query<QueryParams>,

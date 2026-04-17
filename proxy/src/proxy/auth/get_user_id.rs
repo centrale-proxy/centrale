@@ -10,10 +10,10 @@ use actix_web::{
     http::header::{AUTHORIZATION, HeaderMap},
     web,
 };
-use dir_and_db_pool::db::DbBool;
+use dir_and_db_pool::db::DbPool;
 
 pub fn get_user_id(
-    pool: web::Data<DbBool>,
+    pool: web::Data<DbPool>,
     headers: &HeaderMap,
     cookie: Option<Cookie<'_>>,
 ) -> Result<i64, CentraleError> {
