@@ -14,7 +14,7 @@ pub fn create_user_table(
                 AND LENGTH(username) <= 100
                 AND username NOT GLOB '*[^a-zA-Z0-9-]*'   -- only alphanumeric + hyphens
             ),
-            password TEXT NOT NULL CHECK(LENGTH(password) >= 1 AND LENGTH(password) <= 100),
+            password TEXT NOT NULL CHECK(LENGTH(password) >= 1 AND LENGTH(password) <= 200),
             salt TEXT NOT NULL CHECK(salt <> ''),
             name TEXT,
             first_name TEXT,
