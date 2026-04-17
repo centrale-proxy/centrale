@@ -7,6 +7,7 @@ pub fn get_encrypted_connection(pool: &DbBool, pass: &str) -> Result<DbConnectio
     let db = pool.get().unwrap();
     let query = format!("PRAGMA key = '{}';", pass.replace("'", "''"));
     db.execute_batch(&query)?;
+    db.execute_batch("PRAGMA foreign_keys = ON;")?;
 
     Ok(db)
 }
