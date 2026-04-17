@@ -4,7 +4,7 @@ use crate::{
     user::{
         cookie::{create::create_cookie, save_cookie::save_cookie},
         login::{
-            find_user_by_hash::find_user_by_hash, find_user_salt::find_user_salt,
+            find_user_by_hash::find_user_by_hash_and_username, find_user_salt::find_user_salt,
             hash_with_salt::hash_with_salt,
         },
     },
@@ -41,7 +41,7 @@ pub fn process_login(
     // CREATE HASH AND SALT
     let hash = hash_with_salt(&password, &salt)?;
     // SAVE USER TO DB
-    let user_id = find_user_by_hash(&pool, &hash)?;
+    let user_id = find_user_by_hash_and_username(&pool, &hash, &username)?;
     // SAVE COOKIE
     let cookie_value = save_cookie(&db, user_id)?;
     // ADD COOKIE
