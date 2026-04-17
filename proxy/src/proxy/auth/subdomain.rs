@@ -70,7 +70,7 @@ async fn just_domain_without_wildcard_fails() {
 
 use cookie::Cookie;
 
-pub fn _get_centrale_cookie(headers: &HeaderMap) -> Result<String, CentraleError> {
+pub fn _get_centrale_cookie_2(headers: &HeaderMap) -> Result<String, CentraleError> {
     let cookie_header = headers
         .get("set-cookie")
         .ok_or(CentraleError::NoCookie)?
@@ -99,7 +99,7 @@ pub async fn _one_wildcard_test_case_with_host(host: &str) -> ServiceResponse {
     let req = _user_create_request(&host);
     let resp = test::call_service(&app, req).await;
     // GET COOKIE
-    let cookie_value = _get_centrale_cookie(resp.headers()).unwrap();
+    let cookie_value = _get_centrale_cookie_2(resp.headers()).unwrap();
     let cookie = format!("centrale={}", cookie_value);
     // MAKE WILDCARD REQUEST WITH COOKIE
     let wild_req = _create_wildcard_request_with_host(cookie, host.to_string());
@@ -122,7 +122,7 @@ pub async fn _one_wildcard_test_case_with_referer(referer: &str) -> ServiceRespo
     let req = _user_create_request(&host_s);
     let resp = test::call_service(&app, req).await;
     // GET COOKIE
-    let cookie_value = _get_centrale_cookie(resp.headers()).unwrap();
+    let cookie_value = _get_centrale_cookie_2(resp.headers()).unwrap();
     let cookie = format!("centrale={}", cookie_value);
     // MAKE WILDCARD REQUEST WITH COOKIE
     let wild_req = _create_wildcard_request_with_referer(cookie, referer);

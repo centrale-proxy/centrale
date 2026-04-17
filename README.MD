@@ -79,8 +79,6 @@ GET /logout
 (TBD) PUT /api/user - put user
 (TBD) DELETE /api/user - delete user
 
-GET /api/user/air/token - Genereate air token for websockets
-
 POST /api/subdomain - add subdomain (subdomain is min 1, max 20 chars, if over, will be tructuated, must be alphanumeric)
 (TBD) GET /api/subdomain - get user subdomains
 (TBD) DELETE /api/subdomain - delete subdomain
@@ -151,17 +149,7 @@ curl -b "centrale=ssssss" -H "Referer: http://test.domain.local" https://test.do
 
 # WEBSOCKET PROXY TEST:
 ```
-curl -b "centrale=aaaaaa" -H "Host: http://test.domain.local" http://test.domain.local:8080/api/user/air/token -vvv
-// GET RESULT AND PASTE data.air_token AS air_token
-RUST_LOG=info ws --header="Host: ws://test.domain.local" "ws://test.domain.local:8080/air?air_token=GmCNE1jehmk/7g9zSX5OOQ"
-```
-
-# WSS WEBSOCKET PROXY TEST:
-```
-curl -b "centrale=aaaaaa" -H "Host: test.domain.local" --cacert /Users/user/app/centrale/proxy/test.localhost.com.pem  https://test.domain.local/api/user/air/token -vvv
-
-RUST_LOG=info ws --header="Host: wss://test.domain.local" "wss://domain.local/air?air_token=aaaaaa" -k
-
+ws -H "Cookie: centrale=aaaaaa;" -k "wss://test.domain.local/air?air_token=aaa"
 ```
 
 # Sqlite3 access
