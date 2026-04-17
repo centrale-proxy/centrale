@@ -12,6 +12,7 @@ impl CustomizeConnection<Connection, Error> for SqlCipherCustomizer {
     fn on_acquire(&self, conn: &mut Connection) -> Result<(), Error> {
         let query = format!("PRAGMA key = '{}';", self.passphrase.replace("'", "''"));
         conn.execute_batch(&query)?;
+        conn.execute_batch("PRAGMA foreign_keys = ON")?;
         Ok(())
     }
 }
