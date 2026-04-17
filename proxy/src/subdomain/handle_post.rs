@@ -1,10 +1,10 @@
 use crate::{
-    db::get_db::get_centrale_db, error::CentraleError, proxy::auth::get_user_id::get_user_id,
+    db::get_db::get_centrale_db, error::CentraleError, server::auth::CentraleUser,
     subdomain::post::post_subdomain,
 };
 use actix_http::Request;
 use actix_web::{
-    HttpRequest, HttpResponse,
+    HttpResponse,
     dev::{Service, ServiceResponse},
     web,
 };
@@ -25,17 +25,17 @@ pub struct RegisterSubdomain {
 pub async fn handle_post(
     pool: web::Data<DbBool>,
     payload: web::Json<RegisterSubdomain>,
-    req: HttpRequest,
     client: web::Data<reqwest::Client>,
+    user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
     let subdomain_original = payload.subdomain.clone();
     let subdomain = truncate(&subdomain_original, 20);
-    let headers = req.headers();
-    let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
+    // let headers = req.headers();
+    // let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
 
     let db = get_centrale_db(pool.get_ref())?;
 
-    match post_subdomain(&db, &subdomain, user_id) {
+    match post_subdomain(&db, &subdomain, user.user_id) {
         Ok(password) => {
             // SEND TO DESTINATION SERVER
             let master_token = CentraleConfig::master_bearer_token();
@@ -64,7 +64,7 @@ pub async fn handle_post(
             match status.as_u16() {
                 200 => {
                     let res = HttpResponse::Ok()
-                        .json(serde_json::json!({ "subdomain": subdomain, "user": user_id }));
+                        .json(serde_json::json!({ "subdomain": subdomain, "user": user.user_id }));
                     Ok(res)
                 }
                 _ => Err(CentraleError::StringError("Wrong status".to_string())),
