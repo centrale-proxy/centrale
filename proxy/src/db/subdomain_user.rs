@@ -12,7 +12,7 @@ pub fn create_subdomain_user_table(
             subdomain TEXT NOT NULL UNIQUE CHECK(subdomain <> ''),
             user_id INTEGER NOT NULL,
             role TEXT NOT NULL,
-            FOREIGN KEY(user_id) REFERENCES user(id)
+            FOREIGN KEY(user_id) REFERENCES user(id),
             FOREIGN KEY(subdomain) REFERENCES subdomain(subdomain)
         );
 
