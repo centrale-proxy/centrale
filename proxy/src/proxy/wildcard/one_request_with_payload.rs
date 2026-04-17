@@ -1,27 +1,19 @@
-use crate::{
-    error::CentraleError,
-    proxy::{auth::authenticate_and_authorize::authenticate_and_authorize, wildcard::QueryParams},
-};
+use crate::{error::CentraleError, proxy::wildcard::QueryParams, server::auth::CentraleUser};
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
 use config::CentraleConfig;
-use dir_and_db_pool::db::DbBool;
 use reqwest::{Method, header};
 use serde_json::Value;
 use std::str::FromStr;
 
 /// Process one wildcard request
 pub async fn process_one_request_with_payload(
-    pool: web::Data<DbBool>,
     req: HttpRequest,
     _query: web::Query<QueryParams>,
     body: web::Bytes,
     client: web::Data<reqwest::Client>,
+    user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
-    // IS NORMAL
-    let (_user_id, subdomain, subdomain_user_role, pass, url) =
-        authenticate_and_authorize(pool, &req)?;
-
     let master_token = CentraleConfig::master_bearer_token();
     let is_method = Method::from_str(req.method().as_str());
     let method = match is_method {
@@ -31,13 +23,13 @@ pub async fn process_one_request_with_payload(
         }
     };
 
-    let https = format!("https://{}", url);
+    let https = format!("https://{}", user.url);
     let mut request = client
         .request(method.clone(), https)
         .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
-        .header("centrale_subdomain", format!("{}", subdomain))
-        .header("centrale_password", format!("{}", pass))
-        .header("centrale_role", format!("{}", subdomain_user_role));
+        .header("centrale_subdomain", format!("{}", user.subdomain))
+        .header("centrale_password", format!("{}", user.pass))
+        .header("centrale_role", format!("{}", user.role));
 
     let payload: Value = if body.is_empty() {
         Value::Null
