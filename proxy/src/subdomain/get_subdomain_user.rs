@@ -8,6 +8,10 @@ pub fn get_subdomain_user_role(
     subdomain: &String,
     user_id: i64,
 ) -> Result<String, CentraleError> {
+    if subdomain == "app" {
+        // ALLOW VISITS TO app FOR ALL AUTHENTICATED USERS
+        return Ok("user".to_string());
+    }
     let db = get_centrale_db(pool.get_ref())?;
     let mut stmt =
         db.prepare(&"SELECT role FROM subdomain_user WHERE subdomain = ?1 AND user_id = ?2")?;

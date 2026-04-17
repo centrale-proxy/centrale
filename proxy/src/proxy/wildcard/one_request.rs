@@ -1,13 +1,10 @@
 use crate::{
     error::CentraleError,
     proxy::{
-        auth::{
-            authenticate_and_authorize::authenticate_and_authorize,
-            ws_authenticate_and_authorize::ws_authenticate_and_authorize,
-        },
+        auth::authenticate_and_authorize::authenticate_and_authorize,
         websocket::{is_ws::is_streaming_request, proxy_ws::ws_proxy},
-        wildcard::QueryParams,
     },
+    server::auth::CentraleUser,
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
@@ -21,14 +18,13 @@ pub async fn process_one_request(
     pool: web::Data<DbBool>,
     req: HttpRequest,
     stream: web::Payload,
-    query: web::Query<QueryParams>,
+    // query: web::Query<QueryParams>,
     client: web::Data<reqwest::Client>,
+    user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
     if is_streaming_request(&req) {
         // IS STREAM
-        let (_user_id, subdomain, role, pass, url) =
-            ws_authenticate_and_authorize(pool, &req, query)?;
-        let socket = ws_proxy(req, stream, url, subdomain, pass, role).await?;
+        let socket = ws_proxy(req, stream, user.url, user.subdomain, user.pass, user.role).await?;
         Ok(socket)
     } else {
         // IS HTTPS REQUEST

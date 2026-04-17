@@ -31,12 +31,12 @@ pub async fn start_server(db: DbBool) -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .configure(routes)
+            .app_data(web::Data::new(db.clone()))
             .wrap_fn({
                 let socket_2 = socket_arc.clone();
                 move |req, srv| log_middleware(req, srv, socket_2.clone(), addr)
             })
             .wrap(Governor::new(&governor_conf))
-            .app_data(web::Data::new(db.clone()))
             .app_data(web::Data::new(client.clone()))
     })
     .workers(CentraleConfig::PROXY_SERVER_WORKERS)

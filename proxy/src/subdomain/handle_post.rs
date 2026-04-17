@@ -85,12 +85,15 @@ pub async fn _make_register_subdomain_request(
     payload: Value,
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
     cookie: &str,
+    host: &str,
 ) -> ServiceResponse {
     use actix_web::http::header;
+    println!("cookie cookie {:?}", &cookie);
 
     let req = test::TestRequest::post()
         .uri("/api/subdomain")
         .insert_header(("Content-Type", "application/json"))
+        .insert_header(("Host", host))
         .insert_header((header::COOKIE, cookie))
         .set_json(&payload)
         .to_request();
@@ -141,14 +144,15 @@ async fn post_subdomain_normal() {
     let app = _create_test_app().await;
     let cookie = _create_user_get_cookie(&app).await;
 
-    let auth_resp = _make_request_with_cookie(&app, &cookie).await;
+    let auth_resp = _make_request_with_cookie(&app, &cookie).await.unwrap();
     assert!(auth_resp.status().is_success());
 
     let register_subdomain_payload = json!({
         "subdomain": nums_str,
     });
 
-    let sub_reg = _make_register_subdomain_request(register_subdomain_payload, &app, &cookie).await;
+    let sub_reg =
+        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, "app").await;
 
     assert!(sub_reg.status().is_success());
 
@@ -167,7 +171,8 @@ async fn post_subdomain_0_bytes_fails() {
         "subdomain": "\0",
     });
 
-    let sub_reg = _make_register_subdomain_request(register_subdomain_payload, &app, &cookie).await;
+    let sub_reg =
+        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, "app").await;
 
     assert!(sub_reg.status().is_client_error());
 }
@@ -203,7 +208,8 @@ async fn post_subdomain_21_chars_cuts_to_20_chars() {
         "subdomain": nums_str,
     });
 
-    let sub_reg = _make_register_subdomain_request(register_subdomain_payload, &app, &cookie).await;
+    let sub_reg =
+        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, "app").await;
 
     let body_bytes = to_bytes(sub_reg.into_body()).await.unwrap();
     let str = String::from_utf8(body_bytes.to_vec()).unwrap();
@@ -260,7 +266,8 @@ async fn post_subdomain_invalid_url_chars_fails() {
             "subdomain": invalid_char,
         });
         let sub_reg =
-            _make_register_subdomain_request(register_subdomain_payload, &app, &cookie).await;
+            _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, "app")
+                .await;
         assert!(
             sub_reg.status().is_client_error(),
             "Expected client error for invalid char: {:?}",

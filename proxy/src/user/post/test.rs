@@ -1,4 +1,5 @@
 use crate::db::init::init_db;
+use crate::error::CentraleError;
 use crate::server::routes::routes;
 use actix_http::Request;
 use actix_web::{App, test};
@@ -8,6 +9,7 @@ use actix_web::{
     http::header,
     web,
 };
+use config::CentraleConfig;
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use serde_json::{Value, json};
@@ -30,14 +32,17 @@ pub async fn _make_user_register_test_request(
     payload: Value,
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
 ) -> ServiceResponse {
+    let host = CentraleConfig::get("DOMAIN");
+    let host_s = format!("https://app.{}", host);
     let req = test::TestRequest::post()
-        .uri("/api/user")
+        .uri("/api/user_add")
         .insert_header(("Content-Type", "application/json"))
+        .insert_header(("Host", host_s))
         .set_json(&payload)
         .to_request();
 
-    let resp = test::call_service(app, req).await;
-    resp
+    let resp = test::try_call_service(app, req).await;
+    resp.unwrap()
 }
 
 pub async fn _make_request_with_cookie_to_wildcard(
@@ -52,22 +57,26 @@ pub async fn _make_request_with_cookie_to_wildcard(
         .insert_header(("Content-Type", "application/json"))
         .to_request();
 
-    let resp = test::call_service(app, req).await;
+    let resp = test::try_call_service(app, req).await.unwrap();
     resp
 }
 
 pub async fn _make_request_with_cookie(
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
     cookie: &str,
-) -> ServiceResponse {
+) -> Result<ServiceResponse, CentraleError> {
+    let host = CentraleConfig::get("DOMAIN");
+    let host_s = format!("https://app.{}", host);
+
     let req = test::TestRequest::get()
         .uri("/api/user")
+        .insert_header(("Host", host_s))
         //  .insert_header(("Content-Type", "application/json"))
         .insert_header(("Cookie", cookie))
         .to_request();
 
-    let resp = test::call_service(&app, req).await;
-    resp
+    let resp = test::try_call_service(app, req).await?;
+    Ok(resp)
 }
 
 pub fn _create_payload() -> Value {
@@ -116,6 +125,7 @@ async fn same_username_twice_errors() {
 
 #[actix_rt::test]
 async fn post_user_get_user_with_cookie() {
+    use crate::proxy::auth::subdomain_string::_get_centrale_cookie;
     use crate::proxy::test::create_test_app::_create_test_app;
 
     dotenvy::dotenv().ok();
@@ -123,14 +133,27 @@ async fn post_user_get_user_with_cookie() {
     let payload = _create_payload();
     let resp = _make_user_register_test_request(payload, &app).await;
 
+    println!("resp: {:?}", &resp);
+
     assert!(resp.status().is_success());
     assert!(resp.headers().contains_key("set-cookie"));
 
-    let cookie_header = resp.headers().get("set-cookie").unwrap();
-    let cookie = cookie_header.to_str().unwrap();
+    // let cookie_header = resp.headers().get("set-cookie").unwrap();
+    // let cookie = cookie_header.to_str().unwrap();
 
-    let auth_resp = _make_request_with_cookie(&app, cookie).await;
-    assert!(auth_resp.status().is_success());
+    let cookie = _get_centrale_cookie(resp.headers()).unwrap();
+    println!("cookie n: {}", &cookie);
+
+    let auth_resp = _make_request_with_cookie(&app, &cookie).await;
+    match auth_resp {
+        Ok(au) => {
+            assert!(au.status().is_success());
+        }
+        Err(err) => {
+            println!("err {}", err);
+            panic!("never")
+        }
+    }
 }
 
 #[actix_rt::test]

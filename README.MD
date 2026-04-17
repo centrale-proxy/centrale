@@ -52,7 +52,7 @@ Q: Why is backend doing subodmains not DNS?
 A: in DNS, they would be enuremable.
 
 A: logging system Writer uses UDP connection, which is unreliable compared to TCP.
-A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Proxy.
+A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Proxy + unless a new thread is created for every message, could be blocking for proxy.
 
 Q: Encryption key is in the header of request.
 A: My main idea here is that the destination server itself would not have the key(s), only the encrypted db. Totally waiting for ideas on how to transport the secret.

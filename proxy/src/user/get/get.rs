@@ -1,17 +1,6 @@
-use actix_web::{HttpRequest, HttpResponse, Responder, web};
-use dir_and_db_pool::db::DbBool;
-use log::error;
+use crate::server::auth::CentraleUser;
+use actix_web::{HttpResponse, Responder};
 
-use crate::user::get::process::get_user_process;
-//
-
-pub async fn get_user(pool: web::Data<DbBool>, req: HttpRequest) -> impl Responder {
-    match get_user_process(pool, req) {
-        Ok(result) => result,
-        Err(err) => {
-            error!("Get user error: {}", err);
-            HttpResponse::UnprocessableEntity()
-                .json(serde_json::json!({ "error": "Cannot get user" }))
-        }
-    }
+pub async fn get_user(user: CentraleUser) -> impl Responder {
+    HttpResponse::Ok().json(serde_json::json!({ "user_id": user.user_id.to_string() }))
 }

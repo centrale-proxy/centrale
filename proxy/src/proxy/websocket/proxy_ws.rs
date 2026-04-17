@@ -18,7 +18,9 @@ pub async fn ws_proxy(
 
     let (response, client_session, mut client_stream) = actix_ws::handle(&req, stream)?;
 
-    let mut upstream_req = url
+    let with_wss = format!("wss://{}", url);
+
+    let mut upstream_req = with_wss
         .into_client_request()
         .map_err(|e| actix_web::error::ErrorBadGateway(e))?;
     let headers = upstream_req.headers_mut();
@@ -28,11 +30,13 @@ pub async fn ws_proxy(
             .parse()
             .map_err(|e| actix_web::error::ErrorBadGateway(e))?,
     );
+
     headers.insert(
         HeaderName::from_static("centrale_password"),
         pass.parse()
             .map_err(|e| actix_web::error::ErrorBadGateway(e))?,
     );
+
     headers.insert(
         HeaderName::from_static("centrale_role"),
         role.parse()

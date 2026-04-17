@@ -32,23 +32,19 @@ pub fn get_user_id(
         Ok(user)
     } else if cookie.is_some() {
         // COOKIE
-        let cookie_value = match cookie {
-            Some(cookie_string) => {
-                let cookie_string_owned = cookie_string.to_string();
-                let cookie_headers = cookie_string_owned.split(';').next().unwrap_or("none");
-                let cookie_value = cookie_headers
-                    .split('=')
-                    .nth(1)
-                    .unwrap_or("none")
-                    .to_string();
-                cookie_value
+        match &cookie {
+            Some(cookie) => {
+                let co = cookie.name().to_owned();
+                if co == "centrale" {
+                    let cookie_value = cookie.value().to_string();
+                    let user = find_user_by_cookie(&pool, &cookie_value)?;
+                    Ok(user)
+                } else {
+                    Err(CentraleError::NoTokenOrCookiePresent)
+                }
             }
-            None => {
-                return Err(CentraleError::NoCookie);
-            }
-        };
-        let user = find_user_by_cookie(&pool, &cookie_value)?;
-        Ok(user)
+            None => Err(CentraleError::NoTokenOrCookiePresent),
+        }
     } else {
         // NO AUTH
         Err(CentraleError::NoTokenOrCookiePresent)
@@ -65,7 +61,7 @@ async fn fails_without_cookie_and_token() {
 
     let req = test::TestRequest::get().uri("/").to_request();
 
-    let resp = test::call_service(&app, req).await;
+    let resp = test::try_call_service(&app, req).await.unwrap();
 
     assert!(resp.status().is_client_error());
 }
@@ -87,7 +83,7 @@ async fn random_token_does_not_work() {
         ))
         .to_request();
 
-    let resp = test::call_service(&app, req).await;
+    let resp = test::try_call_service(&app, req).await.unwrap();
     assert!(resp.status().is_client_error());
 }
 
@@ -104,6 +100,6 @@ async fn random_cookie_not_working() {
         .insert_header((COOKIE, format!("centrale={}", "your_cookie_value_here")))
         .to_request();
 
-    let resp = test::call_service(&app, req).await;
+    let resp = test::try_call_service(&app, req).await.unwrap();
     assert!(resp.status().is_client_error());
 }

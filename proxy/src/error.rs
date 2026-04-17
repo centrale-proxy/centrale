@@ -1,4 +1,5 @@
-use actix_http::header::ToStrError;
+use actix_http::{StatusCode, header::ToStrError};
+use actix_web::ResponseError;
 use dir_and_db_pool::error::DirsqlError;
 use r2d2::Error as R2d2Error;
 use r2d2_sqlite::rusqlite;
@@ -89,4 +90,22 @@ pub enum CentraleError {
 
     #[error("Wrong user for token")]
     WrongUser,
+
+    #[error("Wrong cookie")]
+    InvalidCookie,
+}
+
+impl ResponseError for CentraleError {
+    fn status_code(&self) -> StatusCode {
+        match self {
+            CentraleError::IoError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            CentraleError::StringError(_) => StatusCode::BAD_REQUEST,
+            _ => StatusCode::BAD_REQUEST,
+        }
+    }
+
+    fn error_response(&self) -> actix_web::HttpResponse {
+        actix_web::HttpResponse::build(self.status_code())
+            .json(serde_json::json!({"error": self.to_string()}))
+    }
 }

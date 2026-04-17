@@ -34,14 +34,15 @@ pub fn _create_wildcard_request_with_referer(cookie: String, referer: &str) -> R
 use actix_web::test;
 use serde_json::json;
 
-pub fn _user_create_request() -> Request {
+pub fn _user_create_request(host: &str) -> Request {
     let payload = json!({
         "username": "testuser",
         "password": "testpassword"
     });
 
     test::TestRequest::post()
-        .uri("/api/user")
+        .uri("/api/user_add")
+        .insert_header(("Host", host))
         .insert_header(("Content-Type", "application/json"))
         .set_json(&payload)
         .to_request()

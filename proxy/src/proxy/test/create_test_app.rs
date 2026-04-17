@@ -14,12 +14,13 @@ pub async fn _create_test_app() -> impl Service<Request, Response = ServiceRespo
     dotenvy::dotenv().ok();
     let db = _create_test_pool();
     let client = create_client_with_cert().unwrap();
+    //  let governor_conf = get_rate_limiter_config();
 
     test::init_service(
         App::new()
             .configure(routes)
-            .app_data(web::Data::new(client.clone()))
-            .app_data(web::Data::new(db.clone())),
+            .app_data(web::Data::new(db.clone()))
+            .app_data(web::Data::new(client.clone())),
     )
     .await
 }

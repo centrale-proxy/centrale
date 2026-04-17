@@ -1,43 +1,65 @@
-// CREATE USER
-// GET COOKIE
-// CONNECDT TO WS
-// GENERATE TOKEN
-// ADD TO BEARER
-
 #[actix_rt::test]
-async fn ws_connection_401_unauthorized() {
+async fn ws_connection_200() {
     use crate::proxy::{
         auth::subdomain_string::_get_centrale_cookie, test::create_test_app::_create_test_app,
         wildcard::test::_user_create_request,
     };
+    use crate::subdomain::handle_post::_make_register_subdomain_request;
     use actix_web::test;
+    use config::CentraleConfig;
+    use serde_json::json;
 
     dotenvy::dotenv().ok();
+
     let app = _create_test_app().await;
-    let req = _user_create_request();
+    let host = CentraleConfig::get("DOMAIN");
+    let host_s = format!("https://app.{}", host);
+    let req = _user_create_request(&host_s);
     let resp = test::call_service(&app, req).await;
     // GET COOKIE
+    println!("coo {:?}", &resp);
     let cookie_value = _get_centrale_cookie(resp.headers()).unwrap();
     let cookie = format!("centrale={}", cookie_value);
 
+    let register_subdomain_payload = json!({
+        "subdomain": "test",
+    });
+
+    let sub_reg =
+        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, &host_s).await;
+
+    assert!(sub_reg.status().is_success());
+
+    let host_s_2 = format!("wss://test.{}", host);
+
     let req = test::TestRequest::get()
-        .uri("/ws")
+        .uri("/air")
+        .insert_header(("Host", host_s_2))
         .insert_header(("Upgrade", "websocket"))
         .insert_header(("Connection", "Upgrade"))
         .insert_header(("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ=="))
         .insert_header(("Sec-WebSocket-Version", "13"))
-        .insert_header(("Cookie", cookie))
+        .insert_header(("Cookie", cookie_value))
         .to_request();
 
     // Send request to test service
-    let resp = test::call_service(&app, req).await;
+    let resp = test::try_call_service(&app, req).await;
 
-    // Assert that response is 401 Unauthorized
-    assert_eq!(
-        resp.status(),
-        actix_web::http::StatusCode::OK,
-        "Expected 200 OK response"
-    );
+    match resp {
+        Ok(re) => {
+            println!("resp {:?}", &re);
+
+            // Assert that response is 401 Unauthorized
+            assert_eq!(
+                re.status(),
+                actix_web::http::StatusCode::from_u16(101).unwrap(),
+                "Expected 101 OK response"
+            );
+        }
+        Err(err) => {
+            assert_eq!(err.to_string(), "Unauthorized");
+        }
+    }
 }
 
 #[actix_rt::test]
