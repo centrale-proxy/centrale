@@ -6,7 +6,6 @@ use crate::{
     server::{auth_2::auth_middleware_2, public_rate_limiter::public_rate_limiter_config},
     subdomain::respond_post::respond_subdomain,
     user::{
-        air_token::generate_responder::generate_air_token,
         bearer_token::responder::generate_bearer_token,
         bearer_token_view::responder::view_bearer_tokens, get::get::get_user,
         login::handle::handle_login, post::post::post_user,
@@ -44,13 +43,6 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::resource("/api/user/{user_id}/bearer/view")
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
             .route(web::get().to(view_bearer_tokens))
-            .route(web::head().to(|| HttpResponse::Ok())),
-    );
-
-    cfg.service(
-        web::resource("/api/user/air/token")
-            .wrap(actix_web::middleware::from_fn(auth_middleware_2))
-            .route(web::get().to(generate_air_token))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
