@@ -1,8 +1,7 @@
 
 # Subdomain based SaaS engine.
 
-Each subdonain gets their own forwarding address (and encrypted db in destination server).  
-Idea is, that you can register new customers to new destination server, when one has enough tenants.
+Each subdonain gets their own forwarding address (and encrypted db in destination server). There can be multiple destination servers.  
 
 ***
 
@@ -12,7 +11,7 @@ Upstream proxy based on subdomain.
 
 Assumes DNS A *.domain.com being directed to proxy.  
 
-Proxy:
+## Proxy:
 + Negotiates HTTPS
 + Authenticates (cookie / bearer)
 + Authorizes user access to subdomain,
@@ -20,12 +19,15 @@ Proxy:
 + proxies request (http + websocket) to destination server
 + + add id, password and role to (destination server db) request headers
 + Forwards request data to Writer (logging service)
-+ + If response status is not 200, error body is saved
-+ + This helps customer support know the userfacing error as it happens
 
-Destination server:
+## Destination server:
 + each subdomain gets own (sqlite + sqlcipher password) db
 + with id and password from request header opens db commection
+
+## Writer (logging service)
++ Logs every request and response headers.
++ If response status is not 200, error body is saved
++ + This helps customer support know the userfacing error as it happens
 
 ***
 
@@ -39,8 +41,8 @@ A: I have no good solution for that
 Q: User registration gives an immediate cookie (instead of requiring log in).
 A: I've been in the position of asking for this feature "later" (when the auth was built already).
   
-Q: Client errors body is logged to Writer
-A: Previously customer support had to ask a programmer to find what the error was.
+Q: If client errors body is logged to Writer
+A: Previously customer support had to ask a devops to find what the error was.
 
 Q: So... an Actix server is connected straight to internet.
 A: Yes - and I'm totally waiting for ideas what should be in front of it which is not Nginx.
@@ -105,6 +107,8 @@ mkcert "*.mydomain.local"
 sudo nano /etc/hosts
 
 127.0.0.1   test.mydomain.local
+127.0.0.1   app.mydomain.local
+127.0.0.1   one.mydomain.local
 ```
 
 # Concepts
@@ -222,13 +226,14 @@ WantedBy=sockets.target
 # Browser
 ```
 
-fetch("https://test.mydomain.local/api/user", {
+fetch("https://test.mydomain.local/api/user_add", {
   method: "POST",
   credentials: "include",         
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ username: "test", password: "hello" }),
 })
 
+// ONLY ALLOWED FROM app.mydomain.local
 fetch("https://test.mydomain.local/api/subdomain", {
   method: "POST",
   headers: { "Content-Type": "application/json" },

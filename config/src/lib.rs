@@ -65,5 +65,6 @@ impl CentraleConfig {
         Self::cert_private_key();
         Self::cert_pub_key();
         Self::get("DOMAIN");
+        Self::get("SAMPLE_SERVER_ADDRESS");
     }
 }
