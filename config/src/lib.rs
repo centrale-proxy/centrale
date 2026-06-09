@@ -9,7 +9,6 @@ impl CentraleConfig {
     pub const CENTRALE_CERT_PRIVATE_KEY: &str = "CENTRALE_CERT_PRIVATE_KEY";
     pub const CENTRALE_CERT_PUB_KEY: &str = "CENTRALE_CERT_PUB_KEY";
     // NOT ENVIRONMENT VARIABLES:
-    pub const SERVER_ADDRESS: &str = "0.0.0.0:443";
     pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
@@ -66,5 +65,6 @@ impl CentraleConfig {
         Self::cert_pub_key();
         Self::get("DOMAIN");
         Self::get("SAMPLE_SERVER_ADDRESS");
+        Self::get("SERVER_ADDRESS");
     }
 }
