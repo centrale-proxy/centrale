@@ -21,26 +21,49 @@ pub async fn start_server(db: DbPool) -> std::io::Result<()> {
     let socket = UdpSocket::bind(addr_0)?; // OS picks a port
     let socket_arc = Arc::new(Mutex::new(socket));
     let addr: SocketAddr = CentraleConfig::WRITER_SERVER_ADDRESS.parse().unwrap();
-    // SSL
-    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-    builder.set_private_key_file(CentraleConfig::cert_private_key(), SslFiletype::PEM)?;
-    builder.set_certificate_chain_file(CentraleConfig::cert_pub_key())?;
     // CREATE CLIENT WITH CERT
     let client = create_client_with_cert().unwrap();
-    // SERVER ITSELF
-    HttpServer::new(move || {
-        App::new()
-            .configure(routes)
-            .app_data(web::Data::new(db.clone()))
-            .wrap_fn({
-                let socket_2 = socket_arc.clone();
-                move |req, srv| log_middleware(req, srv, socket_2.clone(), addr)
-            })
-            .wrap(Governor::new(&governor_conf))
-            .app_data(web::Data::new(client.clone()))
-    })
-    .workers(CentraleConfig::PROXY_SERVER_WORKERS)
-    .bind_openssl(CentraleConfig::get("SERVER_ADDRESS"), builder)?
-    .run()
-    .await
+
+    let proxy_is_443 = CentraleConfig::get("CENTRALE_IS_443");
+
+    if proxy_is_443 == "true".to_string() {
+        // SSL //
+        let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+        builder.set_private_key_file(CentraleConfig::cert_private_key(), SslFiletype::PEM)?;
+        builder.set_certificate_chain_file(CentraleConfig::cert_pub_key())?;
+        // SERVER ITSELF
+        HttpServer::new(move || {
+            App::new()
+                .configure(routes)
+                .app_data(web::Data::new(db.clone()))
+                .wrap_fn({
+                    let socket_2 = socket_arc.clone();
+                    move |req, srv| log_middleware(req, srv, socket_2.clone(), addr)
+                })
+                .wrap(Governor::new(&governor_conf))
+                .app_data(web::Data::new(client.clone()))
+        })
+        .workers(CentraleConfig::PROXY_SERVER_WORKERS)
+        .bind_openssl(CentraleConfig::get("SERVER_ADDRESS"), builder)? //
+        .run()
+        .await
+    } else {
+        // NOT PORT 443
+        // SERVER ITSELF
+        HttpServer::new(move || {
+            App::new()
+                .configure(routes)
+                .app_data(web::Data::new(db.clone()))
+                .wrap_fn({
+                    let socket_2 = socket_arc.clone();
+                    move |req, srv| log_middleware(req, srv, socket_2.clone(), addr)
+                })
+                .wrap(Governor::new(&governor_conf))
+                .app_data(web::Data::new(client.clone()))
+        })
+        .workers(CentraleConfig::PROXY_SERVER_WORKERS)
+        .bind(CentraleConfig::get("SERVER_ADDRESS"))? //
+        .run()
+        .await
+    }
 }

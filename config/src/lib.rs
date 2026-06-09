@@ -61,10 +61,15 @@ impl CentraleConfig {
     pub fn test() {
         Self::master_bearer_token();
         Self::master_password();
-        Self::cert_private_key();
-        Self::cert_pub_key();
         Self::get("DOMAIN");
         Self::get("SAMPLE_SERVER_ADDRESS");
         Self::get("SERVER_ADDRESS");
+
+        let is_443 = Self::get("CENTRALE_IS_443");
+        if is_443 == "true".to_string() {
+            Self::cert_private_key();
+            Self::cert_pub_key();
+        } else {
+        }
     }
 }
