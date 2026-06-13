@@ -46,7 +46,7 @@ pub async fn handle_post(
             );
 
             let mut map = HashMap::new();
-            map.insert("hello", "hello");
+            map.insert("subdomain", &subdomain);
 
             let response = client
                 .post(&url)
@@ -67,7 +67,11 @@ pub async fn handle_post(
                         .json(serde_json::json!({ "subdomain": subdomain, "user": user.user_id }));
                     Ok(res)
                 }
-                _ => Err(CentraleError::StringError("Wrong status".to_string())),
+                _ => {
+                    let error_body = res.text().await;
+                    log::error!("error body {:?}", error_body);
+                    Err(CentraleError::StringError(error_body.unwrap()))
+                }
             }
         }
         Err(err) => {
