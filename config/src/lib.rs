@@ -20,11 +20,6 @@ impl CentraleConfig {
     pub const RATE_LIMITER_BURST_SIZE: u32 = 10;
     /// How many places in pipeline are freed in a second for 1 IP
     pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 2000;
-    // RATE LIMITER FOR PUBLIC ENDPOINTS
-    /// How many requests are allowed to pipeline in total per one IP
-    pub const PUBLIC_RATE_LIMITER_BURST_SIZE: u32 = 1;
-    /// How many places in pipeline are freed in a second for 1 IP
-    pub const PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 1;
     // WRITER
     pub const WRITER_EVENTS_CAPACITY: usize = 10000;
     pub const WRITER_DB_FILE: &str = "writer.db";
@@ -64,6 +59,16 @@ impl CentraleConfig {
         Self::get("DOMAIN");
         Self::get("SAMPLE_SERVER_ADDRESS");
         Self::get("SERVER_ADDRESS");
+        let public_burst = Self::get("PUBLIC_RATE_LIMITER_BURST_SIZE");
+        match public_burst.parse::<u32>() {
+            Err(e) => panic!("PUBLIC_RATE_LIMITER_BURST_SIZE bust be i32, {}", e),
+            _ => {}
+        }
+        let public_per_sec = Self::get("PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND");
+        match public_per_sec.parse::<u64>() {
+            Err(e) => panic!("PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND bust be i32, {}", e),
+            _ => {}
+        }
 
         let is_443 = Self::get("CENTRALE_IS_443");
         if is_443 == "true".to_string() {
