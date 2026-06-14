@@ -1,6 +1,6 @@
    [workspace]
    members = [
-       "proxy",
+       "centrale",
        "dir_and_db_pool",
        "config",
        "test_suite",

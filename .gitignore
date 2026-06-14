@@ -6,7 +6,7 @@
 /*/repomix-output.xml
 /config/src/lib.rs
 /archive/
-/proxy/ssl
+/centrale/ssl
 /destination_server/src/ssl
 .env
 ask.sh

@@ -55,10 +55,10 @@ A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts 
 Q: Encryption key is in the header of request.
 A: My main idea here is that the destination server itself would not have the key(s), only the encrypted db. Totally waiting for ideas on how to transport the secret.
 
-Q: If proxy is down, whole service is immediately down
+Q: If centrale is down, whole service is immediately down
 A: It would be the same, if  auth server were down.
 
-Q: Auth + proxy is done by the same part
+Q: Auth + centrale is done by the same part
 A: I have no good solution for that yet
 
 Q: Token and cookie are both allowed for same endpoints
@@ -166,7 +166,7 @@ After=network.target
 
 [Service]
 User=www       
-ExecStart=/home/www/centrale/target/release/proxy
+ExecStart=/home/www/centrale/target/release/centrale
 EnvironmentFile=/etc/environment
 Restart=on-failure
 

@@ -507,6 +507,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "centrale"
+version = "0.1.0"
+dependencies = [
+ "actix-files",
+ "actix-governor",
+ "actix-http",
+ "actix-rt",
+ "actix-web",
+ "actix-ws",
+ "argon2",
+ "chrono",
+ "common",
+ "config",
+ "cookie 0.18.1",
+ "dir_and_db_pool",
+ "dotenvy",
+ "env_logger",
+ "futures-util",
+ "log",
+ "mio",
+ "openssl",
+ "r2d2",
+ "r2d2_sqlite",
+ "rand 0.8.6",
+ "reqwest",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "thiserror",
+ "tokio-tungstenite",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2007,39 +2040,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "proxy"
-version = "0.1.0"
-dependencies = [
- "actix-files",
- "actix-governor",
- "actix-http",
- "actix-rt",
- "actix-web",
- "actix-ws",
- "argon2",
- "chrono",
- "common",
- "config",
- "cookie 0.18.1",
- "dir_and_db_pool",
- "dotenvy",
- "env_logger",
- "futures-util",
- "log",
- "mio",
- "openssl",
- "r2d2",
- "r2d2_sqlite",
- "rand 0.8.6",
- "reqwest",
- "serde",
- "serde_derive",
- "serde_json",
- "thiserror",
- "tokio-tungstenite",
-]
-
-[[package]]
 name = "quanta"
 version = "0.12.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2754,11 +2754,11 @@ name = "test_suite"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "centrale",
  "chrono",
  "config",
  "dir_and_db_pool",
  "fake",
- "proxy",
  "r2d2_sqlite",
  "rand 0.10.1",
  "reqwest",
@@ -3633,11 +3633,11 @@ checksum = "1ffae5123b2d3fc086436f8834ae3ab053a283cfac8fe0a0b8eaae044768a4c4"
 name = "writer"
 version = "0.1.0"
 dependencies = [
+ "centrale",
  "common",
  "config",
  "dir_and_db_pool",
  "mio",
- "proxy",
  "r2d2",
  "r2d2_sqlite",
  "serde",
