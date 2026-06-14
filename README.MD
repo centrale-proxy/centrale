@@ -14,7 +14,8 @@ Assumes DNS A *.domain.com being directed to proxy.
 ## Proxy:
 + Negotiates HTTPS
 + Authenticates (cookie / bearer)
-+ Authorizes user access to subdomain,
++ Authorizes user access to subdomain
++ enables user adding / user management, subdomain adding.
 + Rate limits
 + proxies request (http + websocket) to destination server
 + + add id, password and role to (destination server db) request headers
