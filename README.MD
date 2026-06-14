@@ -1,28 +1,24 @@
 
 # Subdomain based SaaS engine.
 
-Each subdonain gets their own forwarding address (and encrypted db in destination server). There can be multiple destination servers.  
-
-***
-
-# Technically
-
-Upstream proxy based on subdomain. 
-
-Assumes DNS A *.domain.com being directed to proxy.  
+Authenticates, authorizes, rate limits, logs.
+Proxies request to destination server.
 
 ## Proxy:
-+ Negotiates HTTPS
+Assumes DNS A *.domain.com being directed to proxy.  
+
++ Negotiates HTTPS (or doesn't if .env sets differently)
 + Authenticates (cookie / bearer)
 + Authorizes user access to subdomain
-+ enables user adding / user management, subdomain adding.
 + Rate limits
 + proxies request (http + websocket) to destination server
-+ + add id, password and role to (destination server db) request headers
++ + adds id, password and role to request (to destination server db) headers
 + Forwards request data to Writer (logging service)
++ Enables user adding / user management, subdomain adding.
 
 ## Destination server:
-+ each subdomain gets own (sqlite + sqlcipher password) db
++ There can be multiple destination servers.  
++ each subdomain gets own enrypted (sqlite + sqlcipher password) db
 + with id and password from request header opens db commection
 
 ## Writer (logging service)
@@ -32,24 +28,23 @@ Assumes DNS A *.domain.com being directed to proxy.
 
 ***
 
-# Oppinionated parts:
-Q: If proxy is down, whole service is immediately down
-A: It would be the same, if your auth server were down.
+# Concepts
++ subdomains are always authenticated.
++ Allows only one subdomain level (one.domain.com) not one.two.subdomain.com
++ + Other schemes will be answered as "Not authenticated".
++ Ansers "Not authenticated" to all invalid requests to avoid enumeration.
++ Optionally serves same front end for all subdomains
++ Same backend can be used for all subdomains
 
-Q: Auth + proxy is done by the same part
-A: I have no good solution for that
+# Oppinionated parts:
+Q: Why subdomains?
+A: API looks better
 
 Q: User registration gives an immediate cookie (instead of requiring log in).
 A: I've been in the position of asking for this feature "later" (when the auth was built already).
   
 Q: If client errors body is logged to Writer
 A: Previously customer support had to ask a devops to find what the error was.
-
-Q: So... an Actix server is connected straight to internet.
-A: Yes - and I'm totally waiting for ideas what should be in front of it which is not Nginx.
-
-Q: Why subdomains?
-A: API looks better
 
 Q: Why is backend doing subodmains not DNS?
 A: in DNS, they would be enuremable.
@@ -60,25 +55,30 @@ A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts 
 Q: Encryption key is in the header of request.
 A: My main idea here is that the destination server itself would not have the key(s), only the encrypted db. Totally waiting for ideas on how to transport the secret.
 
+Q: If proxy is down, whole service is immediately down
+A: It would be the same, if  auth server were down.
+
+Q: Auth + proxy is done by the same part
+A: I have no good solution for that yet
+
 Q: Token and cookie are both allowed for same endpoints
-A:: It seams double the work to make own endpoints for app and web,
+A: It seams double the work to make own endpoints for app and web,
 Especcialy if you use CapacitorJS or similar and your webapp is your ios app,
-This will also affected the TBD Access-Control-Allow-Origin part
 
 ## NO AUTH endoints:
 ```
 GET /api/tester - ensures website is up and db is working
-POST /api/user - register user (password can be 1-200 chars, username can be 1-100 chars, must be alphanumeric)
+POST /api/user_add - register user (password can be 1-200 chars, username can be 1-100 chars, must be alphanumeric)
 POST /login - login
 ```
 ## AUTH endpoints
 ```
-GET /api/user/bearer/token - generate bearer token for user
-(TBD) GET /api/user/bearer/view
+GET /api/user/:user_id/bearer/generate - generate bearer token for user
+GET /api/user/:user_id/bearer/view
 (TBD) DELETE /api/user/bearer/:id
 
 GET /api/user - my user data
-GET /logout
+(TBD) GET /logout
 (TBD) PUT /api/user - put user
 (TBD) DELETE /api/user - delete user
 
@@ -112,14 +112,6 @@ sudo nano /etc/hosts
 127.0.0.1   one.mydomain.local
 ```
 
-# Concepts
-+ subdomains are always authenticated.
-+ Allows only one subdomain level (one.domain.com) not one.two.subdomain.com
-+ + Other schemes will be answered as "Not authenticated".
-+ Ansers "Not authenticated" to all invalid requests to avoid enumeration.
-+ Optionally serves same front end for all subdomains
-+ Same backend can be used for all subdomains
-
 # Rate limiter
 You can set in config Burst Size and Requests Per Second.  
 
@@ -143,9 +135,9 @@ curl -b "centrale=_cookie" -H "Host: http://hello.wello.ee" http://localhost:808
 
 //
 
-curl -X POST -H "Content-Type: application/json" -d '{"username": "a1", "password": "b"}' https://test.domain.local/api/user -vvv
+curl -X POST -H "Content-Type: application/json" -d '{"username": "a1", "password": "b"}' https://test.domain.local/api/user_add -vvv
 
-curl -b "centrale=ssssss" -H "Referer: https://test.domain.local" https://test.domain.local/api/user
+curl -b "centrale=ssssss" -H "Referer: https://test.domain.local" https://test.domain.local/api/user_add
 
 curl -b "centrale=ssssss" -H "Content-Type: application/json" -d '{"subdomain": "test"}' https://test.domain.local/api/subdomain -vvv
 
