@@ -29,7 +29,7 @@ pub async fn handle_post(
     user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
     let subdomain_original = payload.subdomain.clone();
-    let subdomain = truncate(&subdomain_original, 20);
+    let subdomain = truncate(&subdomain_original, 30);
     // let headers = req.headers();
     // let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
 

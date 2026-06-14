@@ -81,7 +81,7 @@ GET /logout
 (TBD) PUT /api/user - put user
 (TBD) DELETE /api/user - delete user
 
-POST /api/subdomain - add subdomain (subdomain is min 1, max 20 chars, if over, will be tructuated, must be alphanumeric)
+POST /api/subdomain - add subdomain (subdomain is min 1, max 30 chars, if over, will be tructuated, must be alphanumeric)
 (TBD) GET /api/subdomain - get user subdomains
 (TBD) DELETE /api/subdomain - delete subdomain
 (TBD) GET /api/test-subdomain - see if subdomain is available

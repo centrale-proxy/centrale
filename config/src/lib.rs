@@ -27,8 +27,8 @@ impl CentraleConfig {
     // WORKERS
     pub const PROXY_SERVER_WORKERS: usize = 1;
     pub const SAMPLE_SERVER_WORKERS: usize = 1;
-    // AIR TOKEN
-    pub const AIR_TOKEN_TIMEOUT: i64 = 60;
+    // SUBDOMAIN
+    pub const SUBDOMAIN_LENGTH: u64 = 30;
 
     pub fn master_bearer_token() -> String {
         std::env::var(Self::CENTRALE_MASTER_BEARER_TOKEN)
