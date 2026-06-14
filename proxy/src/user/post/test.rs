@@ -1,5 +1,6 @@
 use crate::db::init::init_db;
 use crate::error::CentraleError;
+use crate::proxy::auth::subdomain::_get_centrale_cookie_2;
 use crate::server::routes::routes;
 use actix_http::Request;
 use actix_web::{App, test};
@@ -33,7 +34,7 @@ pub async fn _make_user_register_test_request(
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
 ) -> ServiceResponse {
     let host = CentraleConfig::get("DOMAIN");
-    let host_s = format!("https://app.{}", host);
+    let host_s = format!("app.{}", host);
     let req = test::TestRequest::post()
         .uri("/api/user_add")
         .insert_header(("Content-Type", "application/json"))
@@ -63,16 +64,19 @@ pub async fn _make_request_with_cookie_to_wildcard(
 
 pub async fn _make_request_with_cookie(
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
-    cookie: &str,
+    cookie_value: &str,
 ) -> Result<ServiceResponse, CentraleError> {
     let host = CentraleConfig::get("DOMAIN");
-    let host_s = format!("https://app.{}", host);
-
+    let host_s = format!("app.{}", host);
+    println!("cookie: {}", &cookie_value);
+    println!("host_s: {}", &host_s);
     let req = test::TestRequest::get()
         .uri("/api/user")
         .insert_header(("Host", host_s))
+        .insert_header((header::COOKIE, format!("centrale={}", cookie_value)))
+        // .insert_header((header::COOKIE, cookie))
         //  .insert_header(("Content-Type", "application/json"))
-        .insert_header(("Cookie", cookie))
+        // .insert_header(("Cookie", cookie))
         .to_request();
 
     let resp = test::try_call_service(app, req).await?;
@@ -135,9 +139,13 @@ async fn post_user_get_user_with_cookie() {
     assert!(resp.status().is_success());
     assert!(resp.headers().contains_key("set-cookie"));
 
-    let cookie_header = resp.headers().get("set-cookie").unwrap();
-    let cookie = cookie_header.to_str().unwrap();
-    let auth_resp = _make_request_with_cookie(&app, &cookie).await.unwrap();
+    // let cookie_header = resp.headers().get("set-cookie").unwrap();
+    // let cookie = cookie_header.to_str().unwrap();
+    let cookie_value = _get_centrale_cookie_2(resp.headers()).unwrap();
+
+    let auth_resp = _make_request_with_cookie(&app, &cookie_value)
+        .await
+        .unwrap();
 
     assert!(auth_resp.status().is_success());
 }

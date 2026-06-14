@@ -1,5 +1,6 @@
 use crate::{
-    db::get_db::get_centrale_db, error::CentraleError, server::auth::CentraleUser,
+    db::get_db::get_centrale_db, error::CentraleError,
+    proxy::auth::subdomain::_get_centrale_cookie_2, server::auth::CentraleUser,
     subdomain::post::post_subdomain,
 };
 use actix_http::Request;
@@ -88,18 +89,16 @@ use actix_web::test;
 pub async fn _make_register_subdomain_request(
     payload: Value,
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
-    cookie: &str,
+    cookie_value: &str,
     host: &str,
 ) -> ServiceResponse {
     use actix_web::http::header;
-    println!("cookie cookie {:?}", &cookie);
-    println!("host {:?}", &host);
 
     let req = test::TestRequest::post()
         .uri("/api/subdomain")
         .insert_header(("Content-Type", "application/json"))
         .insert_header(("Host", host))
-        .insert_header((header::COOKIE, cookie))
+        .insert_header((header::COOKIE, format!("centrale={}", cookie_value)))
         .set_json(&payload)
         .to_request();
 
@@ -120,9 +119,8 @@ async fn _create_user_get_cookie(
 
     let resp = _make_user_register_test_request(payload, &app).await;
 
-    let cookie_header = resp.headers().get("set-cookie").unwrap();
-    let cookie = cookie_header.to_str().unwrap();
-    cookie.to_string()
+    let cookie_value = _get_centrale_cookie_2(resp.headers()).unwrap();
+    cookie_value
 }
 #[actix_rt::test]
 async fn post_subdomain_normal() {
@@ -147,22 +145,22 @@ async fn post_subdomain_normal() {
     fs::remove_file(&file_path).unwrap_or(());
 
     let app = _create_test_app().await;
-    let cookie = _create_user_get_cookie(&app).await;
+    let cookie_value = _create_user_get_cookie(&app).await;
 
-    let auth_resp = _make_request_with_cookie(&app, &cookie).await.unwrap();
+    let auth_resp = _make_request_with_cookie(&app, &cookie_value)
+        .await
+        .unwrap();
+
     assert!(auth_resp.status().is_success());
 
     let register_subdomain_payload = json!({
         "subdomain": nums_str,
     });
     let host = CentraleConfig::get("DOMAIN");
-    let host_s = format!("https://app.{}", host);
-    println!("host_s {}", &host_s);
-    //
-    //
-    //
+    let host_s = format!("app.{}", host);
     let sub_reg =
-        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, &host_s).await;
+        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie_value, &host_s)
+            .await;
 
     assert!(sub_reg.status().is_success());
 
@@ -181,7 +179,7 @@ async fn post_subdomain_0_bytes_fails() {
         "subdomain": "\0",
     });
     let host = CentraleConfig::get("DOMAIN");
-    let host_s = format!("https://app.{}", host);
+    let host_s = format!("app.{}", host);
 
     let sub_reg =
         _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, &host_s).await;
@@ -221,14 +219,13 @@ async fn post_subdomain_31_chars_cuts_to_30_chars() {
     });
 
     let host = CentraleConfig::get("DOMAIN");
-    let host_s = format!("https://app.{}", host);
+    let host_s = format!("app.{}", host);
     let sub_reg =
         _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, &host_s).await;
 
     let body_bytes = to_bytes(sub_reg.into_body()).await.unwrap();
     let str = String::from_utf8(body_bytes.to_vec()).unwrap();
 
-    println!("strstr {}", &str);
     let subdomain: RegisterSubdomain = serde_json::from_str(&str).unwrap();
 
     assert!(subdomain.subdomain.len() == 30);
@@ -277,7 +274,7 @@ async fn post_subdomain_invalid_url_chars_fails() {
     ];
 
     let host = CentraleConfig::get("DOMAIN");
-    let host_s = format!("https://app.{}", host);
+    let host_s = format!("app.{}", host);
 
     for invalid_char in invalid_chars {
         let register_subdomain_payload = json!({
