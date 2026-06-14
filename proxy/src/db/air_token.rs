@@ -1,7 +1,7 @@
 use crate::error::CentraleError;
 use r2d2::PooledConnection;
 use r2d2_sqlite::SqliteConnectionManager;
-
+//
 pub fn create_air_token_table(
     db: &PooledConnection<SqliteConnectionManager>,
 ) -> Result<(), CentraleError> {

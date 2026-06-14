@@ -30,7 +30,7 @@ pub async fn process_one_request(
     } else {
         // IS HTTPS REQUEST
         let host = conn.host();
-        let (_user_id, subdomain, subdomain_user_role, pass, url) =
+        let (_user_id, subdomain, subdomain_user_role, pass, address, url) =
             authenticate_and_authorize(pool, &req, host)?;
 
         if is_front(&url) {
@@ -48,6 +48,7 @@ pub async fn process_one_request(
         };
 
         let url_local = format!("https://{}", url);
+        println!("url_local {}", &url_local);
         //
         let request = client
             .request(unwrapped_method.clone(), url_local)

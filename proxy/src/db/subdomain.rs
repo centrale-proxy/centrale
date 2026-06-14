@@ -17,6 +17,7 @@ pub fn create_subdomain_table(
             ),
             password TEXT NOT NULL CHECK(password <> ''),
             user_id INTEGER NOT NULL,
+            address TEXT NOT NULL,
             FOREIGN KEY(user_id) REFERENCES user(id)
         );
         CREATE INDEX IF NOT EXISTS idx_subdomain ON subdomain (subdomain, user_id);

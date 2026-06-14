@@ -1,5 +1,6 @@
 use crate::error::CentraleError;
 use argon2::password_hash::SaltString;
+use config::CentraleConfig;
 use dir_and_db_pool::db::DbConnection;
 use r2d2_sqlite::rusqlite::params;
 use rand::rngs::OsRng;
@@ -19,9 +20,10 @@ pub fn post_subdomain(
         return Err(CentraleError::SuchSubdomainExists);
     } else {
         let password = SaltString::generate(&mut OsRng);
+        let address = CentraleConfig::get("DESTINATION_SERVER_ADDRESS");
         db.execute(
-            "INSERT INTO subdomain (subdomain, password, user_id) VALUES (?1, ?2, ?3)",
-            params![subdomain, password.as_str(), user_id],
+            "INSERT INTO subdomain (subdomain, password, user_id, address) VALUES (?1, ?2, ?3, ?4)",
+            params![subdomain, password.as_str(), user_id, address],
         )?;
 
         db.execute(
