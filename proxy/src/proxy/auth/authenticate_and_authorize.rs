@@ -1,6 +1,6 @@
 use crate::{
     error::CentraleError,
-    proxy::auth::{get_user_id::get_user_id, host::get_host, subdomain::get_subdomain},
+    proxy::auth::{get_user_id::get_user_id, subdomain::get_subdomain},
     subdomain::{get::get_subdomain_pass, get_subdomain_user::get_subdomain_user_role},
 };
 use actix_web::{HttpRequest, web};
@@ -10,12 +10,10 @@ use dir_and_db_pool::db::DbPool;
 pub fn authenticate_and_authorize(
     pool: web::Data<DbPool>,
     req: &HttpRequest,
+    host: &str,
 ) -> Result<(i64, String, String, String, String), CentraleError> {
     // println!("req {:?}", &req);
-
     let headers = req.headers();
-    let host = get_host(&req)?;
-
     // VALIDATE SUBDOMAIN
     let subdomain = get_subdomain(&host)?;
     // AUTHENTICATE
@@ -26,7 +24,6 @@ pub fn authenticate_and_authorize(
     let pass = get_subdomain_pass(&pool, &subdomain)?;
     // PREPARE TO PROXY
     let path = req.path().to_string();
-    //println!("path {}", path);
     let domain = format!("{}", CentraleConfig::get("SAMPLE_SERVER_ADDRESS"));
     let url = format!("{}{}", domain, path);
 

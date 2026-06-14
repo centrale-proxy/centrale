@@ -5,7 +5,6 @@ use r2d2::Error as R2d2Error;
 use r2d2_sqlite::rusqlite;
 use std::error::Error as StdError;
 use thiserror::Error;
-use url::ParseError;
 
 #[derive(Error, Debug)]
 pub enum CentraleError {
@@ -35,9 +34,6 @@ pub enum CentraleError {
 
     #[error("Invalid method")]
     InvalidMethod,
-
-    #[error("URL parse error: {0}")]
-    UrlParseError(#[from] ParseError),
 
     #[error("No token or cookie present")]
     NoTokenOrCookiePresent,

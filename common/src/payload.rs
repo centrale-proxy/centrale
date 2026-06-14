@@ -72,7 +72,6 @@ impl CheckIn {
 
         let query = req.query_string().to_string();
 
-        //  let url = Url::parse(&req.uri().to_string());
         let url = req.uri().to_string();
 
         let ua = get_ua(&req);

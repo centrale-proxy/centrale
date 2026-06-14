@@ -7,7 +7,7 @@ use crate::{
     server::auth::CentraleUser,
 };
 use actix_http::StatusCode;
-use actix_web::{HttpRequest, HttpResponse, web};
+use actix_web::{HttpRequest, HttpResponse, dev::ConnectionInfo, web};
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbPool;
 use reqwest::{Method, header};
@@ -18,9 +18,9 @@ pub async fn process_one_request(
     pool: web::Data<DbPool>,
     req: HttpRequest,
     stream: web::Payload,
-    // query: web::Query<QueryParams>,
     client: web::Data<reqwest::Client>,
     user: CentraleUser,
+    conn: ConnectionInfo,
 ) -> Result<HttpResponse, CentraleError> {
     if is_streaming_request(&req) {
         // IS STREAM
@@ -28,8 +28,9 @@ pub async fn process_one_request(
         Ok(socket)
     } else {
         // IS HTTPS REQUEST
+        let host = conn.host();
         let (_user_id, subdomain, subdomain_user_role, pass, url) =
-            authenticate_and_authorize(pool, &req)?;
+            authenticate_and_authorize(pool, &req, host)?;
 
         let master_token = CentraleConfig::master_bearer_token();
         let method = Method::from_str(req.method().as_str());
