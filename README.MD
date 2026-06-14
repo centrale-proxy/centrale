@@ -19,10 +19,10 @@ Assumes DNS A *.domain.com being directed to centrale.
 ## Destination server:
 + There can be multiple destination servers.  
 + each subdomain gets own enrypted (sqlite + sqlcipher password) db
-+ with id and password from request header opens db commection
++ id, password (and role) from request header opens db connection
 
 ## Writer (logging service)
-+ Logs every request and response headers.
++ Logs request and response headers.
 + If response status is not 200, error body is saved
 + + This helps customer support know the userfacing error as it happens
 
@@ -32,7 +32,7 @@ Assumes DNS A *.domain.com being directed to centrale.
 + subdomains are always authenticated.
 + Allows only one subdomain level (one.domain.com) not one.two.subdomain.com
 + + Other schemes will be answered as "Not authenticated".
-+ Ansers "Not authenticated" to all invalid requests to avoid enumeration.
++ Answers "Not authenticated" to all invalid requests to avoid enumeration.
 + Optionally serves same front end for all subdomains
 + Same backend can be used for all subdomains
 
@@ -238,11 +238,9 @@ fetch("https://test.domain.local/api/login", {
 
 })
 
-
 # Token auth
 curl -H 'Authorization: Bearer test' https://test.domain.local/api/user/
 ```
-
 
 # TBD
 + TBD CERTAIN URLS (.git, .env) SEND STRAIGHT TO RATE LIMITER
@@ -257,15 +255,13 @@ curl -H 'Authorization: Bearer test' https://test.domain.local/api/user/
 + user_meta
 + /api/redirect/:subdomain
 + robots.txt
-+ not private by default should also be possible for blog sites. Perhaps should be all the same type - private or public 
-
++ not private by default should also be possible for blog sites. Perhaps should be all the same type - either private or public 
 
 # PLATFORM
 + SET .well-known/apple-app-site-association
-+ add auth methods - SMART ID, log in link.
-+ Companu registration extra keys
++ add auth methods - SMART ID, log in link, email.
++ Subdomain registration extra keys
 + Central key storage?
 
 # PROBLEMS:
 + basic HTML to login... should be in "app".
-+ how does "app" work? How should it be called?
