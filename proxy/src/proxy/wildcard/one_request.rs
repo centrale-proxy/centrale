@@ -3,6 +3,7 @@ use crate::{
     proxy::{
         auth::authenticate_and_authorize::authenticate_and_authorize,
         websocket::{is_ws::is_streaming_request, proxy_ws::ws_proxy},
+        wildcard::{is_front::is_front, serve_front::serve_front_end},
     },
     server::auth::CentraleUser,
 };
@@ -32,6 +33,12 @@ pub async fn process_one_request(
         let (_user_id, subdomain, subdomain_user_role, pass, url) =
             authenticate_and_authorize(pool, &req, host)?;
 
+        if is_front(&url) {
+            // serve front
+            let front = serve_front_end(req).await;
+            return Ok(front);
+        }
+        // IS NOT FRONT END
         let master_token = CentraleConfig::master_bearer_token();
         let method = Method::from_str(req.method().as_str());
 

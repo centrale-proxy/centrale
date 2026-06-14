@@ -1,6 +1,8 @@
 pub mod create_client;
+pub mod is_front;
 pub mod one_request;
 pub mod one_request_with_payload;
+pub mod serve_front;
 pub mod test;
 
 use crate::{proxy::wildcard::one_request::process_one_request, server::auth::CentraleUser};

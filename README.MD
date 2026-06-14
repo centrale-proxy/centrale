@@ -116,6 +116,8 @@ sudo nano /etc/hosts
 + Allows only one subdomain level (one.domain.com) not one.two.subdomain.com
 + + Other schemes will be answered as "Not authenticated".
 + Ansers "Not authenticated" to all invalid requests to avoid enumeration.
++ Optionally serves same front end for all subdomains
++ Same backend can be used for all subdomains
 
 # Rate limiter
 You can set in config Burst Size and Requests Per Second.  

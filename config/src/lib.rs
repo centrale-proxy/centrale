@@ -56,19 +56,31 @@ impl CentraleConfig {
     pub fn test() {
         Self::master_bearer_token();
         Self::master_password();
-        Self::get("DOMAIN");
-        Self::get("SAMPLE_SERVER_ADDRESS");
-        Self::get("SERVER_ADDRESS");
-        let public_burst = Self::get("PUBLIC_RATE_LIMITER_BURST_SIZE");
-        match public_burst.parse::<u32>() {
-            Err(e) => panic!("PUBLIC_RATE_LIMITER_BURST_SIZE bust be i32, {}", e),
-            _ => {}
+
+        let domain = Self::get("DOMAIN");
+        println!("DOMAIN: {}", domain);
+
+        let target_server = Self::get("SAMPLE_SERVER_ADDRESS");
+        println!("SAMPLE_SERVER_ADDRESS: {}", target_server);
+
+        let server_address = Self::get("SERVER_ADDRESS");
+        println!("SERVER_ADDRESS: {}", server_address);
+
+        let serve_front = Self::get("SERVE_FRONT").parse::<bool>().unwrap();
+        println!("SERVE_FRONT: {}", serve_front);
+
+        if serve_front == true {
+            let front_end_folder = Self::get("FRONT_END_FOLDER").parse::<String>().unwrap();
+            println!("FRONT_END_FOLDER: {}", front_end_folder);
         }
-        let public_per_sec = Self::get("PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND");
-        match public_per_sec.parse::<u64>() {
-            Err(e) => panic!("PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND bust be i32, {}", e),
-            _ => {}
-        }
+
+        Self::get("PUBLIC_RATE_LIMITER_BURST_SIZE")
+            .parse::<u32>()
+            .unwrap();
+
+        Self::get("PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND")
+            .parse::<u64>()
+            .unwrap();
 
         let is_443 = Self::get("CENTRALE_IS_443");
         if is_443 == "true".to_string() {
