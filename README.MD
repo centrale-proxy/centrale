@@ -154,10 +154,6 @@ curl -b "centrale=ssssss" -H "Referer: http://test.domain.local" https://test.do
 
 ```
 
-# WEBSOCKET PROXY TEST:
-```
-ws -H "Cookie: centrale=aaaaaa;" -k "wss://test.domain.local/air?air_token=aaa"
-```
 
 # Sqlite3 access
 

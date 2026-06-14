@@ -1,4 +1,3 @@
-pub mod air_token;
 pub mod bearer;
 pub mod cookie;
 pub mod get_db;

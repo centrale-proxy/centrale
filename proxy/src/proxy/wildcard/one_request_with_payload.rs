@@ -1,4 +1,4 @@
-use crate::{error::CentraleError, proxy::wildcard::QueryParams, server::auth::CentraleUser};
+use crate::{error::CentraleError, server::auth::CentraleUser};
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, web};
 use config::CentraleConfig;
@@ -9,7 +9,6 @@ use std::str::FromStr;
 /// Process one wildcard request
 pub async fn process_one_request_with_payload(
     req: HttpRequest,
-    _query: web::Query<QueryParams>,
     body: web::Bytes,
     client: web::Data<reqwest::Client>,
     user: CentraleUser,
