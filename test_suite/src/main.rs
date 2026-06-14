@@ -78,7 +78,10 @@ pub fn save_cookie(
     // CALCULATE TIMEOUT
     let now = Utc::now();
     let current_unix_epoch = now.timestamp();
-    let timeout = CentraleConfig::COOKIE_TIMEOUT + current_unix_epoch;
+    let timeout = CentraleConfig::get("COOKIE_TIMEOUT")
+        .parse::<i64>()
+        .unwrap()
+        + current_unix_epoch;
     // INSERT TO DB
     db.execute(
         "INSERT INTO cookie (user_id, cookie, timeout) VALUES (?1, ?2, ?3)",

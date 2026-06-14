@@ -12,9 +12,6 @@ impl CentraleConfig {
     pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
-    pub const COOKIE_TIMEOUT: i64 = 86400; // 60 * 60 * 24 * 30 // 86400 // 2592000
-    pub const COOKIE_SECURE: bool = true; // FALSE FOR LOCAL
-    pub const COOKIE_HTTP_ONLY: bool = true; // FALSE FOR LOCAL
     // RATE LIMITER
     /// How many requests are allowed to pipeline in total per one IP
     pub const RATE_LIMITER_BURST_SIZE: u32 = 10;
@@ -81,6 +78,15 @@ impl CentraleConfig {
         Self::get("PUBLIC_RATE_LIMITER_REQUESTS_PER_SECOND")
             .parse::<u64>()
             .unwrap();
+
+        let cookie_timeout = Self::get("COOKIE_TIMEOUT").parse::<i64>().unwrap();
+        println!("COOKIE_TIMEOUT: {}", cookie_timeout);
+
+        let cookie_secure = Self::get("COOKIE_SECURE").parse::<bool>().unwrap();
+        println!("COOKIE_SECURE: {}", cookie_secure);
+
+        let cookie_https = Self::get("COOKIE_HTTP_ONLY").parse::<bool>().unwrap();
+        println!("COOKIE_HTTP_ONLY: {}", cookie_https);
 
         let is_443 = Self::get("CENTRALE_IS_443");
         if is_443 == "true".to_string() {

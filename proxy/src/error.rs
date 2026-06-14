@@ -3,7 +3,7 @@ use actix_web::ResponseError;
 use dir_and_db_pool::error::DirsqlError;
 use r2d2::Error as R2d2Error;
 use r2d2_sqlite::rusqlite;
-use std::error::Error as StdError;
+use std::{error::Error as StdError, num::ParseIntError, str::ParseBoolError};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -83,6 +83,12 @@ pub enum CentraleError {
 
     #[error("Wrong token")]
     InvalidToken,
+
+    #[error("failed to parse string to integer")]
+    ParseInt(#[from] ParseIntError),
+
+    #[error("failed to parse string to bool")]
+    ParseBool(#[from] ParseBoolError),
 }
 
 impl ResponseError for CentraleError {

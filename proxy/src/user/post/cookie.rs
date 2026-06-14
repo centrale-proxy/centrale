@@ -13,9 +13,12 @@ pub fn create_and_set_cookie(
     // DO COOKIE
     let cookie = Cookie::build("centrale", cookie_value)
         .domain(CentraleConfig::get("DOMAIN"))
-        .max_age(Duration::new(CentraleConfig::COOKIE_TIMEOUT, 0))
-        .secure(CentraleConfig::COOKIE_SECURE) // Only send over HTTPS
-        .http_only(CentraleConfig::COOKIE_HTTP_ONLY) // Not accessible via JavaScript
+        .max_age(Duration::new(
+            CentraleConfig::get("COOKIE_TIMEOUT").parse::<i64>()?,
+            0,
+        ))
+        .secure(CentraleConfig::get("COOKIE_SECURE").parse::<bool>()?)
+        .http_only(CentraleConfig::get("COOKIE_HTTP_ONLY").parse::<bool>()?)
         .same_site(SameSite::Lax)
         // Set-Cookie: centrale=...; Domain=localhost.com; Max-Age=86400; SameSite=None; Secure
         .path("/")
