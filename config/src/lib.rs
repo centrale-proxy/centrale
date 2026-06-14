@@ -28,7 +28,7 @@ impl CentraleConfig {
     pub const PROXY_SERVER_WORKERS: usize = 1;
     pub const SAMPLE_SERVER_WORKERS: usize = 1;
     // SUBDOMAIN
-    pub const SUBDOMAIN_LENGTH: u64 = 30;
+    pub const MAX_SUBDOMAIN_LENGTH: usize = 30;
 
     pub fn master_bearer_token() -> String {
         std::env::var(Self::CENTRALE_MASTER_BEARER_TOKEN)

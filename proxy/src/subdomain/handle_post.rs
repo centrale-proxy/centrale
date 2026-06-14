@@ -29,7 +29,7 @@ pub async fn handle_post(
     user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
     let subdomain_original = payload.subdomain.clone();
-    let subdomain = truncate(&subdomain_original, 30);
+    let subdomain = truncate(&subdomain_original, CentraleConfig::MAX_SUBDOMAIN_LENGTH);
     // let headers = req.headers();
     // let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
 
@@ -189,7 +189,7 @@ async fn post_subdomain_0_bytes_fails() {
     assert!(sub_reg.status().is_client_error());
 }
 #[actix_rt::test]
-async fn post_subdomain_21_chars_cuts_to_20_chars() {
+async fn post_subdomain_31_chars_cuts_to_30_chars() {
     use crate::proxy::test::create_test_app::_create_test_app;
     use actix_web::body::to_bytes;
     use dir_and_db_pool::db::db_file::db_file;
@@ -202,7 +202,7 @@ async fn post_subdomain_21_chars_cuts_to_20_chars() {
 
     let nums_str: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
-        .take(21)
+        .take(31)
         .map(char::from)
         .collect();
 
@@ -231,7 +231,7 @@ async fn post_subdomain_21_chars_cuts_to_20_chars() {
     println!("strstr {}", &str);
     let subdomain: RegisterSubdomain = serde_json::from_str(&str).unwrap();
 
-    assert!(subdomain.subdomain.len() == 20);
+    assert!(subdomain.subdomain.len() == 30);
 
     fs::remove_file(file_path).unwrap_or(());
 }
