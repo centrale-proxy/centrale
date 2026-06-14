@@ -4,8 +4,8 @@
 Authenticates, authorizes, rate limits, logs.
 Proxies request to destination server.
 
-## Proxy:
-Assumes DNS A *.domain.com being directed to proxy.  
+## Centrale:
+Assumes DNS A *.domain.com being directed to centrale.  
 
 + Negotiates HTTPS (or doesn't if .env sets differently)
 + Authenticates (cookie / bearer)
@@ -50,7 +50,7 @@ Q: Why is backend doing subodmains not DNS?
 A: in DNS, they would be enuremable.
 
 A: logging system Writer uses UDP connection, which is unreliable compared to TCP.
-A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Proxy + unless a new thread is created for every message, could be blocking for proxy.
+A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Centrale + unless a new thread is created for every message, could be blocking for Centrale.
 
 Q: Encryption key is in the header of request.
 A: My main idea here is that the destination server itself would not have the key(s), only the encrypted db. Totally waiting for ideas on how to transport the secret.
@@ -259,10 +259,6 @@ curl -H 'Authorization: Bearer test' https://test.domain.local/api/user/
 + robots.txt
 + not private by default should also be possible for blog sites. Perhaps should be all the same type - private or public 
 
-# Workspaces?
-+ Proxy
-+ App
-+ Server
 
 # PLATFORM
 + SET .well-known/apple-app-site-association
