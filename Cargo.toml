@@ -6,7 +6,7 @@
        "test_suite",
        "writer",
        "common",
-       "sample_server"
+       "destination_server"
 
    ]
    resolver = "2"

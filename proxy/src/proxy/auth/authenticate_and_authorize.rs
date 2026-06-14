@@ -24,7 +24,7 @@ pub fn authenticate_and_authorize(
     let pass = get_subdomain_pass(&pool, &subdomain)?;
     // PREPARE TO PROXY
     let path = req.path().to_string();
-    let domain = format!("{}", CentraleConfig::get("SAMPLE_SERVER_ADDRESS"));
+    let domain = format!("{}", CentraleConfig::get("DESTINATION_SERVER_ADDRESS"));
     let url = format!("{}{}", domain, path);
 
     Ok((user_id, subdomain, subdomain_user_role, pass, url))

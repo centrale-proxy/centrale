@@ -74,7 +74,7 @@ pub async fn _one_wildcard_test_case_with_host(host: &str) -> ServiceResponse {
     let app = _create_test_app().await;
 
     // CREATE USER
-    //let host = CentraleConfig::get("SAMPLE_SERVER_ADDRESS");
+    //let host = CentraleConfig::get("DESTINATION_SERVER_ADDRESS");
     // let host_s = format!("https://{}", host);
     let req = _user_create_request(&host);
     let resp = test::call_service(&app, req).await;
@@ -97,7 +97,7 @@ pub async fn _one_wildcard_test_case_with_referer(referer: &str) -> ServiceRespo
     let db = _create_test_pool();
     let app = _create_test_user_register_app(db).await;
     // CREATE USER
-    let host = CentraleConfig::get("SAMPLE_SERVER_ADDRESS");
+    let host = CentraleConfig::get("DESTINATION_SERVER_ADDRESS");
     let host_s = format!("https://{}", host);
     let req = _user_create_request(&host_s);
     let resp = test::call_service(&app, req).await;

@@ -1,5 +1,5 @@
 [package]
-name = "sample_server"
+name = "destination_server"
 version = "0.1.0"
 edition = "2024"
 

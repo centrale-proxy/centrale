@@ -199,8 +199,8 @@ sudo journalctl -u writer.service
 sudo journalctl -u writer.service -f
 
 
-sudo systemctl enable sample_server
-sudo systemctl start sample_server
+sudo systemctl enable destination_server
+sudo systemctl start destination_server
 
 ```
 

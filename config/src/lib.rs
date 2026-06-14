@@ -1,14 +1,6 @@
 pub struct CentraleConfig;
 
 impl CentraleConfig {
-    // ENVIRONMENT VARIABLES:
-    // MASTER KEY BETWEEN PROXY AND NODES
-    pub const CENTRALE_MASTER_BEARER_TOKEN: &str = "CENTRALE_MASTER_BEARER_TOKEN";
-    // MASTER PASSWORD FOR LOCAL DB ENCRYPTION
-    pub const CENTRALE_MASTER_PASSWORD: &str = "CENTRALE_MASTER_PASSWORD";
-    pub const CENTRALE_CERT_PRIVATE_KEY: &str = "CENTRALE_CERT_PRIVATE_KEY";
-    pub const CENTRALE_CERT_PUB_KEY: &str = "CENTRALE_CERT_PUB_KEY";
-    // NOT ENVIRONMENT VARIABLES:
     pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
@@ -23,9 +15,17 @@ impl CentraleConfig {
     pub const WRITER_BUFFER_SIZE: usize = 1024;
     // WORKERS
     pub const PROXY_SERVER_WORKERS: usize = 1;
-    pub const SAMPLE_SERVER_WORKERS: usize = 1;
+    pub const DESTINATION_SERVER_WORKERS: usize = 1;
     // SUBDOMAIN
     pub const MAX_SUBDOMAIN_LENGTH: usize = 30;
+
+    // ENVIRONMENT VARIABLES:
+    // MASTER KEY BETWEEN PROXY AND NODES
+    pub const CENTRALE_MASTER_BEARER_TOKEN: &str = "CENTRALE_MASTER_BEARER_TOKEN";
+    // MASTER PASSWORD FOR LOCAL DB ENCRYPTION
+    pub const CENTRALE_MASTER_PASSWORD: &str = "CENTRALE_MASTER_PASSWORD";
+    pub const CENTRALE_CERT_PRIVATE_KEY: &str = "CENTRALE_CERT_PRIVATE_KEY";
+    pub const CENTRALE_CERT_PUB_KEY: &str = "CENTRALE_CERT_PUB_KEY";
 
     pub fn master_bearer_token() -> String {
         std::env::var(Self::CENTRALE_MASTER_BEARER_TOKEN)
@@ -57,11 +57,11 @@ impl CentraleConfig {
         let domain = Self::get("DOMAIN");
         println!("DOMAIN: {}", domain);
 
-        let target_server = Self::get("SAMPLE_SERVER_ADDRESS");
-        println!("SAMPLE_SERVER_ADDRESS: {}", target_server);
-
         let server_address = Self::get("SERVER_ADDRESS");
         println!("SERVER_ADDRESS: {}", server_address);
+
+        let target_server = Self::get("DESTINATION_SERVER_ADDRESS");
+        println!("DESTINATION_SERVER_ADDRESS: {}", target_server);
 
         let serve_front = Self::get("SERVE_FRONT").parse::<bool>().unwrap();
         println!("SERVE_FRONT: {}", serve_front);
