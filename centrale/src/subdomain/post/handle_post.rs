@@ -1,0 +1,292 @@
+use crate::{
+    db::get_db::get_centrale_db, error::CentraleError,
+    proxy::auth::subdomain::_get_centrale_cookie_2, server::auth::CentraleUser,
+    subdomain::post::post_subdomain::post_subdomain,
+};
+use actix_http::Request;
+use actix_web::{
+    HttpResponse,
+    dev::{Service, ServiceResponse},
+    web,
+};
+use common::truncate;
+use config::CentraleConfig;
+use dir_and_db_pool::db::DbPool;
+use log::error;
+use reqwest::header;
+use serde::Deserialize;
+use serde_json::Value;
+use std::collections::HashMap;
+
+#[derive(Deserialize, Debug)]
+pub struct RegisterSubdomain {
+    pub subdomain: String,
+    pub name: Option<String>,
+}
+
+pub async fn handle_post(
+    pool: web::Data<DbPool>,
+    payload: web::Json<RegisterSubdomain>,
+    client: web::Data<reqwest::Client>,
+    user: CentraleUser,
+) -> Result<HttpResponse, CentraleError> {
+    let name = payload.name.clone();
+    let subdomain_original = payload.subdomain.clone();
+    let subdomain = truncate(&subdomain_original, CentraleConfig::MAX_SUBDOMAIN_LENGTH);
+    let db = get_centrale_db(pool.get_ref())?;
+
+    match post_subdomain(&db, &subdomain, user.user_id, name) {
+        Ok(password) => {
+            // SEND TO DESTINATION SERVER
+            let master_token = CentraleConfig::master_bearer_token();
+
+            let url = format!(
+                "https://{}/api/register_subdomain",
+                CentraleConfig::get("DESTINATION_SERVER_ADDRESS")
+            );
+
+            let mut map = HashMap::new();
+            map.insert("subdomain", &subdomain);
+
+            let response = client
+                .post(&url)
+                .json(&map)
+                .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
+                .header("centrale_subdomain", format!("{}", subdomain))
+                .header("centrale_password", format!("{}", password))
+                .header("centrale_role", format!("{}", "admin"))
+                .send()
+                .await;
+
+            let res = response?;
+            let status = res.status();
+
+            match status.as_u16() {
+                200 => {
+                    let res = HttpResponse::Ok()
+                        .json(serde_json::json!({ "subdomain": subdomain, "user": user.user_id }));
+                    Ok(res)
+                }
+                _ => {
+                    let error_body = res.text().await;
+                    log::error!("error body {:?}", error_body);
+                    Err(CentraleError::StringError(error_body.unwrap()))
+                }
+            }
+        }
+        Err(err) => {
+            error!("Add subdomain error handle: {}", err);
+            Ok(HttpResponse::UnprocessableEntity()
+                .json(serde_json::json!({ "error": "Cannot add subdomain" })))
+        }
+    }
+}
+
+use actix_web::Error;
+use actix_web::test;
+
+pub async fn _make_register_subdomain_request(
+    payload: Value,
+    app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
+    cookie_value: &str,
+    host: &str,
+) -> ServiceResponse {
+    use actix_web::http::header;
+
+    let req = test::TestRequest::post()
+        .uri("/api/subdomain")
+        .insert_header(("Content-Type", "application/json"))
+        .insert_header(("Host", host))
+        .insert_header((header::COOKIE, format!("centrale={}", cookie_value)))
+        .set_json(&payload)
+        .to_request();
+
+    let resp = test::call_service(app, req).await;
+    resp
+}
+//
+async fn _create_user_get_cookie(
+    app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
+) -> String {
+    use crate::user::post::test::_make_user_register_test_request;
+    use serde_json::json;
+
+    let payload = json!({
+        "username": "testuser",
+        "password": "testpassword"
+    });
+
+    let resp = _make_user_register_test_request(payload, &app).await;
+
+    let cookie_value = _get_centrale_cookie_2(resp.headers()).unwrap();
+    cookie_value
+}
+#[actix_rt::test]
+async fn post_subdomain_normal() {
+    use crate::proxy::test::create_test_app::_create_test_app;
+    use crate::user::post::test::_make_request_with_cookie;
+    use dir_and_db_pool::db::db_file::db_file;
+    use rand::Rng;
+    use rand::distributions::Alphanumeric;
+    use serde_json::json;
+    use std::fs;
+
+    dotenvy::dotenv().ok();
+
+    let nums_str: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(20)
+        .map(char::from)
+        .collect();
+
+    let folder = format!("{}{}", CentraleConfig::DB_FOLDER, "/subdomains");
+    let file_path = db_file(&nums_str, &folder).unwrap();
+    fs::remove_file(&file_path).unwrap_or(());
+
+    let app = _create_test_app().await;
+    let cookie_value = _create_user_get_cookie(&app).await;
+
+    let auth_resp = _make_request_with_cookie(&app, &cookie_value)
+        .await
+        .unwrap();
+
+    assert!(auth_resp.status().is_success());
+
+    let register_subdomain_payload = json!({
+        "subdomain": nums_str,
+    });
+    let host = CentraleConfig::get("DOMAIN");
+    let host_s = format!("app.{}", host);
+    let sub_reg =
+        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie_value, &host_s)
+            .await;
+
+    assert!(sub_reg.status().is_success());
+
+    fs::remove_file(file_path).unwrap_or(());
+}
+#[actix_rt::test]
+async fn post_subdomain_0_bytes_fails() {
+    use crate::proxy::test::create_test_app::_create_test_app;
+    use serde_json::json;
+
+    dotenvy::dotenv().ok();
+    let app = _create_test_app().await;
+    let cookie = _create_user_get_cookie(&app).await;
+
+    let register_subdomain_payload = json!({
+        "subdomain": "\0",
+    });
+    let host = CentraleConfig::get("DOMAIN");
+    let host_s = format!("app.{}", host);
+
+    let sub_reg =
+        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, &host_s).await;
+
+    assert!(sub_reg.status().is_client_error());
+}
+#[actix_rt::test]
+async fn post_subdomain_31_chars_cuts_to_30_chars() {
+    use crate::proxy::test::create_test_app::_create_test_app;
+    use actix_web::body::to_bytes;
+    use dir_and_db_pool::db::db_file::db_file;
+    use rand::Rng;
+    use rand::distributions::Alphanumeric;
+    use serde_json::json;
+    use std::fs;
+
+    dotenvy::dotenv().ok();
+
+    let nums_str: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(31)
+        .map(char::from)
+        .collect();
+
+    let folder = format!("{}{}", CentraleConfig::DB_FOLDER, "/subdomains");
+
+    let mut nums_2 = nums_str.clone();
+    nums_2.truncate(nums_str.len() - 1);
+
+    let file_path = db_file(&nums_2, &folder).unwrap();
+
+    let app = _create_test_app().await;
+    let cookie = _create_user_get_cookie(&app).await;
+
+    let register_subdomain_payload = json!({
+        "subdomain": nums_str,
+    });
+
+    let host = CentraleConfig::get("DOMAIN");
+    let host_s = format!("app.{}", host);
+    let sub_reg =
+        _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, &host_s).await;
+
+    let body_bytes = to_bytes(sub_reg.into_body()).await.unwrap();
+    let str = String::from_utf8(body_bytes.to_vec()).unwrap();
+
+    let subdomain: RegisterSubdomain = serde_json::from_str(&str).unwrap();
+
+    assert!(subdomain.subdomain.len() == 30);
+
+    fs::remove_file(file_path).unwrap_or(());
+}
+#[actix_rt::test]
+async fn post_subdomain_invalid_url_chars_fails() {
+    use crate::proxy::test::create_test_app::_create_test_app;
+    use serde_json::json;
+    dotenvy::dotenv().ok();
+    let app = _create_test_app().await;
+    let cookie = _create_user_get_cookie(&app).await;
+
+    let invalid_chars = [
+        " ",  // space
+        "\0", // null byte
+        "/",  // slash
+        "\\", // backslash
+        "?",  // query string delimiter
+        "#",  // fragment delimiter
+        "@",  // at sign
+        "!",  // exclamation mark
+        "$",  // dollar sign
+        "&",  // ampersand
+        "'",  // single quote
+        "(",  // parenthesis open
+        ")",  // parenthesis close
+        "*",  // asterisk
+        "+",  // plus
+        ",",  // comma
+        ";",  // semicolon
+        "=",  // equals
+        "%",  // percent
+        "[",  // bracket open
+        "]",  // bracket close
+        "^",  // caret
+        "{",  // curly brace open
+        "}",  // curly brace close
+        "|",  // pipe
+        "~",  // tilde
+        "`",  // backtick
+        "<",  // less than
+        ">",  // greater than
+        "\"", // double quote
+    ];
+
+    let host = CentraleConfig::get("DOMAIN");
+    let host_s = format!("app.{}", host);
+
+    for invalid_char in invalid_chars {
+        let register_subdomain_payload = json!({
+            "subdomain": invalid_char,
+        });
+        let sub_reg =
+            _make_register_subdomain_request(register_subdomain_payload, &app, &cookie, &host_s)
+                .await;
+        assert!(
+            sub_reg.status().is_client_error(),
+            "Expected client error for invalid char: {:?}",
+            invalid_char
+        );
+    }
+}
+//
