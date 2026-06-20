@@ -4,7 +4,7 @@ use crate::{
         wildcard_with_payload::handle_wildcard_with_payload,
     },
     server::{auth_2::auth_middleware_2, public_rate_limiter::public_rate_limiter_config},
-    subdomain::post::respond_post::respond_subdomain,
+    subdomain::{get::respond::respond_get_subdomain, post::respond_post::respond_subdomain},
     user::{
         bearer_token::responder::generate_bearer_token,
         bearer_token_view::responder::view_bearer_tokens, get::get::get_user,
@@ -59,6 +59,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
             .wrap(Governor::new(&public_governor_conf))
             .route(web::post().to(respond_subdomain))
+            .route(web::get().to(respond_get_subdomain))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
