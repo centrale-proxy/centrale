@@ -1,7 +1,7 @@
 use crate::{
     db::get_db::get_centrale_db, error::CentraleError,
     proxy::auth::subdomain::_get_centrale_cookie_2, server::auth::CentraleUser,
-    subdomain::post::post_subdomain,
+    subdomain::post_subdomain::post_subdomain,
 };
 use actix_http::Request;
 use actix_web::{
