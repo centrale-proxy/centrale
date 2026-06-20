@@ -12,7 +12,7 @@ Assumes DNS A *.domain.com being directed to centrale.
 + Negotiates HTTPS (or doesn't if .env sets differently)  
 + Authenticates (cookie / bearer)  
 + Authorizes user access to subdomain  
-+ rate limitser(s) (IP based)  
++ IP based rate limitser(s)   
 + proxies request (http + websocket) to destination server  
 + + adds id, password and role to request (to destination server db) headers  
 + Forwards request data to Writer (logging service)  
@@ -23,11 +23,11 @@ Assumes DNS A *.domain.com being directed to centrale.
 + There can be multiple destination servers.    
 + each subdomain gets own enrypted (sqlite + sqlcipher password) db  
 + id, password (and role) from request header opens db connection  
++ Active destination server is set with DESTINATION_SERVER_ADDRESS  
   
 ## Writer (logging service)  
 + Logs request and response headers.  
-+ If response status is not 200, error body is saved  
-+ + This helps customer support know the userfacing error as it happens  
++ If response status is not 200, error body is logged  
   
 ***
   
