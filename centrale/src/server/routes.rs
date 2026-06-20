@@ -4,7 +4,7 @@ use crate::{
         wildcard_with_payload::handle_wildcard_with_payload,
     },
     server::{auth_2::auth_middleware_2, public_rate_limiter::public_rate_limiter_config},
-    subdomain::respond_post::respond_subdomain,
+    subdomain::post::respond_post::respond_subdomain,
     user::{
         bearer_token::responder::generate_bearer_token,
         bearer_token_view::responder::view_bearer_tokens, get::get::get_user,

@@ -1,7 +1,7 @@
 use crate::{
     error::CentraleError,
     proxy::auth::{get_user_id::get_user_id, subdomain::get_subdomain},
-    subdomain::{
+    subdomain::post::{
         get_pass_and_address::get_subdomain_pass_and_address,
         get_subdomain_user::get_subdomain_user_role,
     },
