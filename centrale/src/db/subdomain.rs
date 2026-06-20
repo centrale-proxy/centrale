@@ -18,11 +18,17 @@ pub fn create_subdomain_table(
             password TEXT NOT NULL CHECK(password <> ''),
             user_id INTEGER NOT NULL,
             address TEXT NOT NULL,
+            name TEXT CHECK(
+                LENGTH(name) >= 1
+                AND LENGTH(name) <= {}
+                AND name NOT GLOB '*[^a-zA-Z0-9-]*'
+            ),
             FOREIGN KEY(user_id) REFERENCES user(id)
         );
         CREATE INDEX IF NOT EXISTS idx_subdomain ON subdomain (subdomain, user_id);
         ",
-        CentraleConfig::MAX_SUBDOMAIN_LENGTH
+        CentraleConfig::MAX_SUBDOMAIN_LENGTH,
+        CentraleConfig::MAX_SUBDOMAIN_NAME_LENGTH
     );
 
     db.execute_batch(&sql)?;

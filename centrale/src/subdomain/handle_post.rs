@@ -21,6 +21,7 @@ use std::collections::HashMap;
 #[derive(Deserialize, Debug)]
 pub struct RegisterSubdomain {
     pub subdomain: String,
+    pub name: Option<String>,
 }
 
 pub async fn handle_post(
@@ -29,14 +30,12 @@ pub async fn handle_post(
     client: web::Data<reqwest::Client>,
     user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
+    let name = payload.name.clone();
     let subdomain_original = payload.subdomain.clone();
     let subdomain = truncate(&subdomain_original, CentraleConfig::MAX_SUBDOMAIN_LENGTH);
-    // let headers = req.headers();
-    // let user_id = get_user_id(pool.clone(), headers, req.cookie("centrale"))?;
-
     let db = get_centrale_db(pool.get_ref())?;
 
-    match post_subdomain(&db, &subdomain, user.user_id) {
+    match post_subdomain(&db, &subdomain, user.user_id, name) {
         Ok(password) => {
             // SEND TO DESTINATION SERVER
             let master_token = CentraleConfig::master_bearer_token();

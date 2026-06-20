@@ -18,6 +18,8 @@ impl CentraleConfig {
     pub const DESTINATION_SERVER_WORKERS: usize = 1;
     // SUBDOMAIN
     pub const MAX_SUBDOMAIN_LENGTH: usize = 30;
+    // SUBDOMAIN
+    pub const MAX_SUBDOMAIN_NAME_LENGTH: usize = 30;
 
     // ENVIRONMENT VARIABLES:
     // MASTER KEY BETWEEN PROXY AND NODES

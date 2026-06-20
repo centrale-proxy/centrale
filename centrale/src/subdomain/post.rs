@@ -9,8 +9,8 @@ pub fn post_subdomain(
     db: &DbConnection,
     subdomain: &String,
     user_id: i64,
+    name: Option<String>,
 ) -> Result<String, CentraleError> {
-    //
     //
     let mut stmt = db.prepare(&"SELECT COUNT(*) FROM subdomain WHERE subdomain = ?1")?;
     let count: i64 = stmt.query_row(params![subdomain], |row| row.get(0))?;
@@ -22,8 +22,8 @@ pub fn post_subdomain(
         let password = SaltString::generate(&mut OsRng);
         let address = CentraleConfig::get("DESTINATION_SERVER_ADDRESS");
         db.execute(
-            "INSERT INTO subdomain (subdomain, password, user_id, address) VALUES (?1, ?2, ?3, ?4)",
-            params![subdomain, password.as_str(), user_id, address],
+            "INSERT INTO subdomain (subdomain, password, user_id, address, name) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![subdomain, password.as_str(), user_id, address, name],
         )?;
 
         db.execute(

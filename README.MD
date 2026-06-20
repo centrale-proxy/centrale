@@ -221,6 +221,9 @@ WantedBy=sockets.target
 
 ```
 
+# Tests
+Some tests require destination server to run.  
+  
 # Browser
 ```
 
