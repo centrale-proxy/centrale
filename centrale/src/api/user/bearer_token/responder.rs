@@ -1,16 +1,16 @@
 use crate::{
-    server::auth::CentraleUser, user::bearer_token_view::process::process_view_bearer_tokens,
+    api::user::bearer_token::process::process_generate_bearer_token, server::auth::CentraleUser,
 };
 use actix_web::{HttpResponse, Responder, web};
 use dir_and_db_pool::db::DbPool;
 use log::error;
 
-pub async fn view_bearer_tokens(
+pub async fn generate_bearer_token(
     pool: web::Data<DbPool>,
     user_id: web::Path<i64>,
     user: CentraleUser,
 ) -> impl Responder {
-    match process_view_bearer_tokens(pool, user_id, user) {
+    match process_generate_bearer_token(pool, user_id, user) {
         Ok(result) => result,
         Err(err) => {
             error!("Bearer token error: {}", err);

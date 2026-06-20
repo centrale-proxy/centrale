@@ -1,6 +1,6 @@
 use crate::{
+    api::subdomain::post::handle_post::{RegisterSubdomain, handle_post},
     server::auth::CentraleUser,
-    subdomain::post::handle_post::{RegisterSubdomain, handle_post},
 };
 use actix_web::{HttpResponse, Responder, web};
 use dir_and_db_pool::db::DbPool;

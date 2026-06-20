@@ -5,7 +5,7 @@ use actix_web::{
     web,
 };
 
-use crate::user::post::test::_create_test_pool;
+use crate::api::user::post::test::_create_test_pool;
 use crate::{proxy::wildcard::create_client::create_client_with_cert, server::routes::routes};
 use actix_web::{App, test};
 

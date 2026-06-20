@@ -1,12 +1,12 @@
 use crate::{
-    db::get_db::get_centrale_db,
-    error::CentraleError,
-    user::{
+    api::user::{
         cookie::save_cookie::save_cookie,
         post::{
             add_to_db::add_user_to_db, cookie::create_and_set_cookie, hash_and_salt::hash_and_salt,
         },
     },
+    db::get_db::get_centrale_db,
+    error::CentraleError,
 };
 use actix_web::{HttpResponse, web};
 use dir_and_db_pool::db::DbPool;

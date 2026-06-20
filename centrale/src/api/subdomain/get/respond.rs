@@ -1,4 +1,4 @@
-use crate::{server::auth::CentraleUser, subdomain::get::process::process_get_subdomain};
+use crate::{api::subdomain::get::process::process_get_subdomain, server::auth::CentraleUser};
 use actix_web::{HttpResponse, Responder, web};
 use dir_and_db_pool::db::DbPool;
 use log::error;

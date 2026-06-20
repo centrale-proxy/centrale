@@ -21,7 +21,7 @@ pub fn add_user_to_db(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{db::init::init_db, user::post::hash_and_salt::hash_and_salt};
+    use crate::{api::user::post::hash_and_salt::hash_and_salt, db::init::init_db};
     use r2d2::Pool;
     use r2d2_sqlite::SqliteConnectionManager;
 

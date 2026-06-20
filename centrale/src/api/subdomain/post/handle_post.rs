@@ -1,7 +1,7 @@
 use crate::{
-    db::get_db::get_centrale_db, error::CentraleError,
-    proxy::auth::subdomain::_get_centrale_cookie_2, server::auth::CentraleUser,
-    subdomain::post::post_subdomain::post_subdomain,
+    api::subdomain::post::post_subdomain::post_subdomain, db::get_db::get_centrale_db,
+    error::CentraleError, proxy::auth::subdomain::_get_centrale_cookie_2,
+    server::auth::CentraleUser,
 };
 use actix_http::Request;
 use actix_web::{
@@ -108,7 +108,7 @@ pub async fn _make_register_subdomain_request(
 async fn _create_user_get_cookie(
     app: &impl Service<Request, Response = ServiceResponse, Error = Error>,
 ) -> String {
-    use crate::user::post::test::_make_user_register_test_request;
+    use crate::api::user::post::test::_make_user_register_test_request;
     use serde_json::json;
 
     let payload = json!({
@@ -123,8 +123,8 @@ async fn _create_user_get_cookie(
 }
 #[actix_rt::test]
 async fn post_subdomain_normal() {
+    use crate::api::user::post::test::_make_request_with_cookie;
     use crate::proxy::test::create_test_app::_create_test_app;
-    use crate::user::post::test::_make_request_with_cookie;
     use dir_and_db_pool::db::db_file::db_file;
     use rand::Rng;
     use rand::distributions::Alphanumeric;

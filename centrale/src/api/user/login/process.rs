@@ -1,13 +1,13 @@
 use crate::{
-    db::get_db::get_centrale_db,
-    error::CentraleError,
-    user::{
+    api::user::{
         cookie::{create::create_cookie, save_cookie::save_cookie},
         login::{
             find_user_by_hash::find_user_by_hash_and_username, find_user_salt::find_user_salt,
             hash_with_salt::hash_with_salt,
         },
     },
+    db::get_db::get_centrale_db,
+    error::CentraleError,
 };
 use actix_web::{HttpResponse, web};
 use argon2::password_hash::SaltString;

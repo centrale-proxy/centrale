@@ -1,15 +1,15 @@
 use crate::{
+    api::subdomain::{get::respond::respond_get_subdomain, post::respond_post::respond_subdomain},
+    api::user::{
+        bearer_token::responder::generate_bearer_token,
+        bearer_token_view::responder::view_bearer_tokens, get::get::get_user,
+        login::handle::handle_login, post::post::post_user,
+    },
     proxy::{
         test::handle_test::handle_test, wildcard::handle_wildcard,
         wildcard_with_payload::handle_wildcard_with_payload,
     },
     server::{auth_2::auth_middleware_2, public_rate_limiter::public_rate_limiter_config},
-    subdomain::{get::respond::respond_get_subdomain, post::respond_post::respond_subdomain},
-    user::{
-        bearer_token::responder::generate_bearer_token,
-        bearer_token_view::responder::view_bearer_tokens, get::get::get_user,
-        login::handle::handle_login, post::post::post_user,
-    },
 };
 use actix_governor::Governor;
 use actix_web::{HttpResponse, web};

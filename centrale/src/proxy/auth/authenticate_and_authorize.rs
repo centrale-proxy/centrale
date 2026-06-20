@@ -1,10 +1,10 @@
 use crate::{
-    error::CentraleError,
-    proxy::auth::{get_user_id::get_user_id, subdomain::get_subdomain},
-    subdomain::post::{
+    api::subdomain::post::{
         get_pass_and_address::get_subdomain_pass_and_address,
         get_subdomain_user::get_subdomain_user_role,
     },
+    error::CentraleError,
+    proxy::auth::{get_user_id::get_user_id, subdomain::get_subdomain},
 };
 use actix_web::{HttpRequest, web};
 use dir_and_db_pool::db::DbPool;

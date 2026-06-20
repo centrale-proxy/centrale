@@ -1,9 +1,9 @@
 use crate::{
-    error::CentraleError,
-    user::{
+    api::user::{
         bearer_token::find_by_token::find_user_by_token,
         cookie::find_by_cookie::find_user_by_cookie,
     },
+    error::CentraleError,
 };
 use actix_web::{
     cookie::Cookie,

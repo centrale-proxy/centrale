@@ -1,9 +1,8 @@
+pub mod api;
 mod db;
 mod error;
 mod proxy;
 mod server;
-mod subdomain;
-mod user;
 
 use crate::server::setup_and_start;
 use config::CentraleConfig;

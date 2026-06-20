@@ -1,4 +1,4 @@
-use crate::{error::CentraleError, user::hash::hash_password};
+use crate::{api::user::hash::hash_password, error::CentraleError};
 use argon2::password_hash::SaltString;
 
 pub fn hash_with_salt(password: &String, salt_string: &str) -> Result<String, CentraleError> {
