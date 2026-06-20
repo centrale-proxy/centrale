@@ -21,13 +21,12 @@ where
         .ok_or_else(|| ErrorUnauthorized("Database pool not available"))?;
 
     match authenticate_and_authorize(pool, req.request(), conn.host()) {
-        Ok((user_id, subdomain, role, pass, address, url)) => {
+        Ok((user_id, subdomain, role, pass, url)) => {
             req.extensions_mut().insert(CentraleUser {
                 user_id,
                 subdomain,
                 role,
                 pass,
-                address,
                 url,
             });
             let res = next.call(req).await?;

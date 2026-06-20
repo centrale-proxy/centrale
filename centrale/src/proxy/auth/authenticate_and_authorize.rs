@@ -13,7 +13,7 @@ pub fn authenticate_and_authorize(
     pool: web::Data<DbPool>,
     req: &HttpRequest,
     host: &str,
-) -> Result<(i64, String, String, String, String, String), CentraleError> {
+) -> Result<(i64, String, String, String, String), CentraleError> {
     // println!("req {:?}", &req);
     let headers = req.headers();
     // VALIDATE SUBDOMAIN
@@ -34,7 +34,6 @@ pub fn authenticate_and_authorize(
         subdomain,
         subdomain_user_role,
         pass_and_address.password,
-        pass_and_address.address,
         url,
     ))
 }

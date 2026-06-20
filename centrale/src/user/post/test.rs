@@ -1,6 +1,5 @@
 use crate::db::init::init_db;
 use crate::error::CentraleError;
-use crate::proxy::auth::subdomain::_get_centrale_cookie_2;
 use crate::server::routes::routes;
 use actix_http::Request;
 use actix_web::{App, test};
@@ -129,6 +128,7 @@ async fn same_username_twice_errors() {
 
 #[actix_rt::test]
 async fn post_user_get_user_with_cookie() {
+    use crate::proxy::auth::subdomain::_get_centrale_cookie_2;
     use crate::proxy::test::create_test_app::_create_test_app;
 
     dotenvy::dotenv().ok();

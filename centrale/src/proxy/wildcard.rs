@@ -9,7 +9,6 @@ use crate::{proxy::wildcard::one_request::process_one_request, server::auth::Cen
 use actix_web::{HttpRequest, HttpResponse, Responder, dev::ConnectionInfo, web};
 use dir_and_db_pool::db::DbPool;
 use log::error;
-use serde_derive::{Deserialize, Serialize};
 
 /// HANDLES ALL WILDCARD REQUESTS. Responds to client
 pub async fn handle_wildcard(

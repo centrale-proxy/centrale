@@ -9,7 +9,6 @@ pub struct CentraleUser {
     pub subdomain: String,
     pub role: String,
     pub pass: String,
-    pub address: String,
     pub url: String,
 }
 
