@@ -10,6 +10,9 @@ struct SqlCipherCustomizer {
 
 impl CustomizeConnection<Connection, Error> for SqlCipherCustomizer {
     fn on_acquire(&self, conn: &mut Connection) -> Result<(), Error> {
+        // DO NOT SHOW WARNINGS
+        conn.execute_batch("PRAGMA cipher_log_level = ERROR;")?;
+        // SET ENCRYPTION KEY
         let query = format!("PRAGMA key = '{}';", self.passphrase.replace("'", "''"));
         conn.execute_batch(&query)?;
         conn.execute_batch("PRAGMA foreign_keys = ON")?;
