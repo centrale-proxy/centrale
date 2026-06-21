@@ -48,8 +48,8 @@ pub async fn process_one_request(
         };
 
         let url_local = format!("https://{}", url);
-        println!("url_local {}", &url_local);
-        //
+        // println!("{}", &url_local);
+
         let request = client
             .request(unwrapped_method.clone(), url_local)
             .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
