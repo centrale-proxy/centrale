@@ -9,7 +9,7 @@ pub fn post_subdomain(
     db: &DbConnection,
     subdomain: &String,
     user_id: i64,
-    name: Option<String>,
+    name: &Option<String>,
 ) -> Result<String, CentraleError> {
     //
     let mut stmt = db.prepare(&"SELECT COUNT(*) FROM subdomain WHERE subdomain = ?1")?;

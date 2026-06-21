@@ -27,13 +27,14 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/api/user")
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
-            .wrap(Governor::new(&public_governor_conf))
+            // .wrap(Governor::new(&public_governor_conf))
             .route(web::get().to(get_user))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
     cfg.service(
         web::resource("/api/user/{user_id}/bearer/generate")
+            .wrap(Governor::new(&public_governor_conf))
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
             .route(web::get().to(generate_bearer_token))
             .route(web::head().to(|| HttpResponse::Ok())),
@@ -41,6 +42,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
 
     cfg.service(
         web::resource("/api/user/{user_id}/bearer/view")
+            .wrap(Governor::new(&public_governor_conf))
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
             .route(web::get().to(view_bearer_tokens))
             .route(web::head().to(|| HttpResponse::Ok())),
@@ -57,7 +59,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/api/subdomain")
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
-            .wrap(Governor::new(&public_governor_conf))
+            //   .wrap(Governor::new(&public_governor_conf))
             .route(web::post().to(respond_subdomain))
             .route(web::get().to(respond_get_subdomain))
             .route(web::head().to(|| HttpResponse::Ok())),

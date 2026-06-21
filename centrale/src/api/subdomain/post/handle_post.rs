@@ -35,7 +35,7 @@ pub async fn handle_post(
     let subdomain = truncate(&subdomain_original, CentraleConfig::MAX_SUBDOMAIN_LENGTH);
     let db = get_centrale_db(pool.get_ref())?;
 
-    match post_subdomain(&db, &subdomain, user.user_id, name) {
+    match post_subdomain(&db, &subdomain, user.user_id, &name) {
         Ok(password) => {
             // SEND TO DESTINATION SERVER
             let master_token = CentraleConfig::master_bearer_token();
@@ -47,6 +47,9 @@ pub async fn handle_post(
 
             let mut map = HashMap::new();
             map.insert("subdomain", &subdomain);
+            if let Some(ref n) = name {
+                map.insert("name", n);
+            }
 
             let response = client
                 .post(&url)
