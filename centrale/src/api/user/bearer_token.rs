@@ -12,7 +12,6 @@ pub struct CentraleBearer {
     pub id: Option<i64>,
     pub user_id: i64,
     pub hash: String,
-    pub expires: u64,
 }
 
 impl CentraleBearer {
