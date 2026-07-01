@@ -1,4 +1,5 @@
 use crate::{
+    api::user::cookie::CentraleCookie,
     db::{
         bearer::create_bearer_table, cookie::create_cookie_table, get_db::get_centrale_db,
         subdomain::create_subdomain_table, subdomain_user::create_subdomain_user_table,
@@ -20,6 +21,7 @@ pub fn init_db(pool: &DbPool) -> Result<(), CentraleError> {
     // bearer
     create_bearer_table(&db)?;
     // COOKIE
-    create_cookie_table(&db)?;
+    CentraleCookie::init_db(&db)?;
+
     Ok(())
 }

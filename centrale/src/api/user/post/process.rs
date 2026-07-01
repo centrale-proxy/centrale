@@ -1,6 +1,6 @@
 use crate::{
     api::user::{
-        cookie::save_cookie::save_cookie,
+        cookie::CentraleCookie,
         post::{
             add_to_db::add_user_to_db, cookie::create_and_set_cookie, hash_and_salt::hash_and_salt,
         },
@@ -33,7 +33,7 @@ pub fn handle_register(
     // SAVE USER TO DB
     let user_id = add_user_to_db(&db, &username, &hash, salt.as_str())?;
     // SAVE COOKIE
-    let cookie_value = save_cookie(&db, user_id)?;
+    let cookie_value = CentraleCookie::generate_and_save_client_cookie(&db, user_id)?;
     // ADD COOKIE
     let resp = create_and_set_cookie(cookie_value, user_id)?;
     Ok(resp)

@@ -1,6 +1,6 @@
 use crate::{
     api::user::{
-        cookie::{create::create_cookie, save_cookie::save_cookie},
+        cookie::{CentraleCookie, create::create_cookie},
         login::{
             find_user_by_hash::find_user_by_hash_and_username, find_user_salt::find_user_salt,
             hash_with_salt::hash_with_salt,
@@ -42,8 +42,10 @@ pub fn process_login(
     let hash = hash_with_salt(&password, &salt)?;
     // SAVE USER TO DB
     let user_id = find_user_by_hash_and_username(&pool, &hash, &username)?;
+    // DELETE OLD COOKIES
+    CentraleCookie::delete_user_cookies(&db, user_id)?;
     // SAVE COOKIE
-    let cookie_value = save_cookie(&db, user_id)?;
+    let cookie_value = CentraleCookie::generate_and_save_client_cookie(&db, user_id)?;
     // ADD COOKIE
     let cookie = create_cookie(cookie_value)?;
 

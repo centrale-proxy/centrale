@@ -1,8 +1,6 @@
 use crate::{
-    api::user::{
-        bearer_token::find_by_token::find_user_by_token,
-        cookie::find_by_cookie::find_user_by_cookie,
-    },
+    api::user::{bearer_token::find_by_token::find_user_by_token, cookie::CentraleCookie},
+    db::get_db::get_centrale_db,
     error::CentraleError,
 };
 use actix_web::{
@@ -41,8 +39,12 @@ pub fn get_user_id(
                 let co = cookie.name().to_owned();
                 if co == "centrale" {
                     let cookie_value = cookie.value().to_string();
-                    let user = find_user_by_cookie(&pool, &cookie_value)?;
-                    Ok(user)
+                    let db = get_centrale_db(pool.get_ref())?;
+                    let user_option = CentraleCookie::validate_client_cookie(&db, &cookie_value)?;
+                    match user_option {
+                        Some(user) => return Ok(user),
+                        None => return Err(CentraleError::Unauthorized),
+                    }
                 } else {
                     Err(CentraleError::NoTokenOrCookiePresent)
                 }
