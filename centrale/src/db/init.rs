@@ -1,9 +1,8 @@
 use crate::{
-    api::user::cookie::CentraleCookie,
+    api::user::{bearer_token::CentraleBearer, cookie::CentraleCookie},
     db::{
-        bearer::create_bearer_table, cookie::create_cookie_table, get_db::get_centrale_db,
-        subdomain::create_subdomain_table, subdomain_user::create_subdomain_user_table,
-        user::create_user_table,
+        get_db::get_centrale_db, subdomain::create_subdomain_table,
+        subdomain_user::create_subdomain_user_table, user::create_user_table,
     },
     error::CentraleError,
 };
@@ -18,8 +17,8 @@ pub fn init_db(pool: &DbPool) -> Result<(), CentraleError> {
     create_subdomain_table(&db)?;
     // SUBDOMAIN_USER
     create_subdomain_user_table(&db)?;
-    // bearer
-    create_bearer_table(&db)?;
+    // BEARER
+    CentraleBearer::init_db(&db)?;
     // COOKIE
     CentraleCookie::init_db(&db)?;
 

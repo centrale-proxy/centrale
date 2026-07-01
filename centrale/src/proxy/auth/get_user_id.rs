@@ -1,5 +1,5 @@
 use crate::{
-    api::user::{bearer_token::find_by_token::find_user_by_token, cookie::CentraleCookie},
+    api::user::{bearer_token::CentraleBearer, cookie::CentraleCookie},
     db::get_db::get_centrale_db,
     error::CentraleError,
 };
@@ -17,7 +17,6 @@ pub fn get_user_id(
 ) -> Result<i64, CentraleError> {
     //
     let token = headers.get(AUTHORIZATION);
-
     // PREFER TOKEN
     if token.is_some() {
         // BEARER TOKEN
@@ -25,10 +24,14 @@ pub fn get_user_id(
             .and_then(|v| v.to_str().ok())
             .and_then(|v| v.strip_prefix("Bearer "));
 
+        let db = pool.get()?;
         match token_option {
             Some(token_string) => {
-                let user = find_user_by_token(&pool, &token_string)?;
-                Ok(user)
+                let user = CentraleBearer::validate_bearer_token(&db, &token_string)?;
+                match user {
+                    Some(user_id) => return Ok(user_id),
+                    None => return Err(CentraleError::InvalidToken),
+                }
             }
             None => return Err(CentraleError::InvalidToken),
         }

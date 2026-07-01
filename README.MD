@@ -80,8 +80,7 @@ POST /login - login
 ## AUTH endpoints
 These endpoints have RATE_LIMITER settings.
 ```
-GET /api/user/:user_id/bearer/generate - generate bearer token for user
-GET /api/user/:user_id/bearer/view
+GET /api/user/:user_id/bearer/generate - generate new bearer token for user, delete old. You can only generate and view once.
 (TBD) DELETE /api/user/bearer/:id
 
 GET /api/user - my user data

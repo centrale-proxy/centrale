@@ -1,8 +1,7 @@
 use crate::{
     api::subdomain::{get::respond::respond_get_subdomain, post::respond_post::respond_subdomain},
     api::user::{
-        bearer_token::responder::generate_bearer_token,
-        bearer_token_view::responder::view_bearer_tokens, get::get::get_user,
+        bearer_token::responder::generate_bearer_token, get::get::get_user,
         login::handle::handle_login, post::post::post_user,
     },
     proxy::{
@@ -37,14 +36,6 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .wrap(Governor::new(&public_governor_conf))
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
             .route(web::get().to(generate_bearer_token))
-            .route(web::head().to(|| HttpResponse::Ok())),
-    );
-
-    cfg.service(
-        web::resource("/api/user/{user_id}/bearer/view")
-            .wrap(Governor::new(&public_governor_conf))
-            .wrap(actix_web::middleware::from_fn(auth_middleware_2))
-            .route(web::get().to(view_bearer_tokens))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 

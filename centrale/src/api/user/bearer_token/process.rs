@@ -1,6 +1,5 @@
 use crate::{
-    api::user::bearer_token::save::save_bearer_token, error::CentraleError,
-    server::auth::CentraleUser,
+    api::user::bearer_token::CentraleBearer, error::CentraleError, server::auth::CentraleUser,
 };
 use actix_web::{HttpResponse, web};
 use dir_and_db_pool::db::DbPool;
@@ -15,8 +14,8 @@ pub fn process_generate_bearer_token(
         return Err(CentraleError::WrongUser);
     }
     let db = pool.get()?;
-    let token = save_bearer_token(&db, user.user_id)?;
-    // generate
+    let token = CentraleBearer::new(&db, user.user_id)?;
+    // RETURN
     let resp = HttpResponse::Ok()
         .json(serde_json::json!({ "user_id": user.user_id.to_string(), "token": token }));
     Ok(resp)
