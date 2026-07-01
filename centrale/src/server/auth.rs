@@ -10,6 +10,7 @@ pub struct CentraleUser {
     pub role: String,
     pub pass: String,
     pub url: String,
+    pub destination_bearer: String,
 }
 
 // Implement FromRequest for CentraleUser

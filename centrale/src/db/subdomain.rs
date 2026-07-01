@@ -23,6 +23,7 @@ pub fn create_subdomain_table(
                 AND LENGTH(name) <= {}
                 AND name NOT GLOB '*[^a-zA-Z0-9 -]*'
             ),
+            destination_bearer TEXT NOT NULL,
             FOREIGN KEY(user_id) REFERENCES user(id)
         );
         CREATE INDEX IF NOT EXISTS idx_subdomain ON subdomain (subdomain, user_id);

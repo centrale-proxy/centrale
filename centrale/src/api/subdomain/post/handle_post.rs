@@ -38,7 +38,7 @@ pub async fn handle_post(
     match post_subdomain(&db, &subdomain, user.user_id, &name) {
         Ok(password) => {
             // SEND TO DESTINATION SERVER
-            let master_token = CentraleConfig::master_bearer_token();
+            let bearer = CentraleConfig::get("DESTINATION_SERVER_PASSWORD");
 
             let url = format!(
                 "https://{}/api/register_subdomain",
@@ -54,7 +54,7 @@ pub async fn handle_post(
             let response = client
                 .post(&url)
                 .json(&map)
-                .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
+                .header(header::AUTHORIZATION, format!("Bearer {}", bearer))
                 .header("centrale_subdomain", format!("{}", subdomain))
                 .header("centrale_password", format!("{}", password))
                 .header("centrale_role", format!("{}", "admin"))

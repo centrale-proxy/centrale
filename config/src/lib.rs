@@ -28,12 +28,12 @@ impl CentraleConfig {
     pub const CENTRALE_MASTER_PASSWORD: &str = "CENTRALE_MASTER_PASSWORD";
     pub const CENTRALE_CERT_PRIVATE_KEY: &str = "CENTRALE_CERT_PRIVATE_KEY";
     pub const CENTRALE_CERT_PUB_KEY: &str = "CENTRALE_CERT_PUB_KEY";
-
-    pub fn master_bearer_token() -> String {
-        std::env::var(Self::CENTRALE_MASTER_BEARER_TOKEN)
-            .expect("CENTRALE_MASTER_BEARER_TOKEN must be set")
-    }
-
+    /*
+       pub fn master_bearer_token() -> String {
+           std::env::var(Self::CENTRALE_MASTER_BEARER_TOKEN)
+               .expect("CENTRALE_MASTER_BEARER_TOKEN must be set")
+       }
+    */
     pub fn master_password() -> String {
         std::env::var(Self::CENTRALE_MASTER_PASSWORD).expect("CENTRALE_MASTER_PASSWORD must be set")
     }
@@ -53,7 +53,7 @@ impl CentraleConfig {
     }
 
     pub fn test() {
-        Self::master_bearer_token();
+        //Self::master_bearer_token();
         Self::master_password();
 
         let domain = Self::get("DOMAIN");
@@ -64,6 +64,10 @@ impl CentraleConfig {
 
         let target_server = Self::get("DESTINATION_SERVER_ADDRESS");
         println!("DESTINATION_SERVER_ADDRESS: {}", target_server);
+
+        Self::get("DESTINATION_SERVER_PASSWORD")
+            .parse::<String>()
+            .unwrap();
 
         let serve_front = Self::get("SERVE_FRONT").parse::<bool>().unwrap();
         println!("SERVE_FRONT: {}", serve_front);

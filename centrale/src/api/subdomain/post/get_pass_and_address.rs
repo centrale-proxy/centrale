@@ -6,6 +6,7 @@ use r2d2_sqlite::{SqliteConnectionManager, rusqlite::params};
 pub struct SubdomainData {
     pub password: String,
     pub address: String,
+    pub destination_bearer: String,
 }
 
 pub fn get_subdomain_pass_and_address(
@@ -17,16 +18,20 @@ pub fn get_subdomain_pass_and_address(
         return Ok(SubdomainData {
             password: "pass".to_string(),
             address: "app".to_string(),
+            destination_bearer: "bearer".to_string(),
         });
     }
 
     let db = get_centrale_db(pool.get_ref())?;
-    let mut stmt = db.prepare("SELECT password, address FROM subdomain WHERE subdomain = ?1")?;
+    let mut stmt = db.prepare(
+        "SELECT password, address, destination_bearer FROM subdomain WHERE subdomain = ?1",
+    )?;
 
     let data = stmt.query_row(params![subdomain], |row| {
         Ok(SubdomainData {
             password: row.get(0)?,
             address: row.get(1)?,
+            destination_bearer: row.get(2)?,
         })
     })?;
 

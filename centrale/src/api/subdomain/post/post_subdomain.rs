@@ -21,9 +21,11 @@ pub fn post_subdomain(
     } else {
         let password = SaltString::generate(&mut OsRng);
         let address = CentraleConfig::get("DESTINATION_SERVER_ADDRESS");
+        let destination_bearer = CentraleConfig::get("DESTINATION_SERVER_PASSWORD");
+
         db.execute(
-            "INSERT INTO subdomain (subdomain, password, user_id, address, name) VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![subdomain, password.as_str(), user_id, address, name],
+            "INSERT INTO subdomain (subdomain, password, user_id, address, name, destination_bearer) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![subdomain, password.as_str(), user_id, address, name, destination_bearer],
         )?;
 
         db.execute(

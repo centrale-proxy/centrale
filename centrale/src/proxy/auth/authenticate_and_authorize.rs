@@ -13,7 +13,7 @@ pub fn authenticate_and_authorize(
     pool: web::Data<DbPool>,
     req: &HttpRequest,
     host: &str,
-) -> Result<(i64, String, String, String, String), CentraleError> {
+) -> Result<(i64, String, String, String, String, String), CentraleError> {
     // println!("req {:?}", &req);
     let headers = req.headers();
     // VALIDATE SUBDOMAIN
@@ -23,6 +23,7 @@ pub fn authenticate_and_authorize(
     // AUTHORIZE
     let subdomain_user_role = get_subdomain_user_role(&pool, &subdomain, user_id)?;
     // GET PASS AND ADDRESS
+    //
     let pass_and_address = get_subdomain_pass_and_address(&pool, &subdomain)?;
     // PREPARE TO PROXY
     let path = req.path().to_string();
@@ -35,5 +36,6 @@ pub fn authenticate_and_authorize(
         subdomain_user_role,
         pass_and_address.password,
         url,
+        pass_and_address.destination_bearer,
     ))
 }

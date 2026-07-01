@@ -13,7 +13,7 @@ pub async fn auth_master_bearer_token(
         .get("Authorization")
         .and_then(|v| v.to_str().ok());
 
-    let master_token = CentraleConfig::master_bearer_token();
+    let master_token = CentraleConfig::get("DESTINATION_SERVER_PASSWORD");
 
     match auth_header {
         Some(header) if header == format!("Bearer {}", master_token) => next.call(req).await,

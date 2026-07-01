@@ -1,45 +1,35 @@
 use crate::{
     error::CentraleError,
     proxy::{
-        auth::authenticate_and_authorize::authenticate_and_authorize,
         websocket::{is_ws::is_streaming_request, proxy_ws::ws_proxy},
         wildcard::{is_front::is_front, serve_front::serve_front_end},
     },
     server::auth::CentraleUser,
 };
 use actix_http::StatusCode;
-use actix_web::{HttpRequest, HttpResponse, dev::ConnectionInfo, web};
-use config::CentraleConfig;
-use dir_and_db_pool::db::DbPool;
+use actix_web::{HttpRequest, HttpResponse, web};
 use reqwest::{Method, header};
 use std::str::FromStr;
 
 /// Process one wildcard request
 pub async fn process_one_request(
-    pool: web::Data<DbPool>,
     req: HttpRequest,
     stream: web::Payload,
     client: web::Data<reqwest::Client>,
     user: CentraleUser,
-    conn: ConnectionInfo,
 ) -> Result<HttpResponse, CentraleError> {
     if is_streaming_request(&req) {
         // IS STREAM
         let socket = ws_proxy(req, stream, user.url, user.subdomain, user.pass, user.role).await?;
         Ok(socket)
     } else {
-        // IS HTTPS REQUEST
-        let host = conn.host();
-        let (_user_id, subdomain, subdomain_user_role, pass, url) =
-            authenticate_and_authorize(pool, &req, host)?;
-
-        if is_front(&url) {
+        // IS FRONT
+        if is_front(&user.url) {
             // serve front
             let front = serve_front_end(req).await;
             return Ok(front);
         }
         // IS NOT FRONT END
-        let master_token = CentraleConfig::master_bearer_token();
         let method = Method::from_str(req.method().as_str());
 
         let unwrapped_method = match method {
@@ -47,15 +37,17 @@ pub async fn process_one_request(
             Err(_err) => return Err(CentraleError::InvalidMethod),
         };
 
-        let url_local = format!("https://{}", url);
-        // println!("{}", &url_local);
+        let url_local = format!("https://{}", user.url);
 
         let request = client
             .request(unwrapped_method.clone(), url_local)
-            .header(header::AUTHORIZATION, format!("Bearer {}", master_token))
-            .header("centrale_subdomain", format!("{}", subdomain))
-            .header("centrale_password", format!("{}", pass))
-            .header("centrale_role", format!("{}", subdomain_user_role));
+            .header(
+                header::AUTHORIZATION,
+                format!("Bearer {}", user.destination_bearer),
+            )
+            .header("centrale_subdomain", format!("{}", user.subdomain))
+            .header("centrale_password", format!("{}", user.pass))
+            .header("centrale_role", format!("{}", user.role));
 
         let response = request.send().await;
         let response = response?;
