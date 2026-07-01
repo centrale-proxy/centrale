@@ -94,11 +94,7 @@ impl CentraleConfig {
         let cookie_https = Self::get("COOKIE_HTTP_ONLY").parse::<bool>().unwrap();
         println!("COOKIE_HTTP_ONLY: {}", cookie_https);
 
-        let is_443 = Self::get("CENTRALE_IS_443");
-        if is_443 == "true".to_string() {
-            Self::cert_private_key();
-            Self::cert_pub_key();
-        } else {
-        }
+        Self::cert_private_key();
+        Self::cert_pub_key();
     }
 }

@@ -7,9 +7,9 @@ Proxies request to destination server.
 Rust + Actix + SQLite.  
   
 ## Centrale:
-Assumes DNS A *.domain.com being directed to centrale.  
-  
-+ Negotiates HTTPS (or doesn't if .env sets differently)  
+Assumes DNS A *.domain.com being directed to load_balancer.  
+
++ Runs behind load_balancer on an internal HTTP address (`SERVER_ADDRESS`)  
 + Authenticates (cookie / bearer)  
 + Authorizes user access to subdomain  
 + IP based rate limitser(s)   
@@ -28,7 +28,13 @@ Assumes DNS A *.domain.com being directed to centrale.
 ## Writer (logging service)  
 + Logs request and response headers.  
 + If response status is not 200, error body is logged  
-  
+
+## Load balancer:
+
++ Optionally use Pingora at `0.0.0.0:443` to forward traffic to Centrale  
++ Negotiates HTTPS
++ Forwards all HTTP + websocket traffic to Centrale 
+
 ***
   
 # Concepts
@@ -106,6 +112,10 @@ Subdomain specific admin:
 # SET UP ENVIRONEMENT VARIABLES
 copy .env.sample to .env   
 Fill with your credentials  
+
+Recommended with load_balancer:
++ `SERVER_ADDRESS=127.0.0.1:8080` (Centrale internal bind)
++ `CENTRALE_UPSTREAM_ADDRESS=127.0.0.1:8080` (optional override for load_balancer; defaults to `SERVER_ADDRESS`)  
   
 # SET UP LOCALHOST LOCALHOST
 ```
@@ -179,6 +189,20 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 
+sudo nano /etc/systemd/system/load_balancer.service
+
+[Unit]
+Description=Centrale Pingora load balancer
+After=network.target centrale.service
+
+[Service]
+User=www
+ExecStart=/home/www/centrale/target/release/load_balancer
+EnvironmentFile=/etc/environment
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
 
 ---
 debugging:  
@@ -187,12 +211,17 @@ source /etc/env
 sudo systemctl enable centrale
 sudo systemctl start centrale
 
+sudo systemctl enable load_balancer
+sudo systemctl start load_balancer
+
 sudo journalctl -u centrale.service
 sudo journalctl -u centrale.service -f
 
+sudo journalctl -u load_balancer.service
+sudo journalctl -u load_balancer.service -f
+
 sudo journalctl -u writer.service
 sudo journalctl -u writer.service -f
-
 
 sudo systemctl enable destination_server
 sudo systemctl start destination_server

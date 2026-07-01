@@ -6,7 +6,8 @@
        "test_suite",
        "writer",
        "common",
-       "destination_server"
+       "destination_server",
+       "load_balancer"
 
    ]
    resolver = "2"
