@@ -1,3 +1,4 @@
+use crate::packet::{init_writer_db, post_packet};
 use crate::poll::get_server_poll;
 use crate::save_to_db::save_to_db;
 use common::payload::WriterPayload;
@@ -10,6 +11,9 @@ use std::io::ErrorKind;
 const SERVER: Token = Token(0);
 
 pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
+    // INIT WRITER DB
+    let db = pool.get()?;
+    init_writer_db(&db)?;
     // Create a poll instance.
     let (mut poll, server) = get_server_poll(SERVER)?;
     let mut events = Events::with_capacity(CentraleConfig::WRITER_EVENTS_CAPACITY);
@@ -31,8 +35,13 @@ pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
                             if let Ok(payload) = serde_json::from_slice::<WriterPayload>(packet) {
                                 save_to_db(payload, &db);
                             } else {
-                                println!("{:?}", packet);
-                                println!("{}", String::from_utf8_lossy(packet));
+                                // SAVE PACKET FIRST
+                                // println!("{:?}", packet);
+                                let id = post_packet(&db, packet)?;
+                                // ASK QUESTIONS LATER - PARSE PACKET
+                                let text = String::from_utf8_lossy(packet);
+
+                                println!("{}", text);
                             }
                         }
                         Err(e) if e.kind() == ErrorKind::WouldBlock => {

@@ -1,4 +1,5 @@
 mod error;
+mod packet;
 mod poll;
 mod save_to_db;
 mod server;
@@ -8,7 +9,7 @@ use config::CentraleConfig;
 use dir_and_db_pool::db::get_db::get_db;
 
 fn main() {
-    let db = get_db(CentraleConfig::DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
+    let db = get_db(CentraleConfig::WRITER_DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
     match start_server(db) {
         Ok(_) => {}
         Err(err) => {
