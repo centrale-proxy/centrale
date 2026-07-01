@@ -1,4 +1,4 @@
-use crate::packet::{init_writer_db, post_packet};
+use crate::packet::{init_writer_db, post_packet, update_packet};
 use crate::poll::get_server_poll;
 use crate::save_to_db::save_to_db;
 use common::payload::WriterPayload;
@@ -40,8 +40,8 @@ pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
                                 let id = post_packet(&db, packet)?;
                                 // ASK QUESTIONS LATER - PARSE PACKET
                                 let text = String::from_utf8_lossy(packet);
-
-                                println!("{}", text);
+                                update_packet(&db, id, text.as_ref())?;
+                                // println!("{}", text);
                             }
                         }
                         Err(e) if e.kind() == ErrorKind::WouldBlock => {

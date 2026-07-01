@@ -22,3 +22,12 @@ pub fn post_packet(db: &DbConnection, data: &[u8]) -> Result<i64, WriterError> {
     let last_id = db.last_insert_rowid();
     Ok(last_id)
 }
+
+pub fn update_packet(db: &DbConnection, id: i64, text: &str) -> Result<(), WriterError> {
+    db.execute(
+        "UPDATE writer SET text = ?1 WHERE id = ?2",
+        params![text, id],
+    )?;
+
+    Ok(())
+}
