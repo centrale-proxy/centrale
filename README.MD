@@ -4,12 +4,17 @@
 Authenticates, authorizes, rate limits, logs.  
 Proxies request to destination server.  
   
-Rust + Actix + SQLite.  
-  
-## Centrale:
+Rust + Pingora + Actix + SQLite.  
+
 Assumes DNS A *.domain.com being directed to load_balancer.  
 
-+ Runs behind load_balancer on an internal HTTP address (`SERVER_ADDRESS`)  
+## Load balancer:
++ Use Pingora at `0.0.0.0:443` to forward traffic to Centrale  
++ Negotiates HTTPS
++ Forwards HTTP + websocket traffic to Centrale 
+
+## Centrale:
++ Runs behind load_balancer
 + Authenticates (cookie / bearer)  
 + Authorizes user access to subdomain  
 + IP based rate limitser(s)   
@@ -29,11 +34,6 @@ Assumes DNS A *.domain.com being directed to load_balancer.
 + Logs request and response headers.  
 + If response status is not 200, error body is logged  
 
-## Load balancer:
-
-+ Optionally use Pingora at `0.0.0.0:443` to forward traffic to Centrale  
-+ Negotiates HTTPS
-+ Forwards all HTTP + websocket traffic to Centrale 
 
 ***
   

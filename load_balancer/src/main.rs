@@ -19,6 +19,14 @@ impl ProxyHttp for LoadBalancer {
         ()
     }
 
+    async fn request_filter(&self, session: &mut Session, _ctx: &mut Self::CTX) -> Result<bool> {
+        let request_bytes = request_head_to_bytes(session);
+        println!("Incoming request byte values: {:?}", request_bytes);
+        let text = String::from_utf8_lossy(request_bytes.as_ref());
+        println!("Incoming request as text:\n{text}");
+        Ok(false)
+    }
+
     async fn upstream_peer(
         &self,
         _session: &mut Session,
@@ -31,6 +39,10 @@ impl ProxyHttp for LoadBalancer {
         );
         Ok(Box::new(peer))
     }
+}
+
+fn request_head_to_bytes(session: &Session) -> Vec<u8> {
+    session.downstream_session.to_h1_raw().to_vec()
 }
 
 fn main() {
