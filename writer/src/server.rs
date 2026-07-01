@@ -6,7 +6,6 @@ use dir_and_db_pool::db::DbPool;
 use mio::{Events, Token};
 use std::error::Error;
 use std::io::ErrorKind;
-use std::str::from_utf8;
 
 const SERVER: Token = Token(0);
 
@@ -27,9 +26,14 @@ pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
                     let db = pool.get().expect("Couldn't get db connection from pool");
                     match server.recv_from(&mut buf) {
                         Ok((len, _src)) => {
-                            let msg = from_utf8(&buf[..len]).unwrap_or("<invalid utf8>");
-                            let payload: WriterPayload = serde_json::from_str(&msg)?;
-                            save_to_db(payload, &db);
+                            let packet = &buf[..len];
+
+                            if let Ok(payload) = serde_json::from_slice::<WriterPayload>(packet) {
+                                save_to_db(payload, &db);
+                            } else {
+                                println!("{:?}", packet);
+                                println!("{}", String::from_utf8_lossy(packet));
+                            }
                         }
                         Err(e) if e.kind() == ErrorKind::WouldBlock => {
                             break; // No more packets ready — back to poll
