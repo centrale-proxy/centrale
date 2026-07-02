@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use config::CentraleConfig;
 use dotenvy::dotenv;
-use log::{error, info};
+use log::{LevelFilter, error, info};
 use pingora::{
     listeners::tls::TlsSettings,
     prelude::{HttpPeer, ProxyHttp, Result, Server, Session, http_proxy_service},
@@ -44,6 +44,36 @@ impl ProxyHttp for LoadBalancer {
         );
         Ok(Box::new(peer))
     }
+
+    async fn logging(
+        &self,
+        session: &mut Session,
+        e: Option<&pingora::Error>,
+        _ctx: &mut Self::CTX,
+    ) {
+        let request = session.req_header();
+        let method = request.method.as_str();
+        let path = request
+            .uri
+            .path_and_query()
+            .map_or(request.uri.path(), |path_and_query| path_and_query.as_str());
+        let host = request
+            .headers
+            .get("host")
+            .and_then(|value| value.to_str().ok())
+            .unwrap_or("-");
+        let status = session
+            .response_written()
+            .map_or(0, |response| response.status.as_u16());
+
+        if let Some(err) = e {
+            error!("{} {}{} -> {} ({})", method, host, path, status, err);
+        } else if status != 200 {
+            error!("{} {}{} -> {}", method, host, path, status);
+        } else {
+            info!("{} {}{} -> {}", method, host, path, status);
+        }
+    }
 }
 
 fn request_head_to_bytes(session: &Session) -> Vec<u8> {
@@ -59,7 +89,10 @@ fn send_request_bytes_to_writer(socket: &UdpSocket, addr: SocketAddr, request_by
 }
 
 fn main() {
-    env_logger::init();
+    let mut logger =
+        env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"));
+    logger.filter_module("load_balancer", LevelFilter::Info);
+    logger.init();
     dotenv().ok();
 
     let centrale_upstream_address = get_centrale_upstream_address();
