@@ -51,6 +51,7 @@ impl ProxyHttp for LoadBalancer {
         e: Option<&pingora::Error>,
         _ctx: &mut Self::CTX,
     ) {
+        let client = client_for_logging(session);
         let request = session.req_header();
         let method = request.method.as_str();
         let path = request
@@ -67,13 +68,63 @@ impl ProxyHttp for LoadBalancer {
             .map_or(0, |response| response.status.as_u16());
 
         if let Some(err) = e {
-            error!("{} {}{} -> {} ({})", method, host, path, status, err);
+            error!(
+                "{} {}{} -> {} [{}] ({})",
+                method, host, path, status, client, err
+            );
         } else if status != 200 {
-            error!("{} {}{} -> {}", method, host, path, status);
+            error!("{} {}{} -> {} [{}]", method, host, path, status, client);
         } else {
-            info!("{} {}{} -> {}", method, host, path, status);
+            info!("{} {}{} -> {} [{}]", method, host, path, status, client);
         }
     }
+}
+
+fn client_for_logging(session: &Session) -> String {
+    if let Some(forwarded_for) = session
+        .req_header()
+        .headers
+        .get("forwarded")
+        .and_then(|value| value.to_str().ok())
+        .and_then(extract_forwarded_for)
+    {
+        return forwarded_for;
+    }
+
+    session
+        .client_addr()
+        .map(|addr| addr.to_string())
+        .unwrap_or_else(|| "-".to_string())
+}
+
+fn extract_forwarded_for(forwarded_header: &str) -> Option<String> {
+    for element in forwarded_header.split(',') {
+        for pair in element.split(';') {
+            let Some((key, value)) = pair.split_once('=') else {
+                continue;
+            };
+
+            if !key.trim().eq_ignore_ascii_case("for") {
+                continue;
+            }
+
+            let value = value.trim();
+            if value.is_empty() {
+                continue;
+            }
+
+            let value = value
+                .strip_prefix('"')
+                .and_then(|inner| inner.strip_suffix('"'))
+                .unwrap_or(value);
+
+            if !value.is_empty() {
+                return Some(value.to_string());
+            }
+        }
+    }
+
+    None
 }
 
 fn request_head_to_bytes(session: &Session) -> Vec<u8> {
