@@ -16,7 +16,11 @@ pub fn handle_payload(payload: WriterPayload, db: &DbConnection) -> Result<(), W
             let parsed = ParsedCheckIn::parse_checkin(&checkin);
             // SAVE
             save_parsed_checkin(db, id, parsed.clone())?;
-            println!("> {:?}", parsed);
+            println!(
+                "> {:?} {:?}",
+                parsed.method.unwrap_or("".to_string()),
+                parsed.url.unwrap_or("".to_string())
+            );
         }
         WriterPayload::CheckOut(checkout) => {
             save_checkout(db, checkout.clone())?;
