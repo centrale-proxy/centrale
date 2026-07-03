@@ -1,6 +1,6 @@
+mod db;
 mod error;
 mod handle_payload;
-mod packet;
 mod parse_checkin;
 mod poll;
 mod server;

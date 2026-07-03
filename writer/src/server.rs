@@ -1,5 +1,5 @@
+use crate::db::init_writer_db;
 use crate::handle_payload::handle_payload;
-use crate::packet::init_writer_db;
 use crate::poll::get_server_poll;
 use common::payload::WriterPayload;
 use config::CentraleConfig;
