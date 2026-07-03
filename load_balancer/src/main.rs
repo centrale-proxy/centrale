@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use bytes::Bytes;
-use common::payload::{CheckIn2, CheckOut2, WriterPayload};
+use common::payload::{CheckIn, CheckOut, WriterPayload};
 use config::CentraleConfig;
 use dotenvy::dotenv;
 use log::{LevelFilter, error, info};
@@ -46,7 +46,7 @@ impl ProxyHttp for LoadBalancer {
         let request_bytes = request_head_to_bytes(session);
         let ip = client_for_logging(session);
         // pass the ctx's x_id into the checkin instead of generating it inside
-        let checkin = CheckIn2::new(Some(ip), request_bytes, ctx.x_id.clone());
+        let checkin = CheckIn::new(Some(ip), request_bytes, ctx.x_id.clone());
         send_request_bytes_to_writer_2(&self.writer_socket, self.writer_addr, checkin);
         Ok(false)
     }
@@ -99,13 +99,13 @@ impl ProxyHttp for LoadBalancer {
         let status = session.response_written().map_or(0, |r| r.status.as_u16());
 
         let checkout = match e {
-            Some(err) => CheckOut2::new(Some(status), Some(err.to_string()), ctx.x_id.clone()),
-            None if status != 200 => CheckOut2::new(
+            Some(err) => CheckOut::new(Some(status), Some(err.to_string()), ctx.x_id.clone()),
+            None if status != 200 => CheckOut::new(
                 Some(status),
                 response_body_for_logging(ctx).or_else(|| Some("err".to_string())),
                 ctx.x_id.clone(),
             ),
-            None => CheckOut2::new(Some(status), None, ctx.x_id.clone()),
+            None => CheckOut::new(Some(status), None, ctx.x_id.clone()),
         };
         send_request_bytes_to_writer_checkout(&self.writer_socket, self.writer_addr, checkout);
     }
@@ -189,9 +189,9 @@ fn send_request_bytes_to_writer(socket: &UdpSocket, addr: SocketAddr, request_by
     }
 }
 
-fn send_request_bytes_to_writer_2(socket: &UdpSocket, addr: SocketAddr, checkin: CheckIn2) {
+fn send_request_bytes_to_writer_2(socket: &UdpSocket, addr: SocketAddr, checkin: CheckIn) {
     // Wrap in the enum variant, then serialize as JSON
-    let payload = WriterPayload::CheckIn2(checkin);
+    let payload = WriterPayload::CheckIn(checkin);
 
     let request_bytes = match serde_json::to_vec(&payload) {
         Ok(bytes) => bytes,
@@ -208,13 +208,9 @@ fn send_request_bytes_to_writer_2(socket: &UdpSocket, addr: SocketAddr, checkin:
     }
 }
 
-fn send_request_bytes_to_writer_checkout(
-    socket: &UdpSocket,
-    addr: SocketAddr,
-    checkout: CheckOut2,
-) {
+fn send_request_bytes_to_writer_checkout(socket: &UdpSocket, addr: SocketAddr, checkout: CheckOut) {
     // Wrap in the enum variant, then serialize as JSON
-    let payload = WriterPayload::CheckOut2(checkout);
+    let payload = WriterPayload::CheckOut(checkout);
 
     let request_bytes = match serde_json::to_vec(&payload) {
         Ok(bytes) => bytes,

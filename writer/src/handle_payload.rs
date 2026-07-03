@@ -9,7 +9,7 @@ use dir_and_db_pool::db::DbConnection;
 pub fn handle_payload(payload: WriterPayload, db: &DbConnection) -> Result<(), WriterError> {
     // println!("payload: {:?}", &payload);
     match payload {
-        WriterPayload::CheckIn2(checkin) => {
+        WriterPayload::CheckIn(checkin) => {
             // SAVE INITIAL DATA
             let id = save_packet(db, checkin.clone())?;
             // PARSE
@@ -18,7 +18,7 @@ pub fn handle_payload(payload: WriterPayload, db: &DbConnection) -> Result<(), W
             save_parsed_checkin(db, id, parsed.clone())?;
             println!("> {:?}", parsed);
         }
-        WriterPayload::CheckOut2(checkout) => {
+        WriterPayload::CheckOut(checkout) => {
             save_checkout(db, checkout.clone())?;
             println!(
                 "< {} {} {} {}",

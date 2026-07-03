@@ -1,5 +1,5 @@
 use crate::{error::WriterError, parse_checkin::ParsedCheckIn};
-use common::payload::{CheckIn2, CheckOut2};
+use common::payload::{CheckIn, CheckOut};
 use dir_and_db_pool::db::DbConnection;
 use r2d2_sqlite::rusqlite::params;
 
@@ -39,7 +39,7 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
     Ok(())
 }
 
-pub fn save_packet(db: &DbConnection, checkin: CheckIn2) -> Result<i64, WriterError> {
+pub fn save_packet(db: &DbConnection, checkin: CheckIn) -> Result<i64, WriterError> {
     //
     db.execute(
         "INSERT INTO writer (bytes, x_id, checkin, ip) VALUES (?1, ?2, ?3, ?4)",
@@ -91,7 +91,7 @@ pub fn save_parsed_checkin(
     Ok(())
 }
 
-pub fn save_checkout(db: &DbConnection, checkout: CheckOut2) -> Result<(), WriterError> {
+pub fn save_checkout(db: &DbConnection, checkout: CheckOut) -> Result<(), WriterError> {
     db.execute(
         "UPDATE writer SET
             checkout = ?1,

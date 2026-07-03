@@ -2,14 +2,14 @@ use actix_web::dev::{ServiceRequest, ServiceResponse};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CheckIn2 {
+pub struct CheckIn {
     pub checkin: u128,
     pub ip: Option<String>,
     pub bytes: Vec<u8>,
     pub x_id: String,
 }
 
-impl CheckIn2 {
+impl CheckIn {
     pub fn new(ip: Option<String>, bytes: Vec<u8>, x_id: String) -> Self {
         // GET TIME
         let epoch_time = SystemTime::now()
@@ -17,7 +17,7 @@ impl CheckIn2 {
             .unwrap() // TBD
             .as_millis();
 
-        CheckIn2 {
+        CheckIn {
             checkin: epoch_time,
             ip,
             bytes,
@@ -53,21 +53,21 @@ pub fn get_ua(req: &ServiceRequest) -> Option<String> {
 //
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CheckOut2 {
+pub struct CheckOut {
     pub checkout: u128,
     pub error: Option<String>,
     pub status: Option<u16>,
     pub x_id: String,
 }
 
-impl CheckOut2 {
+impl CheckOut {
     pub fn new(status: Option<u16>, error: Option<String>, x_id: String) -> Self {
         let epoch_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_millis();
 
-        CheckOut2 {
+        CheckOut {
             checkout: epoch_time,
             error: error,
             status: status,
@@ -78,6 +78,6 @@ impl CheckOut2 {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum WriterPayload {
-    CheckIn2(CheckIn2),
-    CheckOut2(CheckOut2),
+    CheckIn(CheckIn),
+    CheckOut(CheckOut),
 }
