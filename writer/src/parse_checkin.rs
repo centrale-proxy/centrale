@@ -19,10 +19,10 @@ pub struct ParsedCheckIn {
 impl ParsedCheckIn {
     pub fn parse_checkin(payload: &CheckIn) -> ParsedCheckIn {
         let text = String::from_utf8_lossy(&payload.bytes);
-        Self::parse_checkin_text(payload, text.as_ref())
+        Self::parse_checkin_text(text.as_ref())
     }
 
-    pub fn parse_checkin_text(payload: &CheckIn, text: &str) -> ParsedCheckIn {
+    pub fn parse_checkin_text(text: &str) -> ParsedCheckIn {
         let request_line = text
             .lines()
             .next()
@@ -217,7 +217,6 @@ fn lead_from_referrer(referrer: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use common::payload::{CheckIn, CheckOut};
 
     use crate::parse_checkin::ParsedCheckIn;
 
@@ -225,13 +224,7 @@ mod tests {
     fn parses_checkin2_text_into_parsed_checkin() {
         let text = "GET /hello/world?utm_source=google&utm_campaign=spring-sale HTTP/1.1\r\nHost: example.com\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36\r\nReferer: https://www.google.com/search?q=hello\r\n\r\n";
 
-        let checkin = CheckIn {
-            checkin: 1,
-            ip: None,
-            bytes: vec![],
-            x_id: "1".to_string(),
-        };
-        let parsed = ParsedCheckIn::parse_checkin_text(&checkin, text);
+        let parsed = ParsedCheckIn::parse_checkin_text(text);
 
         //  assert_eq!(parsed.checkin, 123);
         // assert_eq!(parsed.ip.as_deref(), Some("1.2.3.4"));
@@ -252,13 +245,7 @@ mod tests {
     #[test]
     fn marks_bot_user_agents() {
         let text = "GET /robots.txt HTTP/1.1\r\nHost: example.com\r\nUser-Agent: Googlebot/2.1 (+http://www.google.com/bot.html)\r\n\r\n";
-        let checkin = CheckIn {
-            checkin: 1,
-            ip: None,
-            bytes: vec![],
-            x_id: "1".to_string(),
-        };
-        let parsed = ParsedCheckIn::parse_checkin_text(&checkin, text);
+        let parsed = ParsedCheckIn::parse_checkin_text(text);
 
         assert_eq!(parsed.method.as_deref(), Some("GET"));
         assert_eq!(parsed.url.as_deref(), Some("/robots.txt"));

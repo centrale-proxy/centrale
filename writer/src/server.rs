@@ -18,7 +18,6 @@ pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
     let (mut poll, server) = get_server_poll(SERVER)?;
     let mut events = Events::with_capacity(CentraleConfig::WRITER_EVENTS_CAPACITY);
     let mut buf = [0u8; 5120];
-
     loop {
         // Poll Mio for events, blocking until we get an event.
         poll.poll(&mut events, None)?;

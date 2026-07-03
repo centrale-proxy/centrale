@@ -54,6 +54,7 @@ pub fn save_packet(db: &DbConnection, checkin: CheckIn) -> Result<i64, WriterErr
     let last_id = db.last_insert_rowid();
     Ok(last_id)
 }
+
 pub fn save_parsed_checkin(
     db: &DbConnection,
     id: i64,
