@@ -1,6 +1,6 @@
-use crate::packet::{init_writer_db, post_packet, update_packet};
+use crate::handle_payload::handle_payload;
+use crate::packet::init_writer_db;
 use crate::poll::get_server_poll;
-use crate::save_to_db::save_to_db;
 use common::payload::WriterPayload;
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbPool;
@@ -31,17 +31,16 @@ pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
                     match server.recv_from(&mut buf) {
                         Ok((len, _src)) => {
                             let packet = &buf[..len];
-
                             if let Ok(payload) = serde_json::from_slice::<WriterPayload>(packet) {
-                                save_to_db(payload, &db);
+                                match handle_payload(payload, &db) {
+                                    Err(err) => {
+                                        eprint!("payload handle error {}", err);
+                                    }
+                                    _ => {}
+                                }
                             } else {
-                                // SAVE PACKET FIRST
-                                // println!("{:?}", packet);
-                                let id = post_packet(&db, packet)?;
-                                // ASK QUESTIONS LATER - PARSE PACKET
-                                let text = String::from_utf8_lossy(packet);
-                                update_packet(&db, id, text.as_ref())?;
-                                // println!("{}", text);
+                                // unable to parse
+                                break;
                             }
                         }
                         Err(e) if e.kind() == ErrorKind::WouldBlock => {

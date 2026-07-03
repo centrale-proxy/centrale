@@ -6,7 +6,7 @@ use crate::{
 use common::payload::WriterPayload;
 use dir_and_db_pool::db::DbConnection;
 
-pub fn save_to_db(payload: WriterPayload, db: &DbConnection) -> Result<(), WriterError> {
+pub fn handle_payload(payload: WriterPayload, db: &DbConnection) -> Result<(), WriterError> {
     // println!("payload: {:?}", &payload);
     match payload {
         WriterPayload::CheckIn(payload) => {

@@ -38,13 +38,6 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
 
     Ok(())
 }
-///
-pub fn post_packet(db: &DbConnection, data: &[u8]) -> Result<i64, WriterError> {
-    //
-    db.execute("INSERT INTO writer (bytes) VALUES (?1)", params![data])?;
-    let last_id = db.last_insert_rowid();
-    Ok(last_id)
-}
 
 pub fn save_packet(db: &DbConnection, checkin: CheckIn2) -> Result<i64, WriterError> {
     //
@@ -112,14 +105,5 @@ pub fn save_checkout(db: &DbConnection, checkout: CheckOut2) -> Result<(), Write
             checkout.x_id,
         ],
     )?;
-    Ok(())
-}
-
-pub fn update_packet(db: &DbConnection, id: i64, text: &str) -> Result<(), WriterError> {
-    db.execute(
-        "UPDATE writer SET text = ?1 WHERE id = ?2",
-        params![text, id],
-    )?;
-
     Ok(())
 }
