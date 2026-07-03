@@ -4,6 +4,7 @@ use actix_web::{
     web::Bytes,
 };
 use serde_derive::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CheckIn {
@@ -24,6 +25,31 @@ pub struct CheckIn {
     // body: Option<String>,
     // lead: Option<String>,
     // campaign: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CheckIn2 {
+    pub checkin: u128,
+    pub ip: Option<String>,
+    pub bytes: Vec<u8>,
+    pub x_id: String,
+}
+
+impl CheckIn2 {
+    pub fn new(ip: Option<String>, bytes: Vec<u8>, x_id: String) -> Self {
+        // GET TIME
+        let epoch_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap() // TBD
+            .as_millis();
+
+        CheckIn2 {
+            checkin: epoch_time,
+            ip,
+            bytes,
+            x_id,
+        }
+    }
 }
 
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -101,6 +127,14 @@ pub struct CheckOut {
     pub status: Option<u16>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CheckOut2 {
+    pub checkout: u128,
+    pub error: Option<String>,
+    pub status: Option<u16>,
+    pub x_id: String,
+}
+
 use actix_web::body::to_bytes;
 
 pub async fn read_response_body(res: ServiceResponse) -> String {
@@ -142,8 +176,26 @@ impl CheckOut {
     }
 }
 
+impl CheckOut2 {
+    pub fn new(status: Option<u16>, error: Option<String>, x_id: String) -> Self {
+        let epoch_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
+
+        CheckOut2 {
+            checkout: epoch_time,
+            error: error,
+            status: status,
+            x_id: x_id,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub enum WriterPayload {
     CheckIn(CheckIn),
+    CheckIn2(CheckIn2),
     CheckOut(CheckOut),
+    CheckOut2(CheckOut2),
 }

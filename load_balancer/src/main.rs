@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use common::payload::{CheckIn2, CheckOut2, WriterPayload};
 use config::CentraleConfig;
 use dotenvy::dotenv;
 use log::{LevelFilter, error, info};
@@ -11,6 +12,7 @@ use std::{
     net::{SocketAddr, UdpSocket},
     sync::Arc,
 };
+use uuid::Uuid;
 
 struct LoadBalancer {
     centrale_upstream_address: String,
@@ -18,17 +20,27 @@ struct LoadBalancer {
     writer_addr: SocketAddr,
 }
 
+pub struct RequestCtx {
+    pub x_id: String,
+}
+
 #[async_trait]
 impl ProxyHttp for LoadBalancer {
-    type CTX = ();
+    type CTX = RequestCtx;
 
     fn new_ctx(&self) -> Self::CTX {
-        ()
+        RequestCtx {
+            x_id: Uuid::new_v4().to_string(),
+        }
     }
 
-    async fn request_filter(&self, session: &mut Session, _ctx: &mut Self::CTX) -> Result<bool> {
+    async fn request_filter(&self, session: &mut Session, ctx: &mut Self::CTX) -> Result<bool> {
+        // send_request_bytes_to_writer(&self.writer_socket, self.writer_addr, request_bytes);
         let request_bytes = request_head_to_bytes(session);
-        send_request_bytes_to_writer(&self.writer_socket, self.writer_addr, request_bytes);
+        let ip = client_for_logging(session);
+        // pass the ctx's x_id into the checkin instead of generating it inside
+        let checkin = CheckIn2::new(Some(ip), request_bytes, ctx.x_id.clone());
+        send_request_bytes_to_writer_2(&self.writer_socket, self.writer_addr, checkin);
         Ok(false)
     }
 
@@ -49,34 +61,18 @@ impl ProxyHttp for LoadBalancer {
         &self,
         session: &mut Session,
         e: Option<&pingora::Error>,
-        _ctx: &mut Self::CTX,
+        ctx: &mut Self::CTX,
     ) {
-        let client = client_for_logging(session);
-        let request = session.req_header();
-        let method = request.method.as_str();
-        let path = request
-            .uri
-            .path_and_query()
-            .map_or(request.uri.path(), |path_and_query| path_and_query.as_str());
-        let host = request
-            .headers
-            .get("host")
-            .and_then(|value| value.to_str().ok())
-            .unwrap_or("-");
-        let status = session
-            .response_written()
-            .map_or(0, |response| response.status.as_u16());
+        let status = session.response_written().map_or(0, |r| r.status.as_u16());
 
-        if let Some(err) = e {
-            error!(
-                "{} {}{} -> {} [{}] ({})",
-                method, host, path, status, client, err
-            );
-        } else if status != 200 {
-            error!("{} {}{} -> {} [{}]", method, host, path, status, client);
-        } else {
-            info!("{} {}{} -> {} [{}]", method, host, path, status, client);
-        }
+        let checkout = match e {
+            Some(err) => CheckOut2::new(Some(status), Some(err.to_string()), ctx.x_id.clone()),
+            None if status != 200 => {
+                CheckOut2::new(Some(status), Some("err".to_string()), ctx.x_id.clone())
+            }
+            None => CheckOut2::new(Some(status), None, ctx.x_id.clone()),
+        };
+        send_request_bytes_to_writer_checkout(&self.writer_socket, self.writer_addr, checkout);
     }
 }
 
@@ -132,6 +128,48 @@ fn request_head_to_bytes(session: &Session) -> Vec<u8> {
 }
 
 fn send_request_bytes_to_writer(socket: &UdpSocket, addr: SocketAddr, request_bytes: Vec<u8>) {
+    match socket.send_to(&request_bytes, addr) {
+        Ok(_) => {}
+        Err(err) if err.kind() == ErrorKind::WouldBlock => {}
+        Err(err) => error!("Unable to send load balancer bytes to writer: {}", err),
+    }
+}
+
+fn send_request_bytes_to_writer_2(socket: &UdpSocket, addr: SocketAddr, checkin: CheckIn2) {
+    // Wrap in the enum variant, then serialize as JSON
+    let payload = WriterPayload::CheckIn2(checkin);
+
+    let request_bytes = match serde_json::to_vec(&payload) {
+        Ok(bytes) => bytes,
+        Err(err) => {
+            error!("Unable to serialize payload: {}", err);
+            return;
+        }
+    };
+
+    match socket.send_to(&request_bytes, addr) {
+        Ok(_) => {}
+        Err(err) if err.kind() == ErrorKind::WouldBlock => {}
+        Err(err) => error!("Unable to send load balancer bytes to writer: {}", err),
+    }
+}
+
+fn send_request_bytes_to_writer_checkout(
+    socket: &UdpSocket,
+    addr: SocketAddr,
+    checkout: CheckOut2,
+) {
+    // Wrap in the enum variant, then serialize as JSON
+    let payload = WriterPayload::CheckOut2(checkout);
+
+    let request_bytes = match serde_json::to_vec(&payload) {
+        Ok(bytes) => bytes,
+        Err(err) => {
+            error!("Unable to serialize payload: {}", err);
+            return;
+        }
+    };
+
     match socket.send_to(&request_bytes, addr) {
         Ok(_) => {}
         Err(err) if err.kind() == ErrorKind::WouldBlock => {}
