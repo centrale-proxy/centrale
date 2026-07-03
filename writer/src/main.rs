@@ -1,5 +1,6 @@
 mod error;
 mod packet;
+mod parse_checkin;
 mod poll;
 mod save_to_db;
 mod server;

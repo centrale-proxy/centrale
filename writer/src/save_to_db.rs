@@ -1,24 +1,6 @@
+use crate::parse_checkin::parse_checkin2;
 use common::payload::WriterPayload;
 use dir_and_db_pool::db::DbConnection;
-
-use serde_derive::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ParsedCheckIn {
-    pub checkin: u128,
-    pub ip: Option<String>,
-    pub url: Option<String>,
-    pub query: Option<String>,
-    pub ua: Option<String>, // STRING
-    pub method: Option<String>,
-    pub referrer: Option<String>,
-    pub host: Option<String>,
-    pub os: Option<String>,
-    pub browser: Option<String>,  // PARSED UA
-    pub is_bot: bool,             // GOOGLE OR FB CRAWLER
-    pub lead: Option<String>,     // GOOGLE BING OR FB
-    pub campaign: Option<String>, // utm_campaign
-}
 
 pub fn save_to_db(payload: WriterPayload, _db: &DbConnection) {
     // println!("payload: {:?}", &payload);
@@ -35,12 +17,13 @@ pub fn save_to_db(payload: WriterPayload, _db: &DbConnection) {
         }
         WriterPayload::CheckIn2(payload) => {
             // SEND TX OR GO STRAIGHT TO DB?
-            println!("> {}  {:?} {}", payload.x_id, payload.ip, payload.checkin);
+            //println!("> {}  {:?} {}", payload.x_id, payload.ip, payload.checkin);
 
-            //let text = String::from_utf8_lossy(&payload.bytes.to_vec().clone());
-            let text = String::from_utf8_lossy(&payload.bytes);
+            //let text = String::from_utf8_lossy(&payload.bytes);
+            let parsed = parse_checkin2(&payload);
 
-            println!("> {}", text);
+            // println!("> {}", text);
+            println!("> parsed: {:?}", parsed);
         }
         WriterPayload::CheckOut(payload) => {
             println!(
