@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use bytes::Bytes;
 use common::payload::{CheckIn2, CheckOut2, WriterPayload};
 use config::CentraleConfig;
 use dotenvy::dotenv;
@@ -20,8 +21,12 @@ struct LoadBalancer {
     writer_addr: SocketAddr,
 }
 
+const MAX_LOGGED_RESPONSE_BODY_BYTES: usize = 8 * 1024;
+
 pub struct RequestCtx {
     pub x_id: String,
+    pub response_body: Vec<u8>,
+    pub response_body_truncated: bool,
 }
 
 #[async_trait]
@@ -31,6 +36,8 @@ impl ProxyHttp for LoadBalancer {
     fn new_ctx(&self) -> Self::CTX {
         RequestCtx {
             x_id: Uuid::new_v4().to_string(),
+            response_body: Vec::new(),
+            response_body_truncated: false,
         }
     }
 
@@ -57,6 +64,32 @@ impl ProxyHttp for LoadBalancer {
         Ok(Box::new(peer))
     }
 
+    fn response_body_filter(
+        &self,
+        _session: &mut Session,
+        body: &mut Option<Bytes>,
+        _end_of_stream: bool,
+        ctx: &mut Self::CTX,
+    ) -> Result<Option<std::time::Duration>>
+    where
+        Self::CTX: Send + Sync,
+    {
+        if let Some(chunk) = body.as_ref() {
+            let remaining = MAX_LOGGED_RESPONSE_BODY_BYTES.saturating_sub(ctx.response_body.len());
+
+            if remaining > 0 {
+                let bytes_to_copy = remaining.min(chunk.len());
+                ctx.response_body.extend_from_slice(&chunk[..bytes_to_copy]);
+            }
+
+            if chunk.len() > remaining {
+                ctx.response_body_truncated = true;
+            }
+        }
+
+        Ok(None)
+    }
+
     async fn logging(
         &self,
         session: &mut Session,
@@ -67,9 +100,11 @@ impl ProxyHttp for LoadBalancer {
 
         let checkout = match e {
             Some(err) => CheckOut2::new(Some(status), Some(err.to_string()), ctx.x_id.clone()),
-            None if status != 200 => {
-                CheckOut2::new(Some(status), Some("err".to_string()), ctx.x_id.clone())
-            }
+            None if status != 200 => CheckOut2::new(
+                Some(status),
+                response_body_for_logging(ctx).or_else(|| Some("err".to_string())),
+                ctx.x_id.clone(),
+            ),
             None => CheckOut2::new(Some(status), None, ctx.x_id.clone()),
         };
         send_request_bytes_to_writer_checkout(&self.writer_socket, self.writer_addr, checkout);
@@ -125,6 +160,25 @@ fn extract_forwarded_for(forwarded_header: &str) -> Option<String> {
 
 fn request_head_to_bytes(session: &Session) -> Vec<u8> {
     session.downstream_session.to_h1_raw().to_vec()
+}
+
+fn response_body_for_logging(ctx: &RequestCtx) -> Option<String> {
+    if ctx.response_body.is_empty() {
+        return None;
+    }
+
+    let mut body = String::from_utf8_lossy(&ctx.response_body)
+        .trim()
+        .to_string();
+    if body.is_empty() {
+        return None;
+    }
+
+    if ctx.response_body_truncated {
+        body.push_str(" …[truncated]");
+    }
+
+    Some(body)
 }
 
 fn send_request_bytes_to_writer(socket: &UdpSocket, addr: SocketAddr, request_bytes: Vec<u8>) {
