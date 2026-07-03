@@ -17,8 +17,7 @@ use uuid::Uuid;
 
 struct LoadBalancer {
     centrale_upstream_address: String,
-    writer_socket: Arc<UdpSocket>,
-    writer_addr: SocketAddr,
+    writer: WriterClient,
 }
 
 const MAX_LOGGED_RESPONSE_BODY_BYTES: usize = 8 * 1024;
@@ -27,6 +26,41 @@ pub struct RequestCtx {
     pub x_id: String,
     pub response_body: Vec<u8>,
     pub response_body_truncated: bool,
+}
+
+struct WriterClient {
+    socket: Arc<UdpSocket>,
+    addr: SocketAddr,
+}
+
+impl WriterClient {
+    fn new(socket: Arc<UdpSocket>, addr: SocketAddr) -> Self {
+        Self { socket, addr }
+    }
+
+    fn send_checkin(&self, checkin: CheckIn) {
+        self.send(WriterPayload::CheckIn(checkin));
+    }
+
+    fn send_checkout(&self, checkout: CheckOut) {
+        self.send(WriterPayload::CheckOut(checkout));
+    }
+
+    fn send(&self, payload: WriterPayload) {
+        let request_bytes = match serde_json::to_vec(&payload) {
+            Ok(bytes) => bytes,
+            Err(err) => {
+                error!("Unable to serialize payload: {}", err);
+                return;
+            }
+        };
+
+        match self.socket.send_to(&request_bytes, self.addr) {
+            Ok(_) => {}
+            Err(err) if err.kind() == ErrorKind::WouldBlock => {}
+            Err(err) => error!("Unable to send load balancer bytes to writer: {}", err),
+        }
+    }
 }
 
 #[async_trait]
@@ -42,16 +76,10 @@ impl ProxyHttp for LoadBalancer {
     }
 
     async fn request_filter(&self, session: &mut Session, ctx: &mut Self::CTX) -> Result<bool> {
-        // send_request_bytes_to_writer(&self.writer_socket, self.writer_addr, request_bytes);
-        let request_bytes = request_head_to_bytes(session);
+        let request_bytes = session.downstream_session.to_h1_raw().to_vec();
         let ip = client_for_logging(session);
-        // pass the ctx's x_id into the checkin instead of generating it inside
         let checkin = CheckIn::new(Some(ip), request_bytes, ctx.x_id.clone());
-        send_payload_to_writer(
-            &self.writer_socket,
-            self.writer_addr,
-            WriterPayload::CheckIn(checkin),
-        );
+        self.writer.send_checkin(checkin);
         Ok(false)
     }
 
@@ -102,20 +130,8 @@ impl ProxyHttp for LoadBalancer {
     ) {
         let status = session.response_written().map_or(0, |r| r.status.as_u16());
 
-        let checkout = match e {
-            Some(err) => CheckOut::new(Some(status), Some(err.to_string()), ctx.x_id.clone()),
-            None if status != 200 => CheckOut::new(
-                Some(status),
-                response_body_for_logging(ctx).or_else(|| Some("err".to_string())),
-                ctx.x_id.clone(),
-            ),
-            None => CheckOut::new(Some(status), None, ctx.x_id.clone()),
-        };
-        send_payload_to_writer(
-            &self.writer_socket,
-            self.writer_addr,
-            WriterPayload::CheckOut(checkout),
-        );
+        let checkout = build_checkout(status, e, ctx);
+        self.writer.send_checkout(checkout);
     }
 }
 
@@ -166,8 +182,16 @@ fn extract_forwarded_for(forwarded_header: &str) -> Option<String> {
     None
 }
 
-fn request_head_to_bytes(session: &Session) -> Vec<u8> {
-    session.downstream_session.to_h1_raw().to_vec()
+fn build_checkout(status: u16, e: Option<&pingora::Error>, ctx: &RequestCtx) -> CheckOut {
+    match e {
+        Some(err) => CheckOut::new(Some(status), Some(err.to_string()), ctx.x_id.clone()),
+        None if status != 200 => CheckOut::new(
+            Some(status),
+            response_body_for_logging(ctx).or_else(|| Some("err".to_string())),
+            ctx.x_id.clone(),
+        ),
+        None => CheckOut::new(Some(status), None, ctx.x_id.clone()),
+    }
 }
 
 fn response_body_for_logging(ctx: &RequestCtx) -> Option<String> {
@@ -189,21 +213,6 @@ fn response_body_for_logging(ctx: &RequestCtx) -> Option<String> {
     Some(body)
 }
 
-fn send_payload_to_writer(socket: &UdpSocket, addr: SocketAddr, payload: WriterPayload) {
-    let request_bytes = match serde_json::to_vec(&payload) {
-        Ok(bytes) => bytes,
-        Err(err) => {
-            error!("Unable to serialize payload: {}", err);
-            return;
-        }
-    };
-    match socket.send_to(&request_bytes, addr) {
-        Ok(_) => {}
-        Err(err) if err.kind() == ErrorKind::WouldBlock => {}
-        Err(err) => error!("Unable to send load balancer bytes to writer: {}", err),
-    }
-}
-
 fn main() {
     let mut logger =
         env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"));
@@ -216,6 +225,7 @@ fn main() {
     let writer_socket = UdpSocket::bind("0.0.0.0:0").unwrap();
     writer_socket.set_nonblocking(true).unwrap();
     let writer_socket = Arc::new(writer_socket);
+    let writer = WriterClient::new(writer_socket, writer_addr);
 
     info!(
         "Starting Pingora load balancer on 0.0.0.0:443 -> {}",
@@ -233,8 +243,7 @@ fn main() {
         &server.configuration,
         LoadBalancer {
             centrale_upstream_address,
-            writer_socket,
-            writer_addr,
+            writer,
         },
     );
 
