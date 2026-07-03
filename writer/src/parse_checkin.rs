@@ -1,10 +1,8 @@
 use common::payload::CheckIn2;
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ParsedCheckIn {
-    pub checkin: u128,
-    pub ip: Option<String>,
     pub url: Option<String>,
     pub query: Option<String>,
     pub ua: Option<String>, // STRING
@@ -18,72 +16,73 @@ pub struct ParsedCheckIn {
     pub campaign: Option<String>, // utm_campaign
 }
 
-pub fn parse_checkin2(payload: &CheckIn2) -> ParsedCheckIn {
-    let text = String::from_utf8_lossy(&payload.bytes);
-    parse_checkin2_text(payload.checkin, payload.ip.clone(), text.as_ref())
-}
-
-pub fn parse_checkin2_text(checkin: u128, ip: Option<String>, text: &str) -> ParsedCheckIn {
-    let request_line = text
-        .lines()
-        .next()
-        .unwrap_or_default()
-        .trim_end_matches('\r');
-    let (method, url, query) = parse_request_line(request_line);
-
-    let mut ua: Option<String> = None;
-    let mut referrer: Option<String> = None;
-    let mut host: Option<String> = None;
-
-    for raw_line in text.lines().skip(1) {
-        let line = raw_line.trim_end_matches('\r');
-
-        if line.is_empty() {
-            break;
-        }
-
-        let Some((header_name, header_value)) = line.split_once(':') else {
-            continue;
-        };
-
-        let name = header_name.trim().to_ascii_lowercase();
-        let value = header_value.trim().to_string();
-
-        match name.as_str() {
-            "user-agent" if ua.is_none() => ua = Some(value),
-            "referer" | "referrer" if referrer.is_none() => referrer = Some(value),
-            "host" if host.is_none() => host = Some(value),
-            _ => {}
-        }
+impl ParsedCheckIn {
+    pub fn parse_checkin(payload: &CheckIn2) -> ParsedCheckIn {
+        let text = String::from_utf8_lossy(&payload.bytes);
+        Self::parse_checkin_text(payload, text.as_ref())
     }
 
-    let os = ua.as_deref().and_then(infer_os);
-    let browser = ua.as_deref().and_then(infer_browser);
-    let is_bot = ua.as_deref().map(is_bot_user_agent).unwrap_or(false);
+    pub fn parse_checkin_text(payload: &CheckIn2, text: &str) -> ParsedCheckIn {
+        let request_line = text
+            .lines()
+            .next()
+            .unwrap_or_default()
+            .trim_end_matches('\r');
 
-    let lead = query
-        .as_deref()
-        .and_then(|q| query_value(q, "utm_source"))
-        .or_else(|| referrer.as_deref().and_then(lead_from_referrer));
+        let (method, url, query) = parse_request_line(request_line);
 
-    let campaign = query
-        .as_deref()
-        .and_then(|q| query_value(q, "utm_campaign"));
+        let mut ua: Option<String> = None;
+        let mut referrer: Option<String> = None;
+        let mut host: Option<String> = None;
 
-    ParsedCheckIn {
-        checkin,
-        ip,
-        url,
-        query,
-        ua,
-        method,
-        referrer,
-        host,
-        os,
-        browser,
-        is_bot,
-        lead,
-        campaign,
+        for raw_line in text.lines().skip(1) {
+            let line = raw_line.trim_end_matches('\r');
+
+            if line.is_empty() {
+                break;
+            }
+
+            let Some((header_name, header_value)) = line.split_once(':') else {
+                continue;
+            };
+
+            let name = header_name.trim().to_ascii_lowercase();
+            let value = header_value.trim().to_string();
+
+            match name.as_str() {
+                "user-agent" if ua.is_none() => ua = Some(value),
+                "referer" | "referrer" if referrer.is_none() => referrer = Some(value),
+                "host" if host.is_none() => host = Some(value),
+                _ => {}
+            }
+        }
+
+        let os = ua.as_deref().and_then(infer_os);
+        let browser = ua.as_deref().and_then(infer_browser);
+        let is_bot = ua.as_deref().map(is_bot_user_agent).unwrap_or(false);
+
+        let lead = query
+            .as_deref()
+            .and_then(|q| query_value(q, "utm_source"))
+            .or_else(|| referrer.as_deref().and_then(lead_from_referrer));
+
+        let campaign = query
+            .as_deref()
+            .and_then(|q| query_value(q, "utm_campaign"));
+
+        ParsedCheckIn {
+            url,
+            query,
+            ua,
+            method,
+            referrer,
+            host,
+            os,
+            browser,
+            is_bot,
+            lead,
+            campaign,
+        }
     }
 }
 
@@ -218,16 +217,24 @@ fn lead_from_referrer(referrer: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::parse_checkin::parse_checkin2_text;
+    use common::payload::{CheckIn2, CheckOut2};
+
+    use crate::parse_checkin::ParsedCheckIn;
 
     #[test]
     fn parses_checkin2_text_into_parsed_checkin() {
         let text = "GET /hello/world?utm_source=google&utm_campaign=spring-sale HTTP/1.1\r\nHost: example.com\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36\r\nReferer: https://www.google.com/search?q=hello\r\n\r\n";
 
-        let parsed = parse_checkin2_text(123, Some("1.2.3.4".to_string()), text);
+        let checkin = CheckIn2 {
+            checkin: 1,
+            ip: None,
+            bytes: vec![],
+            x_id: "1".to_string(),
+        };
+        let parsed = ParsedCheckIn::parse_checkin_text(&checkin, text);
 
-        assert_eq!(parsed.checkin, 123);
-        assert_eq!(parsed.ip.as_deref(), Some("1.2.3.4"));
+        //  assert_eq!(parsed.checkin, 123);
+        // assert_eq!(parsed.ip.as_deref(), Some("1.2.3.4"));
         assert_eq!(parsed.method.as_deref(), Some("GET"));
         assert_eq!(parsed.url.as_deref(), Some("/hello/world"));
         assert_eq!(
@@ -245,7 +252,13 @@ mod tests {
     #[test]
     fn marks_bot_user_agents() {
         let text = "GET /robots.txt HTTP/1.1\r\nHost: example.com\r\nUser-Agent: Googlebot/2.1 (+http://www.google.com/bot.html)\r\n\r\n";
-        let parsed = parse_checkin2_text(1, None, text);
+        let checkin = CheckIn2 {
+            checkin: 1,
+            ip: None,
+            bytes: vec![],
+            x_id: "1".to_string(),
+        };
+        let parsed = ParsedCheckIn::parse_checkin_text(&checkin, text);
 
         assert_eq!(parsed.method.as_deref(), Some("GET"));
         assert_eq!(parsed.url.as_deref(), Some("/robots.txt"));

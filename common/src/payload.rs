@@ -6,7 +6,7 @@ use actix_web::{
 use serde_derive::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CheckIn {
     pub checkin: u128,
     pub ip: Option<String>,
@@ -27,7 +27,7 @@ pub struct CheckIn {
     // campaign: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CheckIn2 {
     pub checkin: u128,
     pub ip: Option<String>,
@@ -120,14 +120,14 @@ impl CheckIn {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CheckOut {
     pub checkout: u128,
     pub error: Option<String>,
     pub status: Option<u16>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CheckOut2 {
     pub checkout: u128,
     pub error: Option<String>,
@@ -192,7 +192,7 @@ impl CheckOut2 {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum WriterPayload {
     CheckIn(CheckIn),
     CheckIn2(CheckIn2),

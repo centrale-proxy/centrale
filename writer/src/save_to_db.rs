@@ -1,8 +1,12 @@
-use crate::parse_checkin::parse_checkin2;
+use crate::{
+    error::WriterError,
+    packet::{save_checkout, save_packet, save_parsed_checkin},
+    parse_checkin::ParsedCheckIn,
+};
 use common::payload::WriterPayload;
 use dir_and_db_pool::db::DbConnection;
 
-pub fn save_to_db(payload: WriterPayload, _db: &DbConnection) {
+pub fn save_to_db(payload: WriterPayload, db: &DbConnection) -> Result<(), WriterError> {
     // println!("payload: {:?}", &payload);
     match payload {
         WriterPayload::CheckIn(payload) => {
@@ -15,15 +19,14 @@ pub fn save_to_db(payload: WriterPayload, _db: &DbConnection) {
                 payload.checkin
             );
         }
-        WriterPayload::CheckIn2(payload) => {
-            // SEND TX OR GO STRAIGHT TO DB?
-            //println!("> {}  {:?} {}", payload.x_id, payload.ip, payload.checkin);
-
-            //let text = String::from_utf8_lossy(&payload.bytes);
-            let parsed = parse_checkin2(&payload);
-
-            // println!("> {}", text);
-            println!("> parsed: {:?}", parsed);
+        WriterPayload::CheckIn2(checkin) => {
+            // SAVE INITIAL DATA
+            let id = save_packet(db, checkin.clone())?;
+            // PARSE
+            let parsed = ParsedCheckIn::parse_checkin(&checkin);
+            // SAVE
+            save_parsed_checkin(db, id, parsed.clone())?;
+            println!("> {:?}", parsed);
         }
         WriterPayload::CheckOut(payload) => {
             println!(
@@ -33,14 +36,16 @@ pub fn save_to_db(payload: WriterPayload, _db: &DbConnection) {
                 payload.checkout
             );
         }
-        WriterPayload::CheckOut2(payload) => {
+        WriterPayload::CheckOut2(checkout) => {
+            save_checkout(db, checkout.clone())?;
             println!(
                 "< {} {} {} {}",
-                payload.status.unwrap_or(0),
-                payload.error.unwrap_or("".to_string()),
-                payload.checkout,
-                payload.x_id
+                checkout.status.unwrap_or(0),
+                checkout.error.unwrap_or("".to_string()),
+                checkout.checkout,
+                checkout.x_id
             );
         }
     }
+    Ok(())
 }
