@@ -17,19 +17,20 @@ pub fn handle_payload(payload: WriterPayload, db: &DbConnection) -> Result<(), W
             // SAVE
             save_parsed_checkin(db, id, parsed.clone())?;
             println!(
-                "> {:?} {:?}",
+                "> {} {} {} {}",
                 parsed.method.unwrap_or("".to_string()),
-                parsed.url.unwrap_or("".to_string())
+                parsed.url.unwrap_or("".to_string()),
+                checkin.ip.unwrap_or("".to_string()),
+                checkin.checkin,
             );
         }
         WriterPayload::CheckOut(checkout) => {
             save_checkout(db, checkout.clone())?;
             println!(
-                "< {} {} {} {}",
+                "< {} {} {}",
                 checkout.status.unwrap_or(0),
                 checkout.error.unwrap_or("".to_string()),
                 checkout.checkout,
-                checkout.x_id
             );
         }
     }
