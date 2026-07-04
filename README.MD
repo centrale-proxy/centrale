@@ -124,6 +124,17 @@ sudo nano /etc/hosts
 127.0.0.1   one.mydomain.local
 ```
 
+# Install
+```
+// curl https://sh.rustup.rs -sSf | sh
+// sudo apt install build-essential
+// apt install libssl-dev
+// apt install pkg-config
+// sudo apt-get install libsqlite3-dev
+// sudo apt install cmake
+```
+
+
 # Rate limiter  
 You can set in config Burst Size and Requests Per Second.   
   

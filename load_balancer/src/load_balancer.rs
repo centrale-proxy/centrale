@@ -102,12 +102,27 @@ impl ProxyHttp for LoadBalancer {
 fn request_host(session: &Session) -> Option<String> {
     let req = session.req_header();
 
-    let raw = req
-        .uri
-        .authority()
-        .map(|a| a.as_str())
+    let authority = req.uri.authority().map(|a| a.as_str());
+    let host_header = req.headers.get("host").and_then(|v| v.to_str().ok());
+    let referer_header = req
+        .headers
+        .get("referer")
+        .or_else(|| req.headers.get("referrer"))
+        .and_then(|v| v.to_str().ok());
+
+    resolve_request_host(authority, host_header, referer_header)
+}
+
+fn resolve_request_host(
+    authority: Option<&str>,
+    host_header: Option<&str>,
+    referer_header: Option<&str>,
+) -> Option<String> {
+    let raw = authority
         // HTTP/1.x fallback: Host header
-        .or_else(|| req.headers.get("host").and_then(|v| v.to_str().ok()))?;
+        .or(host_header)
+        // Last-resort fallback when Host is unavailable.
+        .or(referer_header)?;
 
     let host = normalize_host(raw);
     (!host.is_empty()).then_some(host)
@@ -169,7 +184,7 @@ fn host_matches_expected_or_apex(host: &str, expected: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{normalize_host, should_route_to_www};
+    use super::{normalize_host, resolve_request_host, should_route_to_www};
 
     #[test]
     fn normalize_host_supports_case_scheme_and_port() {
@@ -177,6 +192,38 @@ mod tests {
         assert_eq!(
             normalize_host("https://WWW.Example.COM:443/path"),
             "www.example.com"
+        );
+    }
+
+    #[test]
+    fn resolve_request_host_falls_back_to_referer_when_host_is_missing() {
+        assert_eq!(
+            resolve_request_host(
+                None,
+                None,
+                Some("https://WWW.Example.COM:443/path?utm_source=newsletter"),
+            ),
+            Some("www.example.com".to_string())
+        );
+    }
+
+    #[test]
+    fn resolve_request_host_prefers_host_over_referer() {
+        assert_eq!(
+            resolve_request_host(
+                None,
+                Some("api.example.com"),
+                Some("https://www.example.com/path"),
+            ),
+            Some("api.example.com".to_string())
+        );
+    }
+
+    #[test]
+    fn resolve_request_host_ignores_non_host_referer_values() {
+        assert_eq!(
+            resolve_request_host(None, None, Some("/docs/getting-started")),
+            None
         );
     }
 
