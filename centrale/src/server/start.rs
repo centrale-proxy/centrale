@@ -42,7 +42,7 @@ pub async fn start_server(db: DbPool) -> std::io::Result<()> {
                 .app_data(web::Data::new(client.clone()))
         })
         .workers(CentraleConfig::PROXY_SERVER_WORKERS)
-        .bind_openssl(CentraleConfig::get("SERVER_ADDRESS"), builder)? //
+        .bind_openssl(CentraleConfig::get("CENTRALE_ADDRESS"), builder)? //
         .run()
         .await
     } else {
@@ -62,7 +62,7 @@ pub async fn start_server(db: DbPool) -> std::io::Result<()> {
                 .app_data(web::Data::new(client.clone()))
         })
         .workers(CentraleConfig::PROXY_SERVER_WORKERS)
-        .bind(CentraleConfig::get("SERVER_ADDRESS"))? //
+        .bind(CentraleConfig::get("CENTRALE_ADDRESS"))? //
         .run()
         .await
     }

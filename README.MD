@@ -112,10 +112,6 @@ Subdomain specific admin:
 # SET UP ENVIRONEMENT VARIABLES
 copy .env.sample to .env   
 Fill with your credentials  
-
-Recommended with load_balancer:
-+ `SERVER_ADDRESS=127.0.0.1:8080` (Centrale internal bind)
-+ `CENTRALE_UPSTREAM_ADDRESS=127.0.0.1:8080` (optional override for load_balancer; defaults to `SERVER_ADDRESS`)  
   
 # SET UP LOCALHOST LOCALHOST
 ```

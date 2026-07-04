@@ -6,9 +6,9 @@ impl CentraleConfig {
     pub const DB_FILE: &str = "centrale.db";
     // RATE LIMITER
     /// How many requests are allowed to pipeline in total per one IP
-    pub const RATE_LIMITER_BURST_SIZE: u32 = 10;
+    pub const RATE_LIMITER_BURST_SIZE: u32 = 100;
     /// How many places in pipeline are freed in a second for 1 IP
-    pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 2000;
+    pub const RATE_LIMITER_REQUESTS_PER_SECOND: u64 = 200000;
     // WRITER
     pub const WRITER_EVENTS_CAPACITY: usize = 10000;
     pub const WRITER_DB_FILE: &str = "writer.db";
@@ -59,8 +59,8 @@ impl CentraleConfig {
         let domain = Self::get("DOMAIN");
         println!("DOMAIN: {}", domain);
 
-        let server_address = Self::get("SERVER_ADDRESS");
-        println!("SERVER_ADDRESS: {}", server_address);
+        let server_address = Self::get("CENTRALE_ADDRESS");
+        println!("CENTRALE_ADDRESS: {}", server_address);
 
         let target_server = Self::get("DESTINATION_SERVER_ADDRESS");
         println!("DESTINATION_SERVER_ADDRESS: {}", target_server);

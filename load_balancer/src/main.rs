@@ -220,7 +220,8 @@ fn main() {
     logger.init();
     dotenv().ok();
 
-    let centrale_upstream_address = get_centrale_upstream_address();
+    // let centrale_upstream_address = get_centrale_upstream_address();
+    let centrale_upstream_address = CentraleConfig::get("CENTRALE_ADDRESS");
     let writer_addr: SocketAddr = CentraleConfig::WRITER_SERVER_ADDRESS.parse().unwrap();
     let writer_socket = UdpSocket::bind("0.0.0.0:0").unwrap();
     writer_socket.set_nonblocking(true).unwrap();
@@ -232,13 +233,13 @@ fn main() {
         centrale_upstream_address
     );
     info!("Writer UDP logging enabled: {}", writer_addr);
-
+    // ADD SSL
     let cert_chain_path = CentraleConfig::cert_pub_key();
     let cert_private_key_path = CentraleConfig::cert_private_key();
-
+    // CREATE SERVER
     let mut server = Server::new(None).unwrap();
     server.bootstrap();
-
+    // ADD SERVICE
     let mut proxy_service = http_proxy_service(
         &server.configuration,
         LoadBalancer {
@@ -246,22 +247,21 @@ fn main() {
             writer,
         },
     );
-
+    // ADD SETTINGS
     let mut tls_settings =
         TlsSettings::intermediate(&cert_chain_path, &cert_private_key_path).unwrap();
     tls_settings.enable_h2();
-
     proxy_service.add_tls_with_settings("0.0.0.0:443", None, tls_settings);
-
+    // ADD SERVICE
     server.add_service(proxy_service);
     server.run_forever();
 }
-
+/*
 fn get_centrale_upstream_address() -> String {
     match std::env::var("CENTRALE_UPSTREAM_ADDRESS") {
         Ok(value) if !value.trim().is_empty() => value,
         _ => {
-            let bind_address = CentraleConfig::get("SERVER_ADDRESS");
+            let bind_address = CentraleConfig::get("CENTRALE_ADDRESS");
 
             if let Some(port) = bind_address.strip_prefix("0.0.0.0:") {
                 return format!("127.0.0.1:{port}");
@@ -275,3 +275,4 @@ fn get_centrale_upstream_address() -> String {
         }
     }
 }
+ */
