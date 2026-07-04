@@ -1,16 +1,16 @@
-use actix_web::dev::{ServiceRequest, ServiceResponse};
+use actix_web::dev::ServiceRequest;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CheckIn {
     pub checkin: u128,
-    pub ip: Option<String>,
+    pub ip: ClientIP,
     pub bytes: Vec<u8>,
     pub x_id: String,
 }
 
 impl CheckIn {
-    pub fn new(ip: Option<String>, bytes: Vec<u8>, x_id: String) -> Self {
+    pub fn new(ip: ClientIP, bytes: Vec<u8>, x_id: String) -> Self {
         // GET TIME
         let epoch_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -26,6 +26,7 @@ impl CheckIn {
     }
 }
 
+use crate::client_ip::ClientIP;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn get_ip(req: &ServiceRequest) -> Option<String> {

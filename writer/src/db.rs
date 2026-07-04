@@ -9,7 +9,10 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
         "CREATE TABLE IF NOT EXISTS writer (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             x_id TEXT NOT NULL UNIQUE,
-            ip TEXT,
+            forwarded TEXT,
+            x_forwarded_for TEXT,
+            x_real_ip TEXT,
+            client_addr TEXT,
             url TEXT,
             query TEXT,
             ua TEXT,
@@ -29,28 +32,28 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
         )",
         [],
     )?;
-
     // Create indexes for common queries
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_check_ins_x_id ON writer(x_id)",
         [],
     )?;
-
     Ok(())
 }
 
 pub fn save_packet(db: &DbConnection, checkin: CheckIn) -> Result<i64, WriterError> {
-    //
     db.execute(
-        "INSERT INTO writer (bytes, x_id, checkin, ip) VALUES (?1, ?2, ?3, ?4)",
+        "INSERT INTO writer (bytes, x_id, checkin, forwarded, x_forwarded_for, x_real_ip, client_addr)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
         params![
             checkin.bytes,
             checkin.x_id,
             checkin.checkin as u64,
-            checkin.ip
+            checkin.ip.forwarded,
+            checkin.ip.x_forwarded_for,
+            checkin.ip.x_real_ip,
+            checkin.ip.client_addr,
         ],
     )?;
-
     let last_id = db.last_insert_rowid();
     Ok(last_id)
 }

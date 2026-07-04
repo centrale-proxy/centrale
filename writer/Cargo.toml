@@ -15,3 +15,4 @@ centrale = { path = "../centrale" }
 common = { path = "../common" }
 config = { path = "../config" }
 dir_and_db_pool = { path = "../dir_and_db_pool" }
+dotenvy = "0.15.7"

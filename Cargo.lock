@@ -4577,6 +4577,7 @@ dependencies = [
  "common",
  "config",
  "dir_and_db_pool",
+ "dotenvy",
  "mio",
  "r2d2",
  "r2d2_sqlite",

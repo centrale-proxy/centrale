@@ -17,10 +17,10 @@ pub fn handle_payload(payload: WriterPayload, db: &DbConnection) -> Result<(), W
             // SAVE
             save_parsed_checkin(db, id, parsed.clone())?;
             println!(
-                "> {} {} {} {}",
+                "> {} {} {:?} {}",
                 parsed.method.unwrap_or("".to_string()),
                 parsed.url.unwrap_or("".to_string()),
-                checkin.ip.unwrap_or("".to_string()),
+                checkin.ip,
                 checkin.checkin,
             );
         }

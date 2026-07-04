@@ -1,6 +1,4 @@
-use crate::{
-    connect_to_writer::WriterClient, request::client_for_logging, response::build_checkout,
-};
+use crate::{connect_to_writer::WriterClient, request::client_ip, response::build_checkout};
 use async_trait::async_trait;
 use bytes::Bytes;
 use common::payload::CheckIn;
@@ -34,8 +32,8 @@ impl ProxyHttp for LoadBalancer {
 
     async fn request_filter(&self, session: &mut Session, ctx: &mut Self::CTX) -> Result<bool> {
         let request_bytes = session.downstream_session.to_h1_raw().to_vec();
-        let ip = client_for_logging(session);
-        let checkin = CheckIn::new(Some(ip), request_bytes, ctx.x_id.clone());
+        let ip = client_ip(session);
+        let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone());
         self.writer.send_checkin(checkin);
         Ok(false)
     }
