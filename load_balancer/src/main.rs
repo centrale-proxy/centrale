@@ -1,24 +1,26 @@
+mod connect_to_writer;
 mod request;
 mod response;
 
 use async_trait::async_trait;
 use bytes::Bytes;
-use common::payload::{CheckIn, CheckOut, WriterPayload};
+use common::payload::CheckIn;
 use config::CentraleConfig;
 use dotenvy::dotenv;
-use log::{error, info};
+use log::info;
 use pingora::{
     listeners::tls::TlsSettings,
     prelude::{HttpPeer, ProxyHttp, Result, Server, Session, http_proxy_service},
 };
 use std::{
-    io::ErrorKind,
     net::{SocketAddr, UdpSocket},
     sync::Arc,
 };
 use uuid::Uuid;
 
-use crate::{request::client_for_logging, response::build_checkout};
+use crate::{
+    connect_to_writer::WriterClient, request::client_for_logging, response::build_checkout,
+};
 
 struct LoadBalancer {
     centrale_upstream_address: String,
@@ -31,41 +33,6 @@ pub struct RequestCtx {
     pub x_id: String,
     pub response_body: Vec<u8>,
     pub response_body_truncated: bool,
-}
-
-struct WriterClient {
-    socket: Arc<UdpSocket>,
-    addr: SocketAddr,
-}
-
-impl WriterClient {
-    fn new(socket: Arc<UdpSocket>, addr: SocketAddr) -> Self {
-        Self { socket, addr }
-    }
-
-    fn send_checkin(&self, checkin: CheckIn) {
-        self.send(WriterPayload::CheckIn(checkin));
-    }
-
-    fn send_checkout(&self, checkout: CheckOut) {
-        self.send(WriterPayload::CheckOut(checkout));
-    }
-
-    fn send(&self, payload: WriterPayload) {
-        let request_bytes = match serde_json::to_vec(&payload) {
-            Ok(bytes) => bytes,
-            Err(err) => {
-                error!("Unable to serialize payload: {}", err);
-                return;
-            }
-        };
-
-        match self.socket.send_to(&request_bytes, self.addr) {
-            Ok(_) => {}
-            Err(err) if err.kind() == ErrorKind::WouldBlock => {}
-            Err(err) => error!("Unable to send load balancer bytes to writer: {}", err),
-        }
-    }
 }
 
 #[async_trait]
