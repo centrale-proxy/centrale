@@ -1,6 +1,5 @@
+use crate::load_balancer::RequestCtx;
 use common::payload::CheckOut;
-
-use crate::RequestCtx;
 
 pub fn build_checkout(status: u16, e: Option<&pingora::Error>, ctx: &RequestCtx) -> CheckOut {
     match e {
