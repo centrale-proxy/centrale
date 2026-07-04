@@ -13,15 +13,19 @@ use std::{
 };
 
 pub fn start() -> Result<(), LoadBalancerError> {
-    // GET ADDRESSES
+    // CENTRALE ADDRESS
     let centrale_upstream_address = CentraleConfig::get("CENTRALE_ADDRESS");
-    let writer_addr: SocketAddr = CentraleConfig::WRITER_SERVER_ADDRESS.parse().unwrap();
+
+    // WRITER ADDRESS
+    let writer_addr: SocketAddr = CentraleConfig::get("WRITER_SERVER_ADDRESS")
+        .parse()
+        .unwrap();
 
     // START SOCKET
-    let writer_socket = UdpSocket::bind("0.0.0.0:0").unwrap();
+    let writer_socket = UdpSocket::bind("0.0.0.0:0")?;
 
     // CONNECT TO WRITER
-    writer_socket.set_nonblocking(true).unwrap();
+    writer_socket.set_nonblocking(true)?;
     let writer_socket = Arc::new(writer_socket);
     let writer = WriterClient::new(writer_socket, writer_addr);
 
@@ -36,7 +40,7 @@ pub fn start() -> Result<(), LoadBalancerError> {
     let cert_private_key_path = CentraleConfig::cert_private_key();
 
     // CREATE SERVER
-    let mut server = Server::new(None).unwrap();
+    let mut server = Server::new(None)?;
     server.bootstrap();
 
     // ADD SERVICE
@@ -49,8 +53,7 @@ pub fn start() -> Result<(), LoadBalancerError> {
     );
 
     // ADD SETTINGS
-    let mut tls_settings =
-        TlsSettings::intermediate(&cert_chain_path, &cert_private_key_path).unwrap();
+    let mut tls_settings = TlsSettings::intermediate(&cert_chain_path, &cert_private_key_path)?;
     tls_settings.enable_h2();
     proxy_service.add_tls_with_settings("0.0.0.0:443", None, tls_settings);
 

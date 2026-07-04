@@ -1,7 +1,6 @@
 pub struct CentraleConfig;
 
 impl CentraleConfig {
-    pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
     // RATE LIMITER
@@ -93,6 +92,9 @@ impl CentraleConfig {
 
         let cookie_https = Self::get("COOKIE_HTTP_ONLY").parse::<bool>().unwrap();
         println!("COOKIE_HTTP_ONLY: {}", cookie_https);
+
+        let writer_address = Self::get("WRITER_SERVER_ADDRESS").parse::<bool>().unwrap();
+        println!("WRITER_SERVER_ADDRESS: {}", writer_address);
 
         Self::cert_private_key();
         Self::cert_pub_key();
