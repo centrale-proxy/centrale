@@ -1,9 +1,12 @@
+mod request;
+mod response;
+
 use async_trait::async_trait;
 use bytes::Bytes;
 use common::payload::{CheckIn, CheckOut, WriterPayload};
 use config::CentraleConfig;
 use dotenvy::dotenv;
-use log::{LevelFilter, error, info};
+use log::{error, info};
 use pingora::{
     listeners::tls::TlsSettings,
     prelude::{HttpPeer, ProxyHttp, Result, Server, Session, http_proxy_service},
@@ -14,6 +17,8 @@ use std::{
     sync::Arc,
 };
 use uuid::Uuid;
+
+use crate::{request::client_for_logging, response::build_checkout};
 
 struct LoadBalancer {
     centrale_upstream_address: String,
@@ -135,89 +140,8 @@ impl ProxyHttp for LoadBalancer {
     }
 }
 
-fn client_for_logging(session: &Session) -> String {
-    if let Some(forwarded_for) = session
-        .req_header()
-        .headers
-        .get("forwarded")
-        .and_then(|value| value.to_str().ok())
-        .and_then(extract_forwarded_for)
-    {
-        return forwarded_for;
-    }
-
-    session
-        .client_addr()
-        .map(|addr| addr.to_string())
-        .unwrap_or_else(|| "-".to_string())
-}
-
-fn extract_forwarded_for(forwarded_header: &str) -> Option<String> {
-    for element in forwarded_header.split(',') {
-        for pair in element.split(';') {
-            let Some((key, value)) = pair.split_once('=') else {
-                continue;
-            };
-
-            if !key.trim().eq_ignore_ascii_case("for") {
-                continue;
-            }
-
-            let value = value.trim();
-            if value.is_empty() {
-                continue;
-            }
-
-            let value = value
-                .strip_prefix('"')
-                .and_then(|inner| inner.strip_suffix('"'))
-                .unwrap_or(value);
-
-            if !value.is_empty() {
-                return Some(value.to_string());
-            }
-        }
-    }
-
-    None
-}
-
-fn build_checkout(status: u16, e: Option<&pingora::Error>, ctx: &RequestCtx) -> CheckOut {
-    match e {
-        Some(err) => CheckOut::new(Some(status), Some(err.to_string()), ctx.x_id.clone()),
-        None if status != 200 => CheckOut::new(
-            Some(status),
-            response_body_for_logging(ctx).or_else(|| Some("err".to_string())),
-            ctx.x_id.clone(),
-        ),
-        None => CheckOut::new(Some(status), None, ctx.x_id.clone()),
-    }
-}
-
-fn response_body_for_logging(ctx: &RequestCtx) -> Option<String> {
-    if ctx.response_body.is_empty() {
-        return None;
-    }
-
-    let mut body = String::from_utf8_lossy(&ctx.response_body)
-        .trim()
-        .to_string();
-    if body.is_empty() {
-        return None;
-    }
-
-    if ctx.response_body_truncated {
-        body.push_str(" …[truncated]");
-    }
-
-    Some(body)
-}
-
 fn main() {
-    let mut logger =
-        env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"));
-    logger.filter_module("load_balancer", LevelFilter::Info);
-    logger.init();
+    env_logger::init();
     dotenv().ok();
 
     // let centrale_upstream_address = get_centrale_upstream_address();
@@ -256,23 +180,3 @@ fn main() {
     server.add_service(proxy_service);
     server.run_forever();
 }
-/*
-fn get_centrale_upstream_address() -> String {
-    match std::env::var("CENTRALE_UPSTREAM_ADDRESS") {
-        Ok(value) if !value.trim().is_empty() => value,
-        _ => {
-            let bind_address = CentraleConfig::get("CENTRALE_ADDRESS");
-
-            if let Some(port) = bind_address.strip_prefix("0.0.0.0:") {
-                return format!("127.0.0.1:{port}");
-            }
-
-            if let Some(port) = bind_address.strip_prefix("[::]:") {
-                return format!("127.0.0.1:{port}");
-            }
-
-            bind_address
-        }
-    }
-}
- */
