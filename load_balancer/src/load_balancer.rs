@@ -148,9 +148,22 @@ fn should_route_to_www(host: Option<&str>, expected_www_host: Option<&str>) -> b
     let Some(host) = host else {
         return false;
     };
+
     match expected_www_host {
-        Some(expected) => host == expected,
+        Some(expected) => host_matches_expected_or_apex(host, expected),
         None => host.starts_with("www."),
+    }
+}
+
+fn host_matches_expected_or_apex(host: &str, expected: &str) -> bool {
+    if host == expected {
+        return true;
+    }
+
+    if let Some(apex) = expected.strip_prefix("www.") {
+        host == apex
+    } else {
+        host.strip_prefix("www.") == Some(expected)
     }
 }
 
@@ -173,12 +186,20 @@ mod tests {
             Some("www.example.com"),
             Some("www.example.com")
         ));
+        assert!(should_route_to_www(
+            Some("example.com"),
+            Some("www.example.com")
+        ));
         assert!(!should_route_to_www(
             Some("api.example.com"),
             Some("www.example.com")
         ));
         assert!(!should_route_to_www(
             Some("www.other.com"),
+            Some("www.example.com")
+        ));
+        assert!(!should_route_to_www(
+            Some("other.com"),
             Some("www.example.com")
         ));
     }
