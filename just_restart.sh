@@ -5,3 +5,5 @@ service centrale stop
 service centrale start
 service load_balancer stop
 service load_balancer start
+service writer stop
+service writer start

@@ -9,4 +9,6 @@ service centrale stop
 service centrale start
 service load_balancer stop
 service load_balancer start
-journalctl -u load_balancer.service -f
+service writer stop
+service writer start
+journalctl -u writer.service -f

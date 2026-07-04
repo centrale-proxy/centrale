@@ -196,6 +196,8 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 
+--
+
 sudo nano /etc/systemd/system/load_balancer.service
 
 [Unit]
@@ -212,6 +214,27 @@ Restart=on-failure
 WantedBy=multi-user.target
 
 ---
+setcap 'cap_net_bind_service=+ep' /home/www/centrale/target/release/load_balancer
+
+---
+
+sudo nano /etc/systemd/system/writer.service
+
+[Unit]
+Description=Writer
+After=network.target writer.service
+
+[Service]
+User=www
+ExecStart=/home/www/centrale/target/release/writer
+EnvironmentFile=/etc/environment
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+---
+
 debugging:  
 source /etc/env  
 ---
@@ -232,6 +255,9 @@ sudo journalctl -u writer.service -f
 
 sudo systemctl enable destination_server
 sudo systemctl start destination_server
+
+sudo systemctl enable writer
+sudo systemctl start writer
 
 ```
 
