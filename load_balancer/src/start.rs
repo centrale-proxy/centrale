@@ -16,6 +16,16 @@ pub fn start() -> Result<(), LoadBalancerError> {
     // CENTRALE ADDRESS
     let centrale_upstream_address = CentraleConfig::get("CENTRALE_ADDRESS");
 
+    // OPTIONAL WWW ROUTING
+    let www_upstream_address = Some(CentraleConfig::get("WWW_UPSTREAM_ADDRESS"))
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+
+    let www_host = std::env::var("DOMAIN").ok().map(|domain| {
+        let normalized_domain = domain.trim().trim_end_matches('.').to_ascii_lowercase();
+        format!("www.{}", normalized_domain)
+    });
+
     // WRITER ADDRESS
     let writer_addr: SocketAddr = CentraleConfig::get("WRITER_SERVER_ADDRESS")
         .parse()
@@ -33,6 +43,15 @@ pub fn start() -> Result<(), LoadBalancerError> {
         "Starting Pingora load balancer on 0.0.0.0:443 -> {}",
         centrale_upstream_address
     );
+    if let Some(www_upstream) = www_upstream_address.as_deref() {
+        let www_host_for_log = www_host.as_deref().unwrap_or("www.*");
+        info!(
+            "WWW routing enabled: {} -> {}",
+            www_host_for_log, www_upstream
+        );
+    } else {
+        info!("WWW routing disabled (set WWW_UPSTREAM_ADDRESS to enable)");
+    }
     info!("Writer UDP logging enabled: {}", writer_addr);
 
     // ADD SSL
@@ -48,6 +67,8 @@ pub fn start() -> Result<(), LoadBalancerError> {
         &server.configuration,
         LoadBalancer {
             centrale_upstream_address,
+            www_upstream_address,
+            www_host,
             writer,
         },
     );

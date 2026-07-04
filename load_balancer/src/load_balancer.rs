@@ -7,6 +7,8 @@ use uuid::Uuid;
 
 pub struct LoadBalancer {
     pub centrale_upstream_address: String,
+    pub www_upstream_address: Option<String>,
+    pub www_host: Option<String>,
     pub writer: WriterClient,
 }
 
@@ -40,14 +42,21 @@ impl ProxyHttp for LoadBalancer {
 
     async fn upstream_peer(
         &self,
-        _session: &mut Session,
+        session: &mut Session,
         _ctx: &mut Self::CTX,
     ) -> Result<Box<HttpPeer>> {
-        let peer = HttpPeer::new(
-            self.centrale_upstream_address.as_str(),
-            false,
-            "localhost".to_string(),
-        );
+        let host = request_host(session);
+
+        let route_to_www = self.www_upstream_address.is_some()
+            && should_route_to_www(host.as_deref(), self.www_host.as_deref());
+
+        let upstream_address = if route_to_www {
+            self.www_upstream_address.as_deref().unwrap()
+        } else {
+            self.centrale_upstream_address.as_str()
+        };
+
+        let peer = HttpPeer::new(upstream_address, false, "localhost".to_string());
         Ok(Box::new(peer))
     }
 
@@ -87,5 +96,96 @@ impl ProxyHttp for LoadBalancer {
 
         let checkout = build_checkout(status, e, ctx);
         self.writer.send_checkout(checkout);
+    }
+}
+
+fn request_host(session: &Session) -> Option<String> {
+    let req = session.req_header();
+
+    let raw = req
+        .uri
+        .authority()
+        .map(|a| a.as_str())
+        // HTTP/1.x fallback: Host header
+        .or_else(|| req.headers.get("host").and_then(|v| v.to_str().ok()))?;
+
+    let host = normalize_host(raw);
+    (!host.is_empty()).then_some(host)
+}
+
+fn normalize_host(host: &str) -> String {
+    let host = host.trim();
+    let host = host
+        .strip_prefix("http://")
+        .or_else(|| host.strip_prefix("https://"))
+        .unwrap_or(host);
+
+    let host = host.split('/').next().unwrap_or(host);
+    let host = host.trim_end_matches('.');
+
+    strip_port(host).to_ascii_lowercase()
+}
+
+fn strip_port(host: &str) -> &str {
+    if host.starts_with('[') {
+        return host;
+    }
+
+    match host.rsplit_once(':') {
+        Some((name, port))
+            if !name.is_empty()
+                && !port.is_empty()
+                && !name.contains(':')
+                && port.chars().all(|ch| ch.is_ascii_digit()) =>
+        {
+            name
+        }
+        _ => host,
+    }
+}
+
+fn should_route_to_www(host: Option<&str>, expected_www_host: Option<&str>) -> bool {
+    let Some(host) = host else {
+        return false;
+    };
+    match expected_www_host {
+        Some(expected) => host == expected,
+        None => host.starts_with("www."),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{normalize_host, should_route_to_www};
+
+    #[test]
+    fn normalize_host_supports_case_scheme_and_port() {
+        assert_eq!(normalize_host("WWW.Example.COM:443"), "www.example.com");
+        assert_eq!(
+            normalize_host("https://WWW.Example.COM:443/path"),
+            "www.example.com"
+        );
+    }
+
+    #[test]
+    fn should_route_to_www_with_known_domain() {
+        assert!(should_route_to_www(
+            Some("www.example.com"),
+            Some("www.example.com")
+        ));
+        assert!(!should_route_to_www(
+            Some("api.example.com"),
+            Some("www.example.com")
+        ));
+        assert!(!should_route_to_www(
+            Some("www.other.com"),
+            Some("www.example.com")
+        ));
+    }
+
+    #[test]
+    fn should_route_to_www_with_prefix_when_domain_is_unknown() {
+        assert!(should_route_to_www(Some("www.any-domain.test"), None));
+        assert!(!should_route_to_www(Some("api.any-domain.test"), None));
     }
 }
