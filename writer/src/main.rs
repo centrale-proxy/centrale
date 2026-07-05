@@ -4,6 +4,7 @@ mod handle_payload;
 mod parse_checkin;
 mod poll;
 mod server;
+mod subdomain;
 
 use crate::server::start_server;
 use config::CentraleConfig;

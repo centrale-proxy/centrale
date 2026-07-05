@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use common::{names::RandomName, payload::CheckIn};
 use serde_derive::{Deserialize, Serialize};
 
+use crate::subdomain::{extract_subdomain, host_from_referrer, host_only};
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ParsedCheckIn {
     pub url: Option<String>,
@@ -17,6 +19,7 @@ pub struct ParsedCheckIn {
     pub lead: Option<String>,     // GOOGLE BING OR FB
     pub campaign: Option<String>, // utm_campaign
     pub anon_name: String,
+    pub subdomain: String,
 }
 
 impl ParsedCheckIn {
@@ -31,26 +34,26 @@ impl ParsedCheckIn {
 
         Self::parse_checkin_text(text.as_ref(), anon_name.clone())
     }
-
     pub fn parse_checkin_text(text: &str, anon_name: String) -> ParsedCheckIn {
-        let request_line = text
-            .lines()
-            .next()
-            .unwrap_or_default()
-            .trim_end_matches('\r');
+        // Normalize line endings: handle \r\n, \n, AND lone \r. str::lines() does not
+        // split on a bare carriage return, which silently collapses such requests.
+        let normalized = text.replace("\r\n", "\n").replace('\r', "\n");
 
+        let request_line = normalized.lines().next().unwrap_or_default();
         let (method, url, query) = parse_request_line(request_line);
 
         let mut ua: Option<String> = None;
         let mut referrer: Option<String> = None;
         let mut host: Option<String> = None;
 
-        for raw_line in text.lines().skip(1) {
-            let line = raw_line.trim_end_matches('\r');
-
+        for line in normalized.lines().skip(1) {
             if line.is_empty() {
-                break;
+                break; // end of headers, start of body
             }
+
+            // HTTP/2 carries the host as the ":authority" pseudo-header. Strip a single
+            // leading ':' so split_once yields a usable name instead of an empty one.
+            let line = line.strip_prefix(':').unwrap_or(line);
 
             let Some((header_name, header_value)) = line.split_once(':') else {
                 continue;
@@ -62,7 +65,7 @@ impl ParsedCheckIn {
             match name.as_str() {
                 "user-agent" if ua.is_none() => ua = Some(value),
                 "referer" | "referrer" if referrer.is_none() => referrer = Some(value),
-                "host" if host.is_none() => host = Some(value),
+                "host" | "authority" if host.is_none() => host = Some(value),
                 _ => {}
             }
         }
@@ -80,6 +83,18 @@ impl ParsedCheckIn {
             .as_deref()
             .and_then(|q| query_value(q, "utm_campaign"));
 
+        // Subdomain from Host, falling back to the Referer's hostname.
+        let subdomain = {
+            let host_hostname = host.as_deref().map(|h| host_only(h).to_string());
+            let referrer_hostname = referrer.as_deref().and_then(host_from_referrer);
+
+            host_hostname
+                .as_deref()
+                .and_then(extract_subdomain)
+                .or_else(|| referrer_hostname.as_deref().and_then(extract_subdomain))
+                .unwrap_or_default()
+        };
+
         ParsedCheckIn {
             url,
             query,
@@ -93,6 +108,7 @@ impl ParsedCheckIn {
             lead,
             campaign,
             anon_name,
+            subdomain,
         }
     }
 }

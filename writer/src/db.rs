@@ -30,7 +30,8 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             status TEXT,
             bytes TEXT,
             anon_name TEXT,
-            timer INTEGER
+            timer INTEGER,
+            subdomain TEXT
         )",
         [],
     )?;
