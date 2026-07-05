@@ -24,8 +24,9 @@ pub fn handle_payload(
             save_parsed_checkin(db, id, parsed.clone())?;
 
             println!(
-                "> {} {}  {}",
+                "> {} {} {}  {}",
                 parsed.method.unwrap_or("".to_string()),
+                parsed.subdomain,
                 parsed.url.unwrap_or("".to_string()),
                 parsed.anon_name,
             );

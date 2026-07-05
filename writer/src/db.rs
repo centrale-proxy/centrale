@@ -127,12 +127,13 @@ pub struct EntryResult {
     pub anon_name: Option<String>,
     pub url: Option<String>,
     pub timer: Option<i64>,
+    pub subdomain: Option<String>,
 }
 
 pub fn get_one_entry(db: &DbConnection, x_id: &str) -> Result<Option<EntryResult>, WriterError> {
     let entry = db
         .query_row(
-            "SELECT status, error, anon_name, timer, url
+            "SELECT status, error, anon_name, timer, url, subdomain
              FROM writer
              WHERE x_id = ?1",
             params![x_id],
@@ -143,6 +144,7 @@ pub fn get_one_entry(db: &DbConnection, x_id: &str) -> Result<Option<EntryResult
                     anon_name: row.get(2)?,
                     timer: row.get(3)?,
                     url: row.get(4)?,
+                    subdomain: row.get(5)?,
                 })
             },
         )
