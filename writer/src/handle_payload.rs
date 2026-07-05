@@ -25,9 +25,9 @@ pub fn handle_payload(
             save_parsed_checkin(db, id, parsed.clone())?;
 
             println!(
-                "> {} {} {}  {}",
+                "> {} {}{}  {}",
                 parsed.method.unwrap_or("".to_string()),
-                parsed.subdomain,
+                parsed.host.unwrap_or("".to_string()),
                 parsed.url.unwrap_or("".to_string()),
                 parsed.anon_name,
             );
@@ -37,9 +37,9 @@ pub fn handle_payload(
             let entry = get_one_entry(db, &checkout.x_id)?.unwrap();
 
             println!(
-                "< {} {} {} {} {} {}",
+                "< {} {}{} {} {} {}",
                 entry.status.unwrap_or(0),
-                entry.subdomain.unwrap_or("".to_string()),
+                entry.host.unwrap_or("".to_string()),
                 entry.url.unwrap_or("".to_string()),
                 entry.error.unwrap_or("".to_string()),
                 entry.anon_name.unwrap_or("".to_string()),
