@@ -36,8 +36,9 @@ pub fn handle_payload(
             let entry = get_one_entry(db, &checkout.x_id)?.unwrap();
 
             println!(
-                "< {} {} {} {} {}",
+                "< {} {} {} {} {} {}",
                 entry.status.unwrap_or("".to_string()),
+                entry.subdomain.unwrap_or("".to_string()),
                 entry.url.unwrap_or("".to_string()),
                 entry.error.unwrap_or("".to_string()),
                 entry.anon_name.unwrap_or("".to_string()),
