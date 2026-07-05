@@ -6,11 +6,12 @@ pub struct CheckIn {
     pub checkin: u128,
     pub ip: ClientIP,
     pub bytes: Vec<u8>,
+    pub host: Option<String>,
     pub x_id: String,
 }
 
 impl CheckIn {
-    pub fn new(ip: ClientIP, bytes: Vec<u8>, x_id: String) -> Self {
+    pub fn new(ip: ClientIP, bytes: Vec<u8>, x_id: String, host: Option<String>) -> Self {
         // GET TIME
         let epoch_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -21,6 +22,7 @@ impl CheckIn {
             checkin: epoch_time,
             ip,
             bytes,
+            host,
             x_id,
         }
     }

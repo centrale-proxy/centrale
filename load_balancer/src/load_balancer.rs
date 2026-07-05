@@ -34,8 +34,22 @@ impl ProxyHttp for LoadBalancer {
 
     async fn request_filter(&self, session: &mut Session, ctx: &mut Self::CTX) -> Result<bool> {
         let request_bytes = session.downstream_session.to_h1_raw().to_vec();
+
+        let req = session.req_header();
+
+        let host = req
+            .uri
+            .authority()
+            .map(|a| a.as_str().to_string())
+            .or_else(|| {
+                req.headers
+                    .get("host")
+                    .and_then(|v| v.to_str().ok())
+                    .map(str::to_string)
+            });
+
         let ip = client_ip(session);
-        let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone());
+        let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host);
         self.writer.send_checkin(checkin);
         Ok(false)
     }
