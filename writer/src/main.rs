@@ -16,7 +16,7 @@ fn main() {
     dotenv().ok();
 
     let db = get_db(CentraleConfig::WRITER_DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
-    let bytes_db = get_db(&"bytes".to_string(), CentraleConfig::DB_FOLDER).unwrap();
+    let bytes_db = get_db(&"bytes.db".to_string(), CentraleConfig::DB_FOLDER).unwrap();
     match start_server(db, bytes_db) {
         Ok(_) => {}
         Err(err) => {

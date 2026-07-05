@@ -47,11 +47,16 @@ pub fn init_bytes_db(conn: &DbConnection) -> Result<(), WriterError> {
     conn.execute(
         "CREATE TABLE IF NOT EXISTS bytes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            bytes TEXT NOT NULL,
+            bytes BLOB NOT NULL,
             x_id TEXT NOT NULL
         )",
         [],
     )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_bytes_x_id ON bytes(x_id)",
+        [],
+    )?;
+
     Ok(())
 }
 

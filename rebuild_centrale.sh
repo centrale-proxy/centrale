@@ -11,4 +11,4 @@ service load_balancer stop
 service load_balancer start
 service writer stop
 service writer start
-journalctl -u writer.service -f
+journalctl -u writer.service -f --no-hostnameme
