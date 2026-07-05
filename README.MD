@@ -190,7 +190,7 @@ After=network.target
 [Service]
 User=www       
 ExecStart=/home/www/centrale/target/release/centrale
-EnvironmentFile=/etc/environment
+EnvironmentFile=/home/www/centrale/.env
 Restart=on-failure
 
 [Install]
@@ -207,7 +207,7 @@ After=network.target centrale.service
 [Service]
 User=www
 ExecStart=/home/www/centrale/target/release/load_balancer
-EnvironmentFile=/etc/environment
+EnvironmentFile=/home/www/centrale/.env
 Restart=on-failure
 
 [Install]
@@ -227,7 +227,7 @@ After=network.target writer.service
 [Service]
 User=www
 ExecStart=/home/www/centrale/target/release/writer
-EnvironmentFile=/etc/environment
+EnvironmentFile=/home/www/centrale/.env
 Restart=on-failure
 
 [Install]

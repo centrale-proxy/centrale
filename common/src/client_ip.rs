@@ -14,7 +14,7 @@ pub struct ClientIP {
     /// The direct peer address of the TCP connection.
     pub client_addr: Option<String>,
 }
-
+///
 impl ClientIP {
     /// Best single value for logging, in order of preference.
     pub fn for_logging(&self) -> &str {
