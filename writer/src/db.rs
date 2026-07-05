@@ -100,8 +100,9 @@ pub fn save_parsed_checkin(
             is_bot = ?9,
             lead = ?10,
             campaign = ?11,
-            anon_name = ?12
-        WHERE id = ?13",
+            anon_name = ?12,
+            subdomain = ?13
+        WHERE id = ?14",
         params![
             checkin.url,
             checkin.query,
@@ -115,6 +116,7 @@ pub fn save_parsed_checkin(
             checkin.lead,
             checkin.campaign,
             checkin.anon_name,
+            checkin.subdomain,
             id,
         ],
     )?;
