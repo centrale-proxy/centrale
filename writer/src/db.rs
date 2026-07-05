@@ -27,8 +27,9 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             checkin INTEGER NOT NULL,
             checkout INTEGER,
             error TEXT,
-            STATUS TEXT,
-            bytes TEXT
+            status TEXT,
+            bytes TEXT,
+            anon_name TEXT
         )",
         [],
     )?;
@@ -75,8 +76,9 @@ pub fn save_parsed_checkin(
             browser = ?8,
             is_bot = ?9,
             lead = ?10,
-            campaign = ?11
-        WHERE id = ?12",
+            campaign = ?11,
+            anon_name = ?12
+        WHERE id = ?13",
         params![
             checkin.url,
             checkin.query,
@@ -89,6 +91,7 @@ pub fn save_parsed_checkin(
             checkin.is_bot,
             checkin.lead,
             checkin.campaign,
+            checkin.anon_name,
             id,
         ],
     )?;

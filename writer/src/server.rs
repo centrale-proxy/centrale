@@ -5,6 +5,7 @@ use common::payload::WriterPayload;
 use config::CentraleConfig;
 use dir_and_db_pool::db::DbPool;
 use mio::{Events, Token};
+use std::collections::HashMap;
 use std::error::Error;
 use std::io::ErrorKind;
 
@@ -18,6 +19,9 @@ pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
     let (mut poll, server) = get_server_poll(SERVER)?;
     let mut events = Events::with_capacity(CentraleConfig::WRITER_EVENTS_CAPACITY);
     let mut buf = [0u8; 5120];
+
+    let mut names: HashMap<String, String> = HashMap::new();
+
     loop {
         // Poll Mio for events, blocking until we get an event.
         poll.poll(&mut events, None)?;
@@ -31,7 +35,7 @@ pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
                         Ok((len, _src)) => {
                             let packet = &buf[..len];
                             if let Ok(payload) = serde_json::from_slice::<WriterPayload>(packet) {
-                                match handle_payload(payload, &db) {
+                                match handle_payload(payload, &db, &mut names) {
                                     Err(err) => {
                                         eprint!("payload handle error {}", err);
                                     }
