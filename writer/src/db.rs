@@ -29,7 +29,8 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             error TEXT,
             status TEXT,
             bytes TEXT,
-            anon_name TEXT
+            anon_name TEXT,
+            timer INTEGER
         )",
         [],
     )?;
@@ -103,7 +104,8 @@ pub fn save_checkout(db: &DbConnection, checkout: CheckOut) -> Result<(), Writer
         "UPDATE writer SET
             checkout = ?1,
             error = ?2,
-            status = ?3
+            status = ?3,
+            timer = ?1 - checkin
         WHERE x_id = ?4",
         params![
             checkout.checkout as u64,
