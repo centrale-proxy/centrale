@@ -27,8 +27,7 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             checkin INTEGER NOT NULL,
             checkout INTEGER,
             error TEXT,
-            status TEXT,
-            bytes TEXT,
+            status INTEGER,
             anon_name TEXT,
             timer INTEGER,
             subdomain TEXT
@@ -43,12 +42,34 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
     Ok(())
 }
 
-pub fn save_packet(db: &DbConnection, checkin: CheckIn) -> Result<i64, WriterError> {
+pub fn init_bytes_db(conn: &DbConnection) -> Result<(), WriterError> {
+    // Create the check_ins table
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS bytes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            bytes TEXT NOT NULL,
+            x_id TEXT NOT NULL
+        )",
+        [],
+    )?;
+    Ok(())
+}
+
+pub fn save_packet(
+    db: &DbConnection,
+    bytes_db: &DbConnection,
+    checkin: CheckIn,
+) -> Result<i64, WriterError> {
+    bytes_db.execute(
+        "INSERT INTO bytes (bytes, x_id)
+         VALUES (?1, ?2)",
+        params![checkin.bytes, checkin.x_id],
+    )?;
+
     db.execute(
-        "INSERT INTO writer (bytes, x_id, checkin, forwarded, x_forwarded_for, x_real_ip, client_addr)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        "INSERT INTO writer (x_id, checkin, forwarded, x_forwarded_for, x_real_ip, client_addr)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
         params![
-            checkin.bytes,
             checkin.x_id,
             checkin.checkin as u64,
             checkin.ip.forwarded,
@@ -122,7 +143,7 @@ use r2d2_sqlite::rusqlite::OptionalExtension;
 
 #[derive(Debug, Clone)]
 pub struct EntryResult {
-    pub status: Option<String>,
+    pub status: Option<i16>,
     pub error: Option<String>,
     pub anon_name: Option<String>,
     pub url: Option<String>,

@@ -1,4 +1,4 @@
-use crate::db::init_writer_db;
+use crate::db::{init_bytes_db, init_writer_db};
 use crate::handle_payload::handle_payload;
 use crate::poll::get_server_poll;
 use common::payload::WriterPayload;
@@ -11,10 +11,12 @@ use std::io::ErrorKind;
 
 const SERVER: Token = Token(0);
 
-pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
+pub fn start_server(pool: DbPool, bytes_pool: DbPool) -> Result<(), Box<dyn Error>> {
     // INIT WRITER DB
     let db = pool.get()?;
     init_writer_db(&db)?;
+    let bytes_db = bytes_pool.get()?;
+    init_bytes_db(&bytes_db)?;
     // Create a poll instance.
     let (mut poll, server) = get_server_poll(SERVER)?;
     let mut events = Events::with_capacity(CentraleConfig::WRITER_EVENTS_CAPACITY);
@@ -35,7 +37,7 @@ pub fn start_server(pool: DbPool) -> Result<(), Box<dyn Error>> {
                         Ok((len, _src)) => {
                             let packet = &buf[..len];
                             if let Ok(payload) = serde_json::from_slice::<WriterPayload>(packet) {
-                                match handle_payload(payload, &db, &mut names) {
+                                match handle_payload(payload, &db, &bytes_db, &mut names) {
                                     Err(err) => {
                                         eprint!("payload handle error {}", err);
                                     }

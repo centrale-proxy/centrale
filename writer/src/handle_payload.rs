@@ -11,13 +11,14 @@ use dir_and_db_pool::db::DbConnection;
 pub fn handle_payload(
     payload: WriterPayload,
     db: &DbConnection,
+    bytes_db: &DbConnection,
     names: &mut HashMap<String, String>,
 ) -> Result<(), WriterError> {
     // println!("payload: {:?}", &payload);
     match payload {
         WriterPayload::CheckIn(checkin) => {
             // SAVE INITIAL DATA
-            let id = save_packet(db, checkin.clone())?;
+            let id = save_packet(db, bytes_db, checkin.clone())?;
             // PARSE
             let parsed = ParsedCheckIn::parse_checkin(&checkin, names);
             // SAVE
@@ -37,7 +38,7 @@ pub fn handle_payload(
 
             println!(
                 "< {} {} {} {} {} {}",
-                entry.status.unwrap_or("".to_string()),
+                entry.status.unwrap_or(0),
                 entry.subdomain.unwrap_or("".to_string()),
                 entry.url.unwrap_or("".to_string()),
                 entry.error.unwrap_or("".to_string()),
