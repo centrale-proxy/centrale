@@ -116,3 +116,36 @@ pub fn save_checkout(db: &DbConnection, checkout: CheckOut) -> Result<(), Writer
     )?;
     Ok(())
 }
+
+use r2d2_sqlite::rusqlite::OptionalExtension;
+
+#[derive(Debug, Clone)]
+pub struct EntryResult {
+    pub status: Option<String>,
+    pub error: Option<String>,
+    pub anon_name: Option<String>,
+    pub url: Option<String>,
+    pub timer: Option<i64>,
+}
+
+pub fn get_one_entry(db: &DbConnection, x_id: &str) -> Result<Option<EntryResult>, WriterError> {
+    let entry = db
+        .query_row(
+            "SELECT status, error, anon_name, timer, url
+             FROM writer
+             WHERE x_id = ?1",
+            params![x_id],
+            |row| {
+                Ok(EntryResult {
+                    status: row.get(0)?,
+                    error: row.get(1)?,
+                    anon_name: row.get(2)?,
+                    timer: row.get(3)?,
+                    url: row.get(4)?,
+                })
+            },
+        )
+        .optional()?;
+
+    Ok(entry)
+}

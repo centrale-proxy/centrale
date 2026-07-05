@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    db::{save_checkout, save_packet, save_parsed_checkin},
+    db::{get_one_entry, save_checkout, save_packet, save_parsed_checkin},
     error::WriterError,
     parse_checkin::ParsedCheckIn,
 };
@@ -24,20 +24,23 @@ pub fn handle_payload(
             save_parsed_checkin(db, id, parsed.clone())?;
 
             println!(
-                "> {} {} {} {}",
+                "> {} {}  {}",
                 parsed.method.unwrap_or("".to_string()),
                 parsed.url.unwrap_or("".to_string()),
                 parsed.anon_name,
-                checkin.checkin,
             );
         }
         WriterPayload::CheckOut(checkout) => {
             save_checkout(db, checkout.clone())?;
+            let entry = get_one_entry(db, &checkout.x_id)?.unwrap();
+
             println!(
-                "< {} {} {}",
-                checkout.status.unwrap_or(0),
-                checkout.error.unwrap_or("".to_string()),
-                checkout.checkout,
+                "< {} {} {} {} {}",
+                entry.status.unwrap_or("".to_string()),
+                entry.url.unwrap_or("".to_string()),
+                entry.error.unwrap_or("".to_string()),
+                entry.anon_name.unwrap_or("".to_string()),
+                entry.timer.unwrap_or(0),
             );
         }
     }
