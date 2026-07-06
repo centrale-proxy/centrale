@@ -12,7 +12,7 @@ pub fn create_cookie(cookie_value: String) -> Result<Cookie<'static>, CentraleEr
         ))
         .secure(CentraleConfig::get("COOKIE_SECURE").parse::<bool>()?)
         .http_only(CentraleConfig::get("COOKIE_HTTP_ONLY").parse::<bool>()?)
-        .same_site(SameSite::Lax)
+        .same_site(SameSite::None)
         .path("/")
         .finish();
 
