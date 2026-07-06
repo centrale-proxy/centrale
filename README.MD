@@ -96,6 +96,7 @@ GET /api/user - my user data
 
 POST /api/subdomain - add subdomain (subdomain is min 1, max 30 chars, if over, will be tructuated, must be alphanumeric)
 GET /api/subdomain - get user subdomains
+PUT /api/subdomain/:subdomain - edit subdomain
 (TBD) DELETE /api/subdomain - delete subdomain
 (TBD) GET /api/test-subdomain - see if subdomain is available
 

@@ -1,8 +1,13 @@
 use crate::{
-    api::subdomain::{get::respond::respond_get_subdomain, post::respond_post::respond_subdomain},
-    api::user::{
-        bearer_token::responder::generate_bearer_token, get::get::get_user,
-        login::handle::handle_login, post::post::post_user,
+    api::{
+        subdomain::{
+            get::respond::respond_get_subdomain, post::respond_post::respond_subdomain,
+            put::respond::put_subdomain,
+        },
+        user::{
+            bearer_token::responder::generate_bearer_token, get::get::get_user,
+            login::handle::handle_login, post::post::post_user,
+        },
     },
     proxy::{
         test::handle_test::handle_test, wildcard::handle_wildcard,
@@ -26,7 +31,6 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/api/user")
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
-            // .wrap(Governor::new(&public_governor_conf))
             .route(web::get().to(get_user))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
@@ -53,6 +57,13 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             //   .wrap(Governor::new(&public_governor_conf))
             .route(web::post().to(respond_subdomain))
             .route(web::get().to(respond_get_subdomain))
+            .route(web::head().to(|| HttpResponse::Ok())),
+    );
+
+    cfg.service(
+        web::resource("/api/subdomain/{url_id}")
+            .wrap(actix_web::middleware::from_fn(auth_middleware_2))
+            .route(web::put().to(put_subdomain))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
