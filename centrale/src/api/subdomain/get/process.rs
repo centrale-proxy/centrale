@@ -16,16 +16,14 @@ pub fn process_get_subdomain(
     user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
     let db = get_centrale_db(pool.get_ref())?;
-
     let mut stmt = db.prepare("SELECT name, subdomain FROM subdomain WHERE user_id = ?1")?;
-
-    let data = stmt.query_row(params![user.user_id], |row| {
-        Ok(SubdomainAndName {
-            name: row.get(0)?,
-            subdomain: row.get(1)?,
-        })
-    })?;
-
-    let res = HttpResponse::Ok().json(serde_json::json!(data));
-    Ok(res)
+    let data: Vec<SubdomainAndName> = stmt
+        .query_map(params![user.user_id], |row| {
+            Ok(SubdomainAndName {
+                name: row.get(0)?,
+                subdomain: row.get(1)?,
+            })
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(HttpResponse::Ok().json(data))
 }
