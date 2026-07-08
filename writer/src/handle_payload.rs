@@ -34,17 +34,23 @@ pub fn handle_payload(
         }
         WriterPayload::CheckOut(checkout) => {
             save_checkout(db, checkout.clone())?;
-            let entry = get_one_entry(db, &checkout.x_id)?.unwrap();
-
-            println!(
-                "< {} {}{} {} {} {}",
-                entry.status.unwrap_or(0),
-                entry.host.unwrap_or("".to_string()),
-                entry.url.unwrap_or("".to_string()),
-                entry.error.unwrap_or("".to_string()),
-                entry.anon_name.unwrap_or("".to_string()),
-                entry.timer.unwrap_or(0),
-            );
+            let entry = get_one_entry(db, &checkout.x_id)?;
+            match entry {
+                Some(entry) => {
+                    println!(
+                        "< {} {}{} {} {} {}",
+                        entry.status.unwrap_or(0),
+                        entry.host.unwrap_or("".to_string()),
+                        entry.url.unwrap_or("".to_string()),
+                        entry.error.unwrap_or("".to_string()),
+                        entry.anon_name.unwrap_or("".to_string()),
+                        entry.timer.unwrap_or(0),
+                    );
+                }
+                None => {
+                    eprintln!("entry not found {:?}", checkout);
+                }
+            }
         }
     }
     Ok(())
