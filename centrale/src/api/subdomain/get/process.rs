@@ -16,7 +16,7 @@ pub fn process_get_subdomain(
     user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
     let db = get_centrale_db(pool.get_ref())?;
-    let mut stmt = db.prepare("SELECT name, subdomain FROM subdomain WHERE user_id = ?1")?;
+    let mut stmt = db.prepare("SELECT name, subdomain FROM subdomain_user WHERE user_id = ?1")?;
     let data: Vec<SubdomainAndName> = stmt
         .query_map(params![user.user_id], |row| {
             Ok(SubdomainAndName {
