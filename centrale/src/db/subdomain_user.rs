@@ -9,7 +9,7 @@ pub fn create_subdomain_user_table(
         "
         CREATE TABLE IF NOT EXISTS subdomain_user (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            subdomain TEXT NOT NULL UNIQUE CHECK(subdomain <> ''),
+            subdomain TEXT NOT NULL CHECK(subdomain <> ''),
             user_id INTEGER NOT NULL,
             role TEXT NOT NULL,
             FOREIGN KEY(user_id) REFERENCES user(id),
