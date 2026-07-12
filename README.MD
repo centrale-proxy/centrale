@@ -101,8 +101,9 @@ PUT /api/subdomain/:subdomain - edit subdomain
 (TBD) GET /api/test-subdomain - see if subdomain is available
 
 Subdomain specific:
-(TBD) GET /api/users - users for subdomain
-(TBD) POST /api/users - add user to subdomain
+GET /api/subdomain_user - users for subdomain
+POST /api/subdomain_user - add / edit user or role to subdomain
+PUT /api/subdomain_user - add user or role to subdomain
 (TBD) DELETE /api/users/:id - delete user from subdomain
 
 Subdomain specific admin:

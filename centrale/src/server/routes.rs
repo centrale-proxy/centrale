@@ -4,6 +4,9 @@ use crate::{
             get::respond::respond_get_subdomain, post::respond_post::respond_subdomain,
             put::respond::put_subdomain,
         },
+        subdomain_user::{
+            get::respond::respond_get_subdomain_user, post::handle::subdomain_post_user_role,
+        },
         user::{
             bearer_token::responder::generate_bearer_token, get::get::get_user,
             login::handle::handle_login, post::post::post_user,
@@ -59,11 +62,20 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .route(web::get().to(respond_get_subdomain))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
-
+    //
     cfg.service(
         web::resource("/api/subdomain/{url_id}")
             .wrap(actix_web::middleware::from_fn(auth_middleware_2))
             .route(web::put().to(put_subdomain))
+            .route(web::head().to(|| HttpResponse::Ok())),
+    );
+
+    cfg.service(
+        web::resource("/api/subdomain_user")
+            .wrap(actix_web::middleware::from_fn(auth_middleware_2))
+            .route(web::post().to(subdomain_post_user_role))
+            .route(web::put().to(subdomain_post_user_role))
+            .route(web::get().to(respond_get_subdomain_user))
             .route(web::head().to(|| HttpResponse::Ok())),
     );
 
