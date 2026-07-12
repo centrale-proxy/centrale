@@ -1,10 +1,14 @@
-use crate::{
-    api::subdomain::{get::process::SubdomainAndName, put::process::process_put_subdomain},
-    server::auth::CentraleUser,
-};
+use crate::{api::subdomain::put::process::process_put_subdomain, server::auth::CentraleUser};
 use actix_web::{HttpResponse, Responder, web};
 use dir_and_db_pool::db::DbPool;
 use log::error;
+use serde_derive::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+pub struct SubdomainAndName {
+    pub subdomain: String,
+    pub name: String,
+}
 
 pub async fn put_subdomain(
     pool: web::Data<DbPool>,

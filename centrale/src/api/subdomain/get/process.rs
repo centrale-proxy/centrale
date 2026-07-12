@@ -5,9 +5,9 @@ use r2d2_sqlite::rusqlite::params;
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-pub struct SubdomainAndName {
+pub struct SubdomainAndRole {
     pub subdomain: String,
-    pub name: String,
+    pub role: String,
 }
 
 /// Get user subdomains
@@ -16,12 +16,12 @@ pub fn process_get_subdomain(
     user: CentraleUser,
 ) -> Result<HttpResponse, CentraleError> {
     let db = get_centrale_db(pool.get_ref())?;
-    let mut stmt = db.prepare("SELECT name, subdomain FROM subdomain_user WHERE user_id = ?1")?;
-    let data: Vec<SubdomainAndName> = stmt
+    let mut stmt = db.prepare("SELECT subdomain, role FROM subdomain_user WHERE user_id = ?1")?;
+    let data: Vec<SubdomainAndRole> = stmt
         .query_map(params![user.user_id], |row| {
-            Ok(SubdomainAndName {
-                name: row.get(0)?,
-                subdomain: row.get(1)?,
+            Ok(SubdomainAndRole {
+                subdomain: row.get(0)?,
+                role: row.get(1)?,
             })
         })?
         .collect::<Result<Vec<_>, _>>()?;

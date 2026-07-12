@@ -1,5 +1,5 @@
 use crate::{
-    api::subdomain::get::process::SubdomainAndName, db::get_db::get_centrale_db,
+    api::subdomain::put::respond::SubdomainAndName, db::get_db::get_centrale_db,
     error::CentraleError, server::auth::CentraleUser,
 };
 use actix_web::{HttpResponse, web};
