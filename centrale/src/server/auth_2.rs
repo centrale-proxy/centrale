@@ -21,7 +21,7 @@ where
         .ok_or_else(|| ErrorUnauthorized("Database pool not available"))?;
 
     match authenticate_and_authorize(pool, req.request(), conn.host()) {
-        Ok((user_id, subdomain, role, pass, url, destination_bearer)) => {
+        Ok((user_id, subdomain, role, pass, url, destination_bearer, subdomain_name)) => {
             req.extensions_mut().insert(CentraleUser {
                 user_id,
                 subdomain,
@@ -29,6 +29,7 @@ where
                 pass,
                 url,
                 destination_bearer,
+                subdomain_name,
             });
             let res = next.call(req).await?;
             Ok(res.map_into_left_body()) // service body -> LEFT

@@ -11,6 +11,7 @@ pub struct CentraleUser {
     pub pass: String,
     pub url: String,
     pub destination_bearer: String,
+    pub subdomain_name: String,
 }
 
 // Implement FromRequest for CentraleUser
