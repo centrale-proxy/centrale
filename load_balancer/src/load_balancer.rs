@@ -2,13 +2,17 @@ use crate::{connect_to_writer::WriterClient, request::client_ip, response::build
 use async_trait::async_trait;
 use bytes::Bytes;
 use common::payload::CheckIn;
-use pingora::prelude::{HttpPeer, ProxyHttp, Result, Session};
+use pingora::{
+    http::ResponseHeader,
+    prelude::{HttpPeer, ProxyHttp, Result, Session},
+};
 use uuid::Uuid;
 
 pub struct LoadBalancer {
     pub centrale_upstream_address: String,
     pub www_upstream_address: Option<String>,
     pub www_host: Option<String>,
+    pub force_https_redirect: bool,
     pub writer: WriterClient,
 }
 
@@ -35,22 +39,43 @@ impl ProxyHttp for LoadBalancer {
     async fn request_filter(&self, session: &mut Session, ctx: &mut Self::CTX) -> Result<bool> {
         let request_bytes = session.downstream_session.to_h1_raw().to_vec();
 
-        let req = session.req_header();
+        let (host, path_and_query) = {
+            let req = session.req_header();
 
-        let host = req
-            .uri
-            .authority()
-            .map(|a| a.as_str().to_string())
-            .or_else(|| {
-                req.headers
-                    .get("host")
-                    .and_then(|v| v.to_str().ok())
-                    .map(str::to_string)
-            });
+            let host = req
+                .uri
+                .authority()
+                .map(|a| a.as_str().to_string())
+                .or_else(|| {
+                    req.headers
+                        .get("host")
+                        .and_then(|v| v.to_str().ok())
+                        .map(str::to_string)
+                });
+
+            let path_and_query = request_path_and_query(req.uri.path(), req.uri.query());
+            (host, path_and_query)
+        };
 
         let ip = client_ip(session);
-        let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host);
+        let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host.clone());
         self.writer.send_checkin(checkin);
+
+        if self.force_https_redirect && is_plain_http_request(session) {
+            if let Some(location) = build_https_redirect_location(host.as_deref(), &path_and_query)
+            {
+                let mut response = ResponseHeader::build(308, Some(3))?;
+                response.insert_header("Location", location)?;
+                response.insert_header("Content-Length", "0")?;
+                response.insert_header("Cache-Control", "no-store")?;
+
+                session
+                    .write_response_header(Box::new(response), true)
+                    .await?;
+                return Ok(true);
+            }
+        }
+
         Ok(false)
     }
 
@@ -110,6 +135,59 @@ impl ProxyHttp for LoadBalancer {
 
         let checkout = build_checkout(status, e, ctx);
         self.writer.send_checkout(checkout);
+    }
+}
+
+fn is_plain_http_request(session: &Session) -> bool {
+    session
+        .downstream_session
+        .server_addr()
+        .and_then(|addr| addr.as_inet())
+        .map(|addr| addr.port() == 80)
+        .unwrap_or(false)
+}
+
+fn request_path_and_query(path: &str, query: Option<&str>) -> String {
+    let path = if path.is_empty() { "/" } else { path };
+
+    match query {
+        Some(query) if !query.is_empty() => format!("{}?{}", path, query),
+        _ => path.to_string(),
+    }
+}
+
+fn build_https_redirect_location(raw_host: Option<&str>, path_and_query: &str) -> Option<String> {
+    let host = normalize_redirect_host(raw_host?);
+    (!host.is_empty()).then(|| format!("https://{}{}", host, path_and_query))
+}
+
+fn normalize_redirect_host(host: &str) -> String {
+    let host = host.trim();
+    let host = host
+        .strip_prefix("http://")
+        .or_else(|| host.strip_prefix("https://"))
+        .unwrap_or(host);
+
+    let host = host.split('/').next().unwrap_or(host).trim_end_matches('.');
+    strip_default_http_port(host)
+}
+
+fn strip_default_http_port(host: &str) -> String {
+    if host.starts_with('[') {
+        if let Some(idx) = host.find(']') {
+            let (ip_literal, remainder) = host.split_at(idx + 1);
+            if remainder == ":80" {
+                return ip_literal.to_string();
+            }
+        }
+        return host.to_string();
+    }
+
+    match host.rsplit_once(':') {
+        Some((name, port)) if !name.is_empty() && !name.contains(':') && port == "80" => {
+            name.to_string()
+        }
+        _ => host.to_string(),
     }
 }
 
@@ -198,7 +276,10 @@ fn host_matches_expected_or_apex(host: &str, expected: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{normalize_host, resolve_request_host, should_route_to_www};
+    use super::{
+        build_https_redirect_location, normalize_host, request_path_and_query,
+        resolve_request_host, should_route_to_www, strip_default_http_port,
+    };
 
     #[test]
     fn normalize_host_supports_case_scheme_and_port() {
@@ -239,6 +320,39 @@ mod tests {
             resolve_request_host(None, None, Some("/docs/getting-started")),
             None
         );
+    }
+
+    #[test]
+    fn request_path_and_query_handles_empty_and_query_values() {
+        assert_eq!(request_path_and_query("", None), "/");
+        assert_eq!(
+            request_path_and_query("/api/test", Some("a=1&b=2")),
+            "/api/test?a=1&b=2"
+        );
+    }
+
+    #[test]
+    fn strip_default_http_port_supports_ipv4_and_ipv6_hosts() {
+        assert_eq!(strip_default_http_port("example.com:80"), "example.com");
+        assert_eq!(
+            strip_default_http_port("example.com:8080"),
+            "example.com:8080"
+        );
+        assert_eq!(strip_default_http_port("[::1]:80"), "[::1]");
+        assert_eq!(strip_default_http_port("[::1]:8443"), "[::1]:8443");
+    }
+
+    #[test]
+    fn build_https_redirect_location_preserves_path_and_query() {
+        assert_eq!(
+            build_https_redirect_location(Some("http://WWW.Example.COM:80"), "/api/user?x=1"),
+            Some("https://WWW.Example.COM/api/user?x=1".to_string())
+        );
+        assert_eq!(
+            build_https_redirect_location(Some("example.com."), "/"),
+            Some("https://example.com/".to_string())
+        );
+        assert_eq!(build_https_redirect_location(None, "/"), None);
     }
 
     #[test]

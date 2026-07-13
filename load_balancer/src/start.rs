@@ -16,6 +16,12 @@ pub fn start() -> Result<(), LoadBalancerError> {
     // CENTRALE ADDRESS
     let centrale_upstream_address = CentraleConfig::get("CENTRALE_ADDRESS");
 
+    let http_listen_address = "0.0.0.0:80";
+    let https_listen_address = "0.0.0.0:443";
+    let force_https_redirect = CentraleConfig::get("FORCE_HTTP_TO_HTTPS")
+        .parse::<bool>()
+        .unwrap_or(true);
+
     // OPTIONAL WWW ROUTING
     let www_upstream_address = Some(CentraleConfig::get("WWW_UPSTREAM_ADDRESS"))
         .map(|value| value.trim().to_string())
@@ -40,8 +46,8 @@ pub fn start() -> Result<(), LoadBalancerError> {
     let writer = WriterClient::new(writer_socket, writer_addr);
 
     info!(
-        "Starting Pingora load balancer on 0.0.0.0:443 -> {}",
-        centrale_upstream_address
+        "Starting Pingora load balancer on {} (HTTP) and {} (HTTPS) -> {}",
+        http_listen_address, https_listen_address, centrale_upstream_address
     );
     if let Some(www_upstream) = www_upstream_address.as_deref() {
         let www_host_for_log = www_host.as_deref().unwrap_or("www.*");
@@ -53,6 +59,11 @@ pub fn start() -> Result<(), LoadBalancerError> {
         info!("WWW routing disabled (set WWW_UPSTREAM_ADDRESS to enable)");
     }
     info!("Writer UDP logging enabled: {}", writer_addr);
+    if force_https_redirect {
+        info!("HTTP -> HTTPS redirect ON");
+    } else {
+        info!("HTTP -> HTTPS redirect OFF");
+    }
 
     // ADD SSL
     let cert_chain_path = CentraleConfig::cert_pub_key();
@@ -69,14 +80,18 @@ pub fn start() -> Result<(), LoadBalancerError> {
             centrale_upstream_address,
             www_upstream_address,
             www_host,
+            force_https_redirect,
             writer,
         },
     );
 
-    // ADD SETTINGS
+    // HTTP listener (needed for origins/proxies that still probe or connect over plain HTTP)
+    proxy_service.add_tcp(http_listen_address);
+
+    // HTTPS listener
     let mut tls_settings = TlsSettings::intermediate(&cert_chain_path, &cert_private_key_path)?;
     tls_settings.enable_h2();
-    proxy_service.add_tls_with_settings("0.0.0.0:443", None, tls_settings);
+    proxy_service.add_tls_with_settings(https_listen_address, None, tls_settings);
 
     // ADD SERVICE
     server.add_service(proxy_service);

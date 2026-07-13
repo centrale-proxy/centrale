@@ -9,8 +9,9 @@ Rust + Pingora + Actix + SQLite.
 Assumes DNS A *.domain.com being directed to load_balancer.  
 
 ## Load balancer:
-+ Use Pingora at `0.0.0.0:443` to forward traffic to Centrale  
-+ Negotiates HTTPS
++ Use Pingora at `0.0.0.0:80` and `0.0.0.0:443` to forward traffic to Centrale  
++ Negotiates HTTPS on `:443`
++ Redirects HTTP on `:80` to HTTPS by default 
 + Forwards HTTP + websocket traffic to Centrale 
 
 ## Centrale:
