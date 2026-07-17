@@ -6,6 +6,7 @@ use pingora::{
     http::ResponseHeader,
     prelude::{HttpPeer, ProxyHttp, Result, Session},
 };
+use std::net::IpAddr;
 use uuid::Uuid;
 
 pub struct LoadBalancer {
@@ -60,6 +61,18 @@ impl ProxyHttp for LoadBalancer {
         let ip = client_ip(session);
         let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host.clone());
         self.writer.send_checkin(checkin);
+
+        // Do not proxy requests addressed to an IP literal.
+        if host.as_deref().is_some_and(is_ip_literal_host) {
+            let mut response = ResponseHeader::build(421, Some(3))?;
+            response.insert_header("Content-Length", "0")?;
+            response.insert_header("Cache-Control", "no-store")?;
+
+            session
+                .write_response_header(Box::new(response), true)
+                .await?;
+            return Ok(true);
+        }
 
         if self.force_https_redirect && is_plain_http_request(session) {
             if let Some(location) = build_https_redirect_location(host.as_deref(), &path_and_query)
@@ -220,6 +233,19 @@ fn resolve_request_host(
     (!host.is_empty()).then_some(host)
 }
 
+fn is_ip_literal_host(raw_host: &str) -> bool {
+    let normalized = normalize_host(raw_host);
+    let candidate = if let Some(rest) = normalized.strip_prefix('[') {
+        rest.split_once(']')
+            .map(|(address, _)| address)
+            .unwrap_or(normalized.as_str())
+    } else {
+        normalized.as_str()
+    };
+
+    candidate.parse::<IpAddr>().is_ok()
+}
+
 fn normalize_host(host: &str) -> String {
     let host = host.trim();
     let host = host
@@ -277,9 +303,19 @@ fn host_matches_expected_or_apex(host: &str, expected: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        build_https_redirect_location, normalize_host, request_path_and_query,
+        build_https_redirect_location, is_ip_literal_host, normalize_host, request_path_and_query,
         resolve_request_host, should_route_to_www, strip_default_http_port,
     };
+
+    #[test]
+    fn ip_literal_hosts_are_rejected_with_or_without_ports() {
+        assert!(is_ip_literal_host("127.0.0.1"));
+        assert!(is_ip_literal_host("127.0.0.1:443"));
+        assert!(is_ip_literal_host("[::1]:443"));
+        assert!(is_ip_literal_host("2001:db8::1"));
+        assert!(!is_ip_literal_host("app.example.com"));
+        assert!(!is_ip_literal_host("127.0.0.1.example.com"));
+    }
 
     #[test]
     fn normalize_host_supports_case_scheme_and_port() {
