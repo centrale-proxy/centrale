@@ -9,11 +9,11 @@ use crate::subdomain::{extract_subdomain, host_from_referrer, host_only};
 pub struct ParsedCheckIn {
     pub url: Option<String>,
     pub query: Option<String>,
-    pub ua: Option<String>, // STRING
     pub method: Option<String>,
     pub referrer: Option<String>,
     pub host: Option<String>,
     pub os: Option<String>,
+    pub ua: Option<String>,
     pub browser: Option<String>,  // PARSED UA
     pub is_bot: bool,             // GOOGLE OR FB CRAWLER
     pub lead: Option<String>,     // GOOGLE BING OR FB

@@ -8,22 +8,22 @@ Rust + Pingora + Actix + SQLite.
 
 Assumes DNS A *.domain.com being directed to load_balancer.  
 
-## Load balancer:
+## Load balancer or pingora-instead-of-nginx:
 + Use Pingora at `0.0.0.0:80` and `0.0.0.0:443` to forward traffic to Centrale  
 + Negotiates HTTPS on `:443`
 + Redirects HTTP on `:80` to HTTPS by default 
-+ Forwards HTTP + websocket traffic to Centrale 
++ Forwards HTTPS + websocket traffic to Centrale 
 
 ## Centrale:
-+ Runs behind load_balancer
 + Authenticates (cookie / bearer)  
 + Authorizes user access to subdomain  
-+ IP based rate limitser(s)   
-+ proxies request (http + websocket) to destination server  
-+ + adds id, password and role to request (to destination server db) headers  
++ IP based rate limiter(s) (actix-governor)   
++ proxies request (https + websocket) to destination server  
++ + adds user_id, password and role to request (to destination server db) headers  
 + Forwards request data to Writer (logging service)  
 + Enables user adding / user management, subdomain adding.  
 + Serves same front end for all subdomains (optionally)  
++ User management + user subdomain access management
   
 ## Destination server:  
 + There can be multiple destination servers.    
@@ -32,10 +32,26 @@ Assumes DNS A *.domain.com being directed to load_balancer.
 + Active destination server is set with DESTINATION_SERVER_ADDRESS  
   
 ## Writer (logging service)  
-+ Logs request and response headers.  
-+ If response status is not 200, error body is logged  
-
-
++ Logs request header bytes in a separate db.
++ Parses bytes + stores url, query, method, browser, refferer, host, os, etc to db.  
++ If response status is > 400, error body is logged  
+```
+pub struct ParsedCheckIn {
+    pub url: Option<String>,
+    pub query: Option<String>,
+    pub method: Option<String>,
+    pub referrer: Option<String>,
+    pub host: Option<String>,
+    pub os: Option<String>,
+    pub ua: Option<String>, 
+    pub browser: Option<String>,  // PARSED UA
+    pub is_bot: bool,             // GOOGLE OR FB CRAWLER
+    pub lead: Option<String>,     // GOOGLE BING OR FB
+    pub campaign: Option<String>, // utm_campaign
+    pub anon_name: String,
+    pub subdomain: String,
+}
+```  
 ***
   
 # Concepts
@@ -43,40 +59,36 @@ Assumes DNS A *.domain.com being directed to load_balancer.
 + Allows only one subdomain level (one.domain.com) not one.two.subdomain.com  
 + Answers "Not authenticated" to all invalid requests to avoid enumeration.  
 + Serves same front end for all subdomains (optionally)  
-+ Same backend can be used for all subdomains  
++ Same (or different) backend can be used for all subdomains  
   
 # Oppinionated parts:
-Q: Why subdomains?   
-A: API looks better.   
-  
-Q: Why not everyone in same db as in "normal SaaS".  
-All subdonains have their own databases (with indivudual user + pass login for each) removing the need for separate ACL logic which would be needed if all data would be in same db.   
-  
 Q: User registration gives an immediate cookie (instead of requiring log in).  
 A: I've been in the position of asking for this feature "later" (when the auth was built already).  
-    
+
 Q: If client errors then the message body is logged to Writer.  
 A: Previously customer support had to ask devops to find what customer error was.  
-  
+
 Q: Why is backend doing subodmains not DNS?  
 A: in DNS all customer subdomains would be visible with a DNS query.  
-  
+
 A: logging system Writer uses UDP connection, which is unreliable compared to TCP.  
-A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Centrale + unless a new thread is created for every message, could be blocking for Centrale.  
+A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Centrale. Wouldn't want the authentication to break because logging needs resources.
   
-Q: Encryption key is in the header of request.    
-A: My main idea here is that the destination server itself would not have the key(s), only the encrypted db. Totally waiting for ideas on how to transport the secret.    
+Q: Token and cookie are both allowed for same endpoints  
+A: It's double the work to make and maintain own endpoints for own and and client API,
     
 Q: If centrale is down, whole service is immediately down    
 A: It would be the same, if  auth server were down.    
     
-Q: Auth + procy is done by the same service and they could interfere.    
+Q: Why subdomains?   
+A: API looks better.   
+   
+Q: Why not everyone in same db as in "normal SaaS".  
+All subdomains have their own databases (with indivudual user + pass login for each) removing the need for separate ACL logic which would be needed if all data would be in same db.   
+    
+Q: Auth + proxy is done by the same service and they could interfere.    
 A: I have no good solution for that yet but this question is on my mind.  
-  
-Q: Token and cookie are both allowed for same endpoints  
-A: It seams double the work to make own endpoints for app and web,
-Especcialy if you use CapacitorJS or similar and your webapp is your ios app,  
-  
+    
 ## NO AUTH endoints:
 These endpoints have PUBLIC_RATE_LIMITER settings.
 ```
@@ -331,11 +343,8 @@ curl -H 'Authorization: Bearer test' https://test.domain.local/api/user/
 + robots.txt
 + not private by default should also be possible for blog sites. Perhaps should be all the same type - either private or public 
 
-# PLATFORM
+# TBD
 + SET .well-known/apple-app-site-association
-+ add auth methods - SMART ID, log in link, email.
-+ Subdomain registration extra keys
++ add auth methods - SMART ID, log in link, email, gmail.
 + Central key storage?
-
-# PROBLEMS:
-+ basic HTML to login... should be in "app".
++ basic HTML to login... should be in "app"?
