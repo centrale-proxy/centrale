@@ -1,4 +1,4 @@
-use common::payload::{CheckIn, CheckOut, WriterPayload};
+use common::payload::{CentralePing, CheckIn, CheckOut, WriterPayload};
 use log::error;
 use std::{
     io::ErrorKind,
@@ -22,6 +22,10 @@ impl WriterClient {
 
     pub fn send_checkout(&self, checkout: CheckOut) {
         self.send(WriterPayload::CheckOut(checkout));
+    }
+
+    pub fn send_ping(&self, ping: CentralePing) {
+        self.send(WriterPayload::CentralePing(ping));
     }
 
     fn send(&self, payload: WriterPayload) {

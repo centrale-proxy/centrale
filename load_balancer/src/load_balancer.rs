@@ -1,7 +1,10 @@
-use crate::{connect_to_writer::WriterClient, request::client_ip, response::build_checkout};
+use crate::{
+    connect_to_writer::WriterClient, read_full_body::read_full_body, request::client_ip,
+    response::build_checkout,
+};
 use async_trait::async_trait;
 use bytes::Bytes;
-use common::payload::CheckIn;
+use common::payload::{CentralePing, CheckIn};
 use pingora::{
     http::ResponseHeader,
     prelude::{HttpPeer, ProxyHttp, Result, Session},
@@ -23,6 +26,7 @@ pub struct RequestCtx {
     pub x_id: String,
     pub response_body: Vec<u8>,
     pub response_body_truncated: bool,
+    pub is_ping: bool,
 }
 
 #[async_trait]
@@ -34,6 +38,7 @@ impl ProxyHttp for LoadBalancer {
             x_id: Uuid::new_v4().to_string(),
             response_body: Vec::new(),
             response_body_truncated: false,
+            is_ping: false,
         }
     }
 
@@ -59,8 +64,44 @@ impl ProxyHttp for LoadBalancer {
         };
 
         let ip = client_ip(session);
-        let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host.clone());
-        self.writer.send_checkin(checkin);
+
+        // SEND PING OR CHECKIN
+        if path_and_query == "/api/ping" {
+            // tbd extract url and counter
+            ctx.is_ping = true;
+
+            let body = read_full_body(session).await?;
+            match serde_json::from_slice::<CentralePing>(&body) {
+                Ok(ping) => {
+                    // use payload...
+                    println!("got {:?}", ping);
+                    let ping2 = CentralePing::new(ping.counter, &ping.url);
+                    println!("ping {:?}", &ping2);
+
+                    self.writer.send_ping(ping2);
+                }
+                Err(e) => {
+                    // respond 400 and short-circuit the proxy
+                    //session.respond_error(400).await?;
+                    eprintln!("bad JSON: {e}");
+                    //return Ok(true); // true = response already sent, stop processing
+                }
+            }
+
+            // RETURN PING IMMEDIATELY
+            let mut response = ResponseHeader::build(200, Some(2))?;
+            //  response.insert_header("Location", location)?;
+            response.insert_header("Content-Length", "0")?;
+            response.insert_header("Cache-Control", "no-store")?;
+
+            session
+                .write_response_header(Box::new(response), true)
+                .await?;
+            return Ok(true);
+        } else {
+            let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host.clone());
+            self.writer.send_checkin(checkin);
+        }
 
         // Do not proxy requests addressed to an IP literal.
         if host.as_deref().is_some_and(is_ip_literal_host) {
@@ -144,10 +185,13 @@ impl ProxyHttp for LoadBalancer {
         e: Option<&pingora::Error>,
         ctx: &mut Self::CTX,
     ) {
-        let status = session.response_written().map_or(0, |r| r.status.as_u16());
-
-        let checkout = build_checkout(status, e, ctx);
-        self.writer.send_checkout(checkout);
+        // NO CHECKOUT FOR PING
+        if !ctx.is_ping {
+            // CHECKOUT
+            let status = session.response_written().map_or(0, |r| r.status.as_u16());
+            let checkout = build_checkout(status, e, ctx);
+            self.writer.send_checkout(checkout);
+        }
     }
 }
 

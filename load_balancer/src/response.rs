@@ -42,6 +42,7 @@ mod tests {
             x_id: "x-test".to_string(),
             response_body: body.to_vec(),
             response_body_truncated: truncated,
+            is_ping: false,
         }
     }
 

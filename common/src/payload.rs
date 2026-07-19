@@ -80,7 +80,23 @@ impl CheckOut {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CentralePing {
+    pub counter: u16,
+    pub url: String,
+}
+
+impl CentralePing {
+    pub fn new(counter: u16, url: &String) -> Self {
+        CentralePing {
+            counter: counter,
+            url: url.to_string(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum WriterPayload {
     CheckIn(CheckIn),
     CheckOut(CheckOut),
+    CentralePing(CentralePing),
 }

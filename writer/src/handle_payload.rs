@@ -52,6 +52,9 @@ pub fn handle_payload(
                 }
             }
         }
+        WriterPayload::CentralePing(ping) => {
+            println!("ping {:?}", ping);
+        }
     }
     Ok(())
 }
