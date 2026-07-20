@@ -10,7 +10,11 @@ use std::io::ErrorKind;
 
 const SERVER: Token = Token(0);
 
-pub fn start_server_mio(pool: DbPool, bytes_pool: DbPool) -> Result<(), Box<dyn Error>> {
+pub fn start_server_mio(
+    pool: DbPool,
+    bytes_pool: DbPool,
+    feed_tx: tokio::sync::broadcast::Sender<String>,
+) -> Result<(), Box<dyn Error>> {
     // Create a poll instance.
     let (mut poll, server) = get_server_poll(SERVER)?;
     let mut events = Events::with_capacity(CentraleConfig::WRITER_EVENTS_CAPACITY);
@@ -32,7 +36,8 @@ pub fn start_server_mio(pool: DbPool, bytes_pool: DbPool) -> Result<(), Box<dyn 
                         Ok((len, _src)) => {
                             let packet = &buf[..len];
                             if let Ok(payload) = serde_json::from_slice::<WriterPayload>(packet) {
-                                match handle_payload(payload, &db, &bytes_db, &mut names) {
+                                match handle_payload(payload, &db, &bytes_db, &mut names, &feed_tx)
+                                {
                                     Err(err) => {
                                         eprint!("payload handle error {}", err);
                                     }

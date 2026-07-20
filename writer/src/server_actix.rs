@@ -2,7 +2,7 @@ use crate::error::WriterError;
 use crate::routes::routes;
 //use crate::standalone::{DbMiddleware, init_pool};
 //use actix_files::Files;
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, web};
 use config::CentraleConfig;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 //use std::collections::HashMap;
@@ -10,7 +10,9 @@ use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 //use std::sync::RwLock;
 //use prompt_client::PromptClient;
 
-pub async fn start_server_actix() -> Result<(), WriterError> {
+pub async fn start_server_actix(
+    feed_tx: tokio::sync::broadcast::Sender<String>,
+) -> Result<(), WriterError> {
     // SET HTTPS
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
@@ -36,6 +38,7 @@ pub async fn start_server_actix() -> Result<(), WriterError> {
     //START /
     HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(feed_tx.clone()))
             //  .app_data(web::Data::new(registry.clone()))
             //  .wrap(DbMiddleware::new(pool.clone())) // SINGLE PLAUYER
             //.wrap(from_fn(log_url))

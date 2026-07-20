@@ -5,17 +5,20 @@ use dir_and_db_pool::db::DbPool;
 use std::error::Error;
 
 pub fn start_server(pool: DbPool, bytes_pool: DbPool) -> Result<(), Box<dyn Error>> {
+    let (feed_tx, _) = tokio::sync::broadcast::channel(256);
+
     // INIT WRITER DB
     let db = pool.get()?;
     init_writer_db(&db)?;
     let bytes_db = bytes_pool.get()?;
     init_bytes_db(&bytes_db)?;
 
-    std::thread::spawn(|| {
-        if let Err(err) = actix_web::rt::System::new().block_on(start_server_actix()) {
+    let actix_feed_tx = feed_tx.clone();
+    std::thread::spawn(move || {
+        if let Err(err) = actix_web::rt::System::new().block_on(start_server_actix(actix_feed_tx)) {
             eprintln!("Actix server error: {err}");
         }
     });
 
-    start_server_mio(pool, bytes_pool)
+    start_server_mio(pool, bytes_pool, feed_tx)
 }

@@ -1,3 +1,4 @@
+mod api;
 mod db;
 mod error;
 mod handle_payload;

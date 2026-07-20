@@ -13,6 +13,7 @@ pub fn handle_payload(
     db: &DbConnection,
     bytes_db: &DbConnection,
     names: &mut HashMap<String, String>,
+    feed_tx: &tokio::sync::broadcast::Sender<String>,
 ) -> Result<(), WriterError> {
     // println!("payload: {:?}", &payload);
     match payload {
@@ -32,6 +33,11 @@ pub fn handle_payload(
             let parsed = ParsedCheckIn::parse_checkin(&checkin, names, &ip_only, port_only);
             // SAVE
             save_parsed_checkin(db, id, parsed.clone())?;
+
+            if let Ok(event) = serde_json::to_string(&parsed) {
+                // Sending without subscribers is expected and should not fail the check-in.
+                let _ = feed_tx.send(event);
+            }
 
             println!(
                 "> {} {}{}  {}",
