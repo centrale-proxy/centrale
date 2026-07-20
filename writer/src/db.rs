@@ -162,8 +162,10 @@ pub fn save_checkout(db: &DbConnection, checkout: CheckOut) -> Result<(), Writer
 }
 
 use r2d2_sqlite::rusqlite::OptionalExtension;
+use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EntryResult {
     pub status: Option<i16>,
     pub error: Option<String>,

@@ -35,7 +35,6 @@ pub fn handle_payload(
             save_parsed_checkin(db, id, parsed.clone())?;
 
             if let Ok(event) = serde_json::to_string(&parsed) {
-                // Sending without subscribers is expected and should not fail the check-in.
                 let _ = feed_tx.send(event);
             }
 
@@ -52,15 +51,19 @@ pub fn handle_payload(
             let entry = get_one_entry(db, &checkout.x_id)?;
             match entry {
                 Some(entry) => {
+                    let e = entry.clone();
                     println!(
                         "< {} {}{} {} {} {}",
-                        entry.status.unwrap_or(0),
-                        entry.host.unwrap_or("".to_string()),
-                        entry.url.unwrap_or("".to_string()),
-                        entry.error.unwrap_or("".to_string()),
-                        entry.anon_name.unwrap_or("".to_string()),
-                        entry.timer.unwrap_or(0),
+                        e.status.unwrap_or(0),
+                        e.host.unwrap_or("".to_string()),
+                        e.url.unwrap_or("".to_string()),
+                        e.error.unwrap_or("".to_string()),
+                        e.anon_name.clone().unwrap_or("".to_string()),
+                        e.timer.unwrap_or(0),
                     );
+                    if let Ok(event) = serde_json::to_string(&entry) {
+                        let _ = feed_tx.send(event);
+                    }
                 }
                 None => {
                     eprintln!("entry not found {:?}", checkout);
@@ -77,14 +80,18 @@ pub fn handle_payload(
             // ADD COUNTER VALUE TO WRITER ENTRY
             update_counter(db, &ip, &ping.url, ping.counter)?;
 
+            let p = ping.clone();
             println!(
                 "  {} {}{} {} {}",
-                ping.counter,
-                ping.host.unwrap_or("".to_string()),
-                ping.url,
+                p.counter,
+                p.host.unwrap_or("".to_string()),
+                p.url,
                 anon_name,
-                ping.ip,
+                p.ip,
             );
+            if let Ok(event) = serde_json::to_string(&ping) {
+                let _ = feed_tx.send(event);
+            }
         }
     }
     Ok(())

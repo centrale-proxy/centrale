@@ -7,10 +7,7 @@ pub async fn feed(feed_tx: web::Data<tokio::sync::broadcast::Sender<String>>) ->
         stream::once(async { Ok::<_, actix_web::Error>(web::Bytes::from("data: {}\n\n")) });
 
     let broadcast = BroadcastStream::new(feed_tx.subscribe())
-        .filter(|message| {
-            println!("message {:?}", message);
-            futures::future::ready(message.is_ok())
-        })
+        .filter(|message| futures::future::ready(message.is_ok()))
         .map(|message| {
             let data = message.unwrap();
             Ok::<_, actix_web::Error>(web::Bytes::from(format!("data: {data}\n\n")))
