@@ -4,6 +4,7 @@ mod handle_payload;
 mod parse_checkin;
 mod poll;
 mod server;
+mod server_mio;
 mod subdomain;
 
 use crate::server::start_server;
@@ -14,7 +15,6 @@ use dotenvy::dotenv;
 
 fn main() {
     dotenv().ok();
-
     let db = get_db(CentraleConfig::WRITER_DB_FILE, CentraleConfig::DB_FOLDER).unwrap();
     let bytes_db = get_db(&"bytes.db".to_string(), CentraleConfig::DB_FOLDER).unwrap();
     match start_server(db, bytes_db) {

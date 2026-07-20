@@ -54,7 +54,7 @@ pub async fn start_server(db: DbPool) -> std::io::Result<()> {
 
     let proxy_is_443 = CentraleConfig::get("CENTRALE_IS_443");
     let cors_domain = CentraleConfig::get("DOMAIN");
-
+    //
     if proxy_is_443 == "true".to_string() {
         // SSL //
         let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
