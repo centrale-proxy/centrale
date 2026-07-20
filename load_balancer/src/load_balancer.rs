@@ -4,7 +4,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use bytes::Bytes;
-use common::payload::{CentralePing, CheckIn};
+use common::payload::{CentralePing, CentralePingInput, CheckIn};
 use pingora::{
     http::ResponseHeader,
     prelude::{HttpPeer, ProxyHttp, Result, Session},
@@ -71,12 +71,10 @@ impl ProxyHttp for LoadBalancer {
             ctx.is_ping = true;
 
             let body = read_full_body(session).await?;
-            match serde_json::from_slice::<CentralePing>(&body) {
+            match serde_json::from_slice::<CentralePingInput>(&body) {
                 Ok(ping) => {
-                    // use payload...
-                    println!("got {:?}", ping);
-                    let ping2 = CentralePing::new(ping.counter, &ping.url);
-                    println!("ping {:?}", &ping2);
+                    let ping2 =
+                        CentralePing::new(ping.counter, &ping.url, ip.for_logging().to_string());
 
                     self.writer.send_ping(ping2);
                 }

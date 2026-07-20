@@ -80,16 +80,24 @@ impl CheckOut {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CentralePing {
+pub struct CentralePingInput {
     pub counter: u16,
     pub url: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CentralePing {
+    pub counter: u16,
+    pub url: String,
+    pub ip: String,
+}
+
 impl CentralePing {
-    pub fn new(counter: u16, url: &String) -> Self {
+    pub fn new(counter: u16, url: &String, ip: String) -> Self {
         CentralePing {
             counter: counter,
             url: url.to_string(),
+            ip: ip,
         }
     }
 }

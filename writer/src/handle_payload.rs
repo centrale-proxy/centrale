@@ -5,7 +5,7 @@ use crate::{
     error::WriterError,
     parse_checkin::ParsedCheckIn,
 };
-use common::payload::WriterPayload;
+use common::{names::RandomName, payload::WriterPayload};
 use dir_and_db_pool::db::DbConnection;
 
 pub fn handle_payload(
@@ -53,7 +53,14 @@ pub fn handle_payload(
             }
         }
         WriterPayload::CentralePing(ping) => {
-            println!("ping {:?}", ping);
+            let ip = ping.ip.to_owned();
+            let ip_only = ip.split(':').next().unwrap_or(&ip).to_string();
+            let anon_name = names
+                .entry(ip_only)
+                .or_insert_with(|| RandomName::new().name)
+                .clone();
+
+            println!("{} {} {} {}", ping.counter, ping.url, ping.ip, anon_name);
         }
     }
     Ok(())

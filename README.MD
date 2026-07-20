@@ -35,6 +35,7 @@ Assumes DNS A *.domain.com being directed to load_balancer.
 + Logs request header bytes in a separate db.
 + Parses bytes + stores url, query, method, browser, refferer, host, os, etc to db.  
 + If response status is > 400, error body is logged  
++ If /api/ping is used shows aproox how long visitor stays on website
 ```
 pub struct ParsedCheckIn {
     pub url: Option<String>,
@@ -95,6 +96,7 @@ These endpoints have PUBLIC_RATE_LIMITER settings.
 GET /api/tester - ensures website is up and db is working
 POST /api/user_add - register user (password can be 1-200 chars, username can be 1-100 chars, must be alphanumeric)
 POST /login - login
+POST /api/ping - Used for statistics - expexts { url: "/", counter: 30 }
 ```
 ## AUTH endpoints
 These endpoints have RATE_LIMITER settings.
