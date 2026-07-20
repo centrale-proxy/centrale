@@ -39,7 +39,7 @@ pub fn start_server_mio(
                                 match handle_payload(payload, &db, &bytes_db, &mut names, &feed_tx)
                                 {
                                     Err(err) => {
-                                        eprint!("payload handle error {}", err);
+                                        eprintln!("payload handle error {}", err);
                                     }
                                     _ => {}
                                 }

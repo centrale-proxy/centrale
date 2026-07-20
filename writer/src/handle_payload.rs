@@ -37,8 +37,10 @@ pub fn handle_payload(
             // SAVE
             save_parsed_checkin(db, id, parsed.clone())?;
             let full_entry = get_full_entry(db, id)?;
-            if let Ok(event) = serde_json::to_string(&full_entry) {
-                let _ = feed_tx.send(event);
+            if full_entry.is_some() {
+                if let Ok(event) = serde_json::to_string(&full_entry.unwrap()) {
+                    let _ = feed_tx.send(event);
+                }
             }
             /*
             println!(
@@ -53,8 +55,10 @@ pub fn handle_payload(
         WriterPayload::CheckOut(checkout) => {
             let id = save_checkout(db, checkout.clone())?;
             let full_entry = get_full_entry(db, id)?;
-            if let Ok(event) = serde_json::to_string(&full_entry) {
-                let _ = feed_tx.send(event);
+            if full_entry.is_some() {
+                if let Ok(event) = serde_json::to_string(&full_entry.unwrap()) {
+                    let _ = feed_tx.send(event);
+                }
             }
             /*
             let entry = get_one_entry(db, &checkout.x_id)?;
@@ -79,19 +83,21 @@ pub fn handle_payload(
         }
         WriterPayload::CentralePing(ping) => {
             let ip = ping.ip.to_owned();
+            // ADD COUNTER VALUE TO WRITER ENTRY
+            let id = update_counter(db, &ip, &ping.url, ping.counter)?;
+
+            let full_entry = get_full_entry(db, id)?;
+            if full_entry.is_some() {
+                if let Ok(event) = serde_json::to_string(&full_entry.unwrap()) {
+                    let _ = feed_tx.send(event);
+                }
+            }
+            /*
             let anon_name = names
                 .entry(ip.clone())
                 .or_insert_with(|| RandomName::new().name)
                 .clone();
 
-            // ADD COUNTER VALUE TO WRITER ENTRY
-            let id = update_counter(db, &ip, &ping.url, ping.counter)?;
-
-            let full_entry = get_full_entry(db, id)?;
-            if let Ok(event) = serde_json::to_string(&full_entry) {
-                let _ = feed_tx.send(event);
-            }
-            /*
             let p = ping.clone();
             println!(
                 "  {} {}{} {} {}",
