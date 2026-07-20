@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
 use crate::{
-    db::{get_one_entry, save_checkout, save_packet, save_parsed_checkin, update_counter},
+    db::{
+        get_full_entry, get_one_entry, save_checkout, save_packet, save_parsed_checkin,
+        update_counter,
+    },
     error::WriterError,
     parse_checkin::ParsedCheckIn,
 };
@@ -33,8 +36,8 @@ pub fn handle_payload(
             let parsed = ParsedCheckIn::parse_checkin(&checkin, names, &ip_only, port_only);
             // SAVE
             save_parsed_checkin(db, id, parsed.clone())?;
-
-            if let Ok(event) = serde_json::to_string(&parsed) {
+            let full_entry = get_full_entry(db, id)?;
+            if let Ok(event) = serde_json::to_string(&full_entry) {
                 let _ = feed_tx.send(event);
             }
 
@@ -47,7 +50,12 @@ pub fn handle_payload(
             );
         }
         WriterPayload::CheckOut(checkout) => {
-            save_checkout(db, checkout.clone())?;
+            let id = save_checkout(db, checkout.clone())?;
+            let full_entry = get_full_entry(db, id)?;
+            if let Ok(event) = serde_json::to_string(&full_entry) {
+                let _ = feed_tx.send(event);
+            }
+
             let entry = get_one_entry(db, &checkout.x_id)?;
             match entry {
                 Some(entry) => {
@@ -61,9 +69,6 @@ pub fn handle_payload(
                         e.anon_name.clone().unwrap_or("".to_string()),
                         e.timer.unwrap_or(0),
                     );
-                    if let Ok(event) = serde_json::to_string(&entry) {
-                        let _ = feed_tx.send(event);
-                    }
                 }
                 None => {
                     eprintln!("entry not found {:?}", checkout);
@@ -78,7 +83,12 @@ pub fn handle_payload(
                 .clone();
 
             // ADD COUNTER VALUE TO WRITER ENTRY
-            update_counter(db, &ip, &ping.url, ping.counter)?;
+            let id = update_counter(db, &ip, &ping.url, ping.counter)?;
+
+            let full_entry = get_full_entry(db, id)?;
+            if let Ok(event) = serde_json::to_string(&full_entry) {
+                let _ = feed_tx.send(event);
+            }
 
             let p = ping.clone();
             println!(
@@ -89,9 +99,9 @@ pub fn handle_payload(
                 anon_name,
                 p.ip,
             );
-            if let Ok(event) = serde_json::to_string(&ping) {
-                let _ = feed_tx.send(event);
-            }
+            //  if let Ok(event) = serde_json::to_string(&ping) {
+            //      let _ = feed_tx.send(event);
+            //  }
         }
     }
     Ok(())

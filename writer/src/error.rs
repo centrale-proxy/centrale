@@ -14,4 +14,6 @@ pub enum WriterError {
     JsonError(#[from] serde_json::Error),
     #[error("CommonError: {0}")]
     CommonError(#[from] CommonError),
+    #[error("Error: {0}")]
+    StringError(String),
 }

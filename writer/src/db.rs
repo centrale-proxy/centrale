@@ -37,7 +37,7 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
         )",
         [],
     )?;
-    // Create indexes for common queries
+
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_check_ins_x_id ON writer(x_id)",
         [],
@@ -143,22 +143,24 @@ pub fn save_parsed_checkin(
     Ok(())
 }
 
-pub fn save_checkout(db: &DbConnection, checkout: CheckOut) -> Result<(), WriterError> {
-    db.execute(
+pub fn save_checkout(db: &DbConnection, checkout: CheckOut) -> Result<i64, WriterError> {
+    let id = db.query_row(
         "UPDATE writer SET
             checkout = ?1,
             error = ?2,
             status = ?3,
             timer = ?1 - checkin
-        WHERE x_id = ?4",
+        WHERE x_id = ?4
+        RETURNING id",
         params![
             checkout.checkout as u64,
             checkout.error,
             checkout.status,
             checkout.x_id,
         ],
+        |row| row.get(0),
     )?;
-    Ok(())
+    Ok(id)
 }
 
 use r2d2_sqlite::rusqlite::OptionalExtension;
@@ -167,6 +169,7 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EntryResult {
+    pub id: i64,
     pub status: Option<i16>,
     pub error: Option<String>,
     pub anon_name: Option<String>,
@@ -178,7 +181,7 @@ pub struct EntryResult {
 pub fn get_one_entry(db: &DbConnection, x_id: &str) -> Result<Option<EntryResult>, WriterError> {
     let entry = db
         .query_row(
-            "SELECT status, error, anon_name, timer, url, host
+            "SELECT status, error, anon_name, timer, url, host, id
              FROM writer
              WHERE x_id = ?1",
             params![x_id],
@@ -190,6 +193,7 @@ pub fn get_one_entry(db: &DbConnection, x_id: &str) -> Result<Option<EntryResult
                     timer: row.get(3)?,
                     url: row.get(4)?,
                     host: row.get(5)?,
+                    id: row.get(6)?,
                 })
             },
         )
@@ -205,7 +209,7 @@ pub fn update_counter(
     client_ip: &str,
     url: &str,
     counter: u16,
-) -> Result<(), WriterError> {
+) -> Result<i64, WriterError> {
     if let Some(id) = find_entry_id(db, client_ip, url)? {
         db.execute(
             "UPDATE writer
@@ -213,10 +217,11 @@ pub fn update_counter(
              WHERE id = ?2",
             params![counter, id],
         )?;
+        Ok(id)
     } else {
         println!("entry not found for ping {} {} {}", client_ip, url, counter);
+        Err(WriterError::StringError("NotFound".to_string()))
     }
-    Ok(())
 }
 
 pub fn find_entry_id(
@@ -241,6 +246,84 @@ pub fn find_entry_id(
              LIMIT 1",
             params![client_ip, url, cutoff],
             |row| Ok(row.get(0)?),
+        )
+        .optional()?;
+
+    Ok(entry)
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FullEntryResult {
+    pub id: i64,
+    pub x_id: String,
+    pub forwarded: Option<String>,
+    pub x_forwarded_for: Option<String>,
+    pub x_real_ip: Option<String>,
+    pub client_addr: Option<String>,
+    pub client_ip: Option<String>,
+    pub client_port: Option<i64>,
+    pub url: Option<String>,
+    pub query: Option<String>,
+    pub ua: Option<String>,
+    pub method: Option<String>,
+    pub referrer: Option<String>,
+    pub host: Option<String>,
+    pub os: Option<String>,
+    pub browser: Option<String>,
+    pub is_bot: bool,
+    pub lead: Option<String>,
+    pub campaign: Option<String>,
+    pub checkin: i64,
+    pub checkout: Option<i64>,
+    pub error: Option<String>,
+    pub status: Option<i16>,
+    pub anon_name: Option<String>,
+    pub timer: Option<i64>,
+    pub subdomain: Option<String>,
+    pub counter: Option<i64>,
+}
+
+pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResult>, WriterError> {
+    let entry = db
+        .query_row(
+            "SELECT id, x_id, forwarded, x_forwarded_for, x_real_ip, client_addr,
+                    client_ip, client_port, url, query, ua, method, referrer, host,
+                    os, browser, is_bot, lead, campaign, checkin, checkout, error,
+                    status, anon_name, timer, subdomain, counter
+             FROM writer
+             WHERE id = ?1",
+            params![id],
+            |row| {
+                Ok(FullEntryResult {
+                    id: row.get(0)?,
+                    x_id: row.get(1)?,
+                    forwarded: row.get(2)?,
+                    x_forwarded_for: row.get(3)?,
+                    x_real_ip: row.get(4)?,
+                    client_addr: row.get(5)?,
+                    client_ip: row.get(6)?,
+                    client_port: row.get(7)?,
+                    url: row.get(8)?,
+                    query: row.get(9)?,
+                    ua: row.get(10)?,
+                    method: row.get(11)?,
+                    referrer: row.get(12)?,
+                    host: row.get(13)?,
+                    os: row.get(14)?,
+                    browser: row.get(15)?,
+                    is_bot: row.get(16)?,
+                    lead: row.get(17)?,
+                    campaign: row.get(18)?,
+                    checkin: row.get(19)?,
+                    checkout: row.get(20)?,
+                    error: row.get(21)?,
+                    status: row.get(22)?,
+                    anon_name: row.get(23)?,
+                    timer: row.get(24)?,
+                    subdomain: row.get(25)?,
+                    counter: row.get(26)?,
+                })
+            },
         )
         .optional()?;
 
