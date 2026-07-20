@@ -3,7 +3,9 @@ mod error;
 mod handle_payload;
 mod parse_checkin;
 mod poll;
+mod routes;
 mod server;
+mod server_actix;
 mod server_mio;
 mod subdomain;
 

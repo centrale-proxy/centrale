@@ -4589,12 +4589,14 @@ checksum = "1ffae5123b2d3fc086436f8834ae3ab053a283cfac8fe0a0b8eaae044768a4c4"
 name = "writer"
 version = "0.1.0"
 dependencies = [
+ "actix-web",
  "centrale",
  "common",
  "config",
  "dir_and_db_pool",
  "dotenvy",
  "mio",
+ "openssl",
  "r2d2",
  "r2d2_sqlite",
  "serde",

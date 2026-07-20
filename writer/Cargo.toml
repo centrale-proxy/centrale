@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+actix-web = "4.13.0"
 mio = { version = "1.1.1", features = ["os-poll", "net"] }
 thiserror = "2.0.12"
 r2d2_sqlite = "0.31.0"
@@ -16,3 +17,4 @@ common = { path = "../common" }
 config = { path = "../config" }
 dir_and_db_pool = { path = "../dir_and_db_pool" }
 dotenvy = "0.15.7"
+openssl = { version = "0.10", features = ["v102", "v110"] }

@@ -139,6 +139,7 @@ sudo nano /etc/hosts
 127.0.0.1   test.mydomain.local
 127.0.0.1   app.mydomain.local
 127.0.0.1   one.mydomain.local
+127.0.0.1   admin_data.mydomain.local
 ```
 
 # Install

@@ -4,6 +4,8 @@ impl CentraleConfig {
     // pub const WRITER_SERVER_ADDRESS: &str = "127.0.0.1:8081";
     pub const DB_FOLDER: &str = "centrale";
     pub const DB_FILE: &str = "centrale.db";
+    // ADMIN
+    pub const ADMIN_SERVER_ADDRESS: &str = "0.0.0.0:8082";
     // RATE LIMITER
     /// How many requests are allowed to pipeline in total per one IP
     pub const RATE_LIMITER_BURST_SIZE: u32 = 100;
