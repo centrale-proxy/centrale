@@ -40,7 +40,7 @@ pub fn handle_payload(
             if let Ok(event) = serde_json::to_string(&full_entry) {
                 let _ = feed_tx.send(event);
             }
-
+            /*
             println!(
                 "> {} {}{}  {}",
                 parsed.method.unwrap_or("".to_string()),
@@ -48,6 +48,7 @@ pub fn handle_payload(
                 parsed.url.unwrap_or("".to_string()),
                 parsed.anon_name,
             );
+             */
         }
         WriterPayload::CheckOut(checkout) => {
             let id = save_checkout(db, checkout.clone())?;
@@ -55,7 +56,7 @@ pub fn handle_payload(
             if let Ok(event) = serde_json::to_string(&full_entry) {
                 let _ = feed_tx.send(event);
             }
-
+            /*
             let entry = get_one_entry(db, &checkout.x_id)?;
             match entry {
                 Some(entry) => {
@@ -74,6 +75,7 @@ pub fn handle_payload(
                     eprintln!("entry not found {:?}", checkout);
                 }
             }
+             */
         }
         WriterPayload::CentralePing(ping) => {
             let ip = ping.ip.to_owned();
@@ -89,7 +91,7 @@ pub fn handle_payload(
             if let Ok(event) = serde_json::to_string(&full_entry) {
                 let _ = feed_tx.send(event);
             }
-
+            /*
             let p = ping.clone();
             println!(
                 "  {} {}{} {} {}",
@@ -102,6 +104,7 @@ pub fn handle_payload(
             //  if let Ok(event) = serde_json::to_string(&ping) {
             //      let _ = feed_tx.send(event);
             //  }
+             */
         }
     }
     Ok(())
