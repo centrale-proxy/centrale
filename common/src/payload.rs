@@ -90,14 +90,16 @@ pub struct CentralePing {
     pub counter: u16,
     pub url: String,
     pub ip: String,
+    pub host: Option<String>,
 }
 
 impl CentralePing {
-    pub fn new(counter: u16, url: &String, ip: String) -> Self {
+    pub fn new(counter: u16, url: &String, ip: String, host: Option<String>) -> Self {
         CentralePing {
             counter: counter,
             url: url.to_string(),
             ip: ip,
+            host: host,
         }
     }
 }

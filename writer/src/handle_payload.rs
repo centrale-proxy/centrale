@@ -60,7 +60,14 @@ pub fn handle_payload(
                 .or_insert_with(|| RandomName::new().name)
                 .clone();
 
-            println!("{} {} {} {}", ping.counter, ping.url, ping.ip, anon_name);
+            println!(
+                "  {} {}{} {} {}",
+                ping.counter,
+                ping.host.unwrap_or("".to_string()),
+                ping.url,
+                anon_name,
+                ping.ip,
+            );
         }
     }
     Ok(())
