@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    db::{get_one_entry, save_checkout, save_packet, save_parsed_checkin},
+    db::{get_one_entry, save_checkout, save_packet, save_parsed_checkin, update_counter},
     error::WriterError,
     parse_checkin::ParsedCheckIn,
 };
@@ -63,11 +63,13 @@ pub fn handle_payload(
         }
         WriterPayload::CentralePing(ping) => {
             let ip = ping.ip.to_owned();
-            let ip_only = ip.split(':').next().unwrap_or(&ip).to_string();
             let anon_name = names
-                .entry(ip_only)
+                .entry(ip.clone())
                 .or_insert_with(|| RandomName::new().name)
                 .clone();
+
+            // ADD COUNTER VALUE TO WRITER ENTRY
+            update_counter(db, &ip, &ping.url, ping.counter)?;
 
             println!(
                 "  {} {}{} {} {}",

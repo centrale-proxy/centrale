@@ -73,12 +73,14 @@ impl ProxyHttp for LoadBalancer {
             let body = read_full_body(session).await?;
             match serde_json::from_slice::<CentralePingInput>(&body) {
                 Ok(ping) => {
-                    let ping2 = CentralePing::new(
-                        ping.counter,
-                        &ping.url,
-                        ip.for_logging().to_string(),
-                        host,
-                    );
+                    let ip_and_port = ip.for_logging().to_string();
+                    let ip_only = ip_and_port
+                        .split(':')
+                        .next()
+                        .unwrap_or(&ip_and_port)
+                        .to_string();
+
+                    let ping2 = CentralePing::new(ping.counter, &ping.url, ip_only, host);
 
                     self.writer.send_ping(ping2);
                 }

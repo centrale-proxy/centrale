@@ -32,7 +32,8 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             status INTEGER,
             anon_name TEXT,
             timer INTEGER,
-            subdomain TEXT
+            subdomain TEXT,
+            counter INTEGER
         )",
         [],
     )?;
@@ -41,6 +42,13 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
         "CREATE INDEX IF NOT EXISTS idx_check_ins_x_id ON writer(x_id)",
         [],
     )?;
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_writer_ip_url_checkin
+         ON writer(client_ip, url, checkin)",
+        [],
+    )?;
+
     Ok(())
 }
 
@@ -182,6 +190,55 @@ pub fn get_one_entry(db: &DbConnection, x_id: &str) -> Result<Option<EntryResult
                     host: row.get(5)?,
                 })
             },
+        )
+        .optional()?;
+
+    Ok(entry)
+}
+
+use std::time::{SystemTime, UNIX_EPOCH};
+
+pub fn update_counter(
+    db: &DbConnection,
+    client_ip: &str,
+    url: &str,
+    counter: u16,
+) -> Result<(), WriterError> {
+    if let Some(id) = find_entry_id(db, client_ip, url)? {
+        db.execute(
+            "UPDATE writer
+             SET counter = ?1
+             WHERE id = ?2",
+            params![counter, id],
+        )?;
+    } else {
+        println!("entry not found for ping {} {} {}", client_ip, url, counter);
+    }
+    Ok(())
+}
+
+pub fn find_entry_id(
+    db: &DbConnection,
+    client_ip: &str,
+    url: &str,
+) -> Result<Option<i64>, WriterError> {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs() as i64;
+    let cutoff = now - 10 * 60; // 10 minutes ago
+
+    let entry = db
+        .query_row(
+            "SELECT id
+             FROM writer
+             WHERE client_ip = ?1
+               AND url = ?2
+               AND checkin >= ?3
+             ORDER BY checkin DESC
+             LIMIT 1",
+            params![client_ip, url, cutoff],
+            |row| Ok(row.get(0)?),
         )
         .optional()?;
 
