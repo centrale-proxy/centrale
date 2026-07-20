@@ -13,6 +13,8 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             x_forwarded_for TEXT,
             x_real_ip TEXT,
             client_addr TEXT,
+            client_ip TEXT,
+            client_port INTEGER,
             url TEXT,
             query TEXT,
             ua TEXT,
@@ -106,8 +108,11 @@ pub fn save_parsed_checkin(
             lead = ?10,
             campaign = ?11,
             anon_name = ?12,
-            subdomain = ?13
-        WHERE id = ?14",
+            subdomain = ?13,
+            client_ip = ?14,
+            client_port = ?15
+
+        WHERE id = ?16",
         params![
             checkin.url,
             checkin.query,
@@ -122,6 +127,8 @@ pub fn save_parsed_checkin(
             checkin.campaign,
             checkin.anon_name,
             checkin.subdomain,
+            checkin.client_ip,
+            checkin.client_port,
             id,
         ],
     )?;

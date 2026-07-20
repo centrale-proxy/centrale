@@ -20,7 +20,16 @@ pub fn handle_payload(
             // SAVE INITIAL DATA
             let id = save_packet(db, bytes_db, checkin.clone())?;
             // PARSE
-            let parsed = ParsedCheckIn::parse_checkin(&checkin, names);
+            let ip = checkin.ip.for_logging();
+            let ip_only = ip.split(':').next().unwrap_or(&ip).to_string();
+            let port_only = ip
+                .rsplit(':')
+                .next()
+                .unwrap_or(&"0".to_string())
+                .parse::<u16>()
+                .unwrap_or(0);
+
+            let parsed = ParsedCheckIn::parse_checkin(&checkin, names, &ip_only, port_only);
             // SAVE
             save_parsed_checkin(db, id, parsed.clone())?;
 

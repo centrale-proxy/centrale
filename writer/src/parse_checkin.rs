@@ -20,10 +20,19 @@ pub struct ParsedCheckIn {
     pub campaign: Option<String>, // utm_campaign
     pub anon_name: String,
     pub subdomain: String,
+    /// Client ip from client_addr.
+    pub client_ip: String,
+    /// Client port from client_addr.
+    pub client_port: u16,
 }
 
 impl ParsedCheckIn {
-    pub fn parse_checkin(payload: &CheckIn, names: &mut HashMap<String, String>) -> ParsedCheckIn {
+    pub fn parse_checkin(
+        payload: &CheckIn,
+        names: &mut HashMap<String, String>,
+        client_ip: &str,
+        client_port: u16,
+    ) -> ParsedCheckIn {
         let text = String::from_utf8_lossy(&payload.bytes);
         let ip = payload.ip.for_logging();
         let ip_only = ip.split(':').next().unwrap_or(&ip).to_string();
@@ -32,12 +41,20 @@ impl ParsedCheckIn {
             .or_insert_with(|| RandomName::new().name)
             .clone();
 
-        Self::parse_checkin_text(text.as_ref(), anon_name.clone(), &payload.host)
+        Self::parse_checkin_text(
+            text.as_ref(),
+            anon_name.clone(),
+            &payload.host,
+            client_ip,
+            client_port,
+        )
     }
     pub fn parse_checkin_text(
         text: &str,
         anon_name: String,
         host: &Option<String>,
+        client_ip: &str,
+        client_port: u16,
     ) -> ParsedCheckIn {
         // Normalize line endings: handle \r\n, \n, AND lone \r. str::lines() does not
         // split on a bare carriage return, which silently collapses such requests.
@@ -113,6 +130,8 @@ impl ParsedCheckIn {
             campaign,
             anon_name,
             subdomain,
+            client_ip: client_ip.to_string(),
+            client_port,
         }
     }
 }
@@ -255,7 +274,8 @@ mod tests {
     fn parses_checkin2_text_into_parsed_checkin() {
         let text = "GET /hello/world?utm_source=google&utm_campaign=spring-sale HTTP/1.1\r\nHost: example.com\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36\r\nReferer: https://www.google.com/search?q=hello\r\n\r\n";
 
-        let parsed = ParsedCheckIn::parse_checkin_text(text, "test".to_string(), &None);
+        let parsed =
+            ParsedCheckIn::parse_checkin_text(text, "test".to_string(), &None, &"127.0.0.1", 0);
 
         //  assert_eq!(parsed.checkin, 123);
         // assert_eq!(parsed.ip.as_deref(), Some("1.2.3.4"));
@@ -276,7 +296,8 @@ mod tests {
     #[test]
     fn marks_bot_user_agents() {
         let text = "GET /robots.txt HTTP/1.1\r\nHost: example.com\r\nUser-Agent: Googlebot/2.1 (+http://www.google.com/bot.html)\r\n\r\n";
-        let parsed = ParsedCheckIn::parse_checkin_text(text, "test".to_string(), &None);
+        let parsed =
+            ParsedCheckIn::parse_checkin_text(text, "test".to_string(), &None, &"127.0.0.1", 0);
 
         assert_eq!(parsed.method.as_deref(), Some("GET"));
         assert_eq!(parsed.url.as_deref(), Some("/robots.txt"));
