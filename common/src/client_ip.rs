@@ -17,12 +17,15 @@ pub struct ClientIP {
 ///
 impl ClientIP {
     /// Best single value for logging, in order of preference.
+    /// Prefers the direct TCP peer (`client_addr`), falling back to the
+    /// forwarded headers. Those headers are client-supplied and can be
+    /// spoofed unless a trusted proxy overwrites them.
     pub fn for_logging(&self) -> &str {
-        self.forwarded
+        self.client_addr
             .as_deref()
+            .or(self.forwarded.as_deref())
             .or(self.x_forwarded_for.as_deref())
             .or(self.x_real_ip.as_deref())
-            .or(self.client_addr.as_deref())
             .unwrap_or("-")
     }
 }
