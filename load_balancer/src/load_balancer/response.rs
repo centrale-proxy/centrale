@@ -31,8 +31,8 @@ pub fn logging(
     e: Option<&pingora::Error>,
     ctx: &mut RequestCtx,
 ) {
-    // NO CHECKOUT FOR PING
-    if !ctx.is_ping {
+    // NO CHECKOUT FOR PING AND FRONT
+    if !ctx.is_ping && !ctx.is_front {
         // CHECKOUT
         let status = session.response_written().map_or(0, |r| r.status.as_u16());
         let checkout = build_checkout(status, e, ctx);
@@ -82,6 +82,7 @@ mod tests {
             response_body: body.to_vec(),
             response_body_truncated: truncated,
             is_ping: false,
+            is_front: false,
         }
     }
 

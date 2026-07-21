@@ -5,7 +5,7 @@ use self::helpers::{
     request_host_and_path, should_route_to_www,
 };
 use crate::load_balancer::{LoadBalancer, RequestCtx};
-use common::payload::CheckIn;
+use common::{is_front::is_front, payload::CheckIn};
 use pingora::prelude::{HttpPeer, Result, Session};
 
 pub async fn request_filter(
@@ -45,6 +45,12 @@ pub async fn request_filter(
     .await?
     {
         return Ok(true);
+    }
+
+    // IF IT'S FRONT END, DO NOT LOG
+    if path_and_query != "/" && is_front(&path_and_query) {
+        ctx.is_front = true;
+        return Ok(false);
     }
 
     let request_bytes = session.downstream_session.to_h1_raw().to_vec();

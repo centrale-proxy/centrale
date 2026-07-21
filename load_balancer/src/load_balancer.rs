@@ -20,6 +20,7 @@ pub struct RequestCtx {
     pub response_body: Vec<u8>,
     pub response_body_truncated: bool,
     pub is_ping: bool,
+    pub is_front: bool,
 }
 
 #[async_trait]
@@ -32,6 +33,7 @@ impl ProxyHttp for LoadBalancer {
             response_body: Vec::new(),
             response_body_truncated: false,
             is_ping: false,
+            is_front: false,
         }
     }
 
