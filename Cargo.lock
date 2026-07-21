@@ -291,31 +291,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
-name = "admin"
-version = "0.1.0"
-dependencies = [
- "actix-files",
- "actix-web",
- "centrale",
- "chrono",
- "common",
- "config",
- "dir_and_db_pool",
- "dotenvy",
- "futures",
- "mio",
- "openssl",
- "r2d2",
- "r2d2_sqlite",
- "serde",
- "serde_derive",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
- "tokio-stream",
-]
-
-[[package]]
 name = "ahash"
 version = "0.8.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -687,6 +662,31 @@ dependencies = [
  "sha2",
  "thiserror 2.0.18",
  "tokio-tungstenite",
+]
+
+[[package]]
+name = "centrale_admin"
+version = "0.1.0"
+dependencies = [
+ "actix-files",
+ "actix-web",
+ "centrale",
+ "chrono",
+ "common",
+ "config",
+ "dir_and_db_pool",
+ "dotenvy",
+ "futures",
+ "mio",
+ "openssl",
+ "r2d2",
+ "r2d2_sqlite",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tokio-stream",
 ]
 
 [[package]]
