@@ -81,9 +81,20 @@ pub fn save_packet(
         params![checkin.bytes, checkin.x_id],
     )?;
 
-    db.execute(
+    let id = db.query_row(
         "INSERT INTO writer (x_id, checkin, forwarded, x_forwarded_for, x_real_ip, client_addr)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+         ON CONFLICT(x_id) DO UPDATE SET
+             checkin = excluded.checkin,
+             forwarded = excluded.forwarded,
+             x_forwarded_for = excluded.x_forwarded_for,
+             x_real_ip = excluded.x_real_ip,
+             client_addr = excluded.client_addr,
+             timer = CASE
+                 WHEN writer.checkout IS NULL THEN NULL
+                 ELSE writer.checkout - excluded.checkin
+             END
+         RETURNING id",
         params![
             checkin.x_id,
             checkin.checkin as u64,
@@ -92,9 +103,9 @@ pub fn save_packet(
             checkin.ip.x_real_ip,
             checkin.ip.client_addr,
         ],
+        |row| row.get(0),
     )?;
-    let last_id = db.last_insert_rowid();
-    Ok(last_id)
+    Ok(id)
 }
 
 pub fn save_parsed_checkin(
@@ -145,18 +156,19 @@ pub fn save_parsed_checkin(
 
 pub fn save_checkout(db: &DbConnection, checkout: CheckOut) -> Result<i64, WriterError> {
     let id = db.query_row(
-        "UPDATE writer SET
-            checkout = ?1,
-            error = ?2,
-            status = ?3,
-            timer = ?1 - checkin
-        WHERE x_id = ?4
-        RETURNING id",
+        "INSERT INTO writer (x_id, checkin, checkout, error, status, timer)
+         VALUES (?1, ?2, ?2, ?3, ?4, 0)
+         ON CONFLICT(x_id) DO UPDATE SET
+             checkout = excluded.checkout,
+             error = excluded.error,
+             status = excluded.status,
+             timer = excluded.checkout - writer.checkin
+         RETURNING id",
         params![
+            checkout.x_id,
             checkout.checkout as u64,
             checkout.error,
             checkout.status,
-            checkout.x_id,
         ],
         |row| row.get(0),
     )?;
@@ -379,4 +391,65 @@ pub fn get_last_entries(
         .collect::<Result<Vec<_>, _>>()?;
 
     Ok(entries)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{get_full_entry, init_bytes_db, init_writer_db, save_checkout, save_packet};
+    use common::{
+        client_ip::ClientIP,
+        payload::{CheckIn, CheckOut},
+    };
+    use r2d2::Pool;
+    use r2d2_sqlite::SqliteConnectionManager;
+
+    #[test]
+    fn checkin_completes_row_when_checkout_arrives_first() {
+        let db_pool = Pool::builder()
+            .max_size(1)
+            .build(SqliteConnectionManager::memory())
+            .unwrap();
+        let bytes_pool = Pool::builder()
+            .max_size(1)
+            .build(SqliteConnectionManager::memory())
+            .unwrap();
+        let db = db_pool.get().unwrap();
+        let bytes_db = bytes_pool.get().unwrap();
+        init_writer_db(&db).unwrap();
+        init_bytes_db(&bytes_db).unwrap();
+
+        let checkout_id = save_checkout(
+            &db,
+            CheckOut {
+                checkout: 1_500,
+                error: None,
+                status: Some(204),
+                x_id: "out-of-order".to_string(),
+            },
+        )
+        .unwrap();
+        let checkin_id = save_packet(
+            &db,
+            &bytes_db,
+            CheckIn {
+                checkin: 1_000,
+                ip: ClientIP {
+                    client_addr: Some("127.0.0.1:1234".to_string()),
+                    ..ClientIP::default()
+                },
+                bytes: b"GET / HTTP/1.1\r\n\r\n".to_vec(),
+                host: None,
+                x_id: "out-of-order".to_string(),
+            },
+        )
+        .unwrap();
+
+        assert_eq!(checkin_id, checkout_id);
+        let entry = get_full_entry(&db, checkin_id).unwrap().unwrap();
+        assert_eq!(entry.checkin, 1_000);
+        assert_eq!(entry.checkout, Some(1_500));
+        assert_eq!(entry.status, Some(204));
+        assert_eq!(entry.timer, Some(500));
+        assert_eq!(entry.client_addr.as_deref(), Some("127.0.0.1:1234"));
+    }
 }
