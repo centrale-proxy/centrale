@@ -1,9 +1,62 @@
-use common::client_ip::ClientIP;
+use crate::{
+    load_balancer::{LoadBalancer, RequestCtx},
+    read_full_body::read_full_body,
+};
+use common::{
+    client_ip::ClientIP,
+    payload::{CentralePing, CentralePingInput},
+};
 use pingora::{
     http::ResponseHeader,
     prelude::{Result, Session},
 };
 use std::net::IpAddr;
+
+pub async fn handle_ping(
+    load_balancer: &LoadBalancer,
+    session: &mut Session,
+    ctx: &mut RequestCtx,
+    path_and_query: &str,
+    ip: &ClientIP,
+    host: Option<String>,
+) -> Result<bool> {
+    if path_and_query != "/api/ping" {
+        return Ok(false);
+    }
+
+    ctx.is_ping = true;
+
+    let body = read_full_body(session).await?;
+    match serde_json::from_slice::<CentralePingInput>(&body) {
+        Ok(ping) => {
+            let ip_and_port = ip.for_logging().to_string();
+            let ip_only = ip_and_port
+                .split(':')
+                .next()
+                .unwrap_or(&ip_and_port)
+                .to_string();
+
+            load_balancer.writer.send_ping(CentralePing::new(
+                ping.counter,
+                &ping.url,
+                ip_only,
+                host,
+            ));
+        }
+        Err(error) => {
+            eprintln!("bad JSON for ping: {error}");
+        }
+    }
+
+    let mut response = ResponseHeader::build(200, Some(2))?;
+    response.insert_header("Content-Length", "0")?;
+    response.insert_header("Cache-Control", "no-store")?;
+    session
+        .write_response_header(Box::new(response), true)
+        .await?;
+
+    Ok(true)
+}
 
 pub fn client_ip(session: &Session) -> ClientIP {
     let headers = &session.req_header().headers;

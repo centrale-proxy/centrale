@@ -1,18 +1,12 @@
 mod helpers;
 
 use self::helpers::{
-    client_ip, redirect_http_to_https, reject_ip_literal_host, request_host, request_host_and_path,
-    should_route_to_www,
+    client_ip, handle_ping, redirect_http_to_https, reject_ip_literal_host, request_host,
+    request_host_and_path, should_route_to_www,
 };
-use crate::{
-    load_balancer::{LoadBalancer, RequestCtx},
-    read_full_body::read_full_body,
-};
-use common::payload::{CentralePing, CentralePingInput, CheckIn};
-use pingora::{
-    http::ResponseHeader,
-    prelude::{HttpPeer, Result, Session},
-};
+use crate::load_balancer::{LoadBalancer, RequestCtx};
+use common::payload::CheckIn;
+use pingora::prelude::{HttpPeer, Result, Session};
 
 pub async fn request_filter(
     load_balancer: &LoadBalancer,
@@ -39,48 +33,23 @@ pub async fn request_filter(
 
     // GET IP
     let ip = client_ip(session);
-
     // SEND PING OR CHECKIN
-    if path_and_query == "/api/ping" {
-        // IT'S PING
-        // tbd extract url and counter
-        ctx.is_ping = true;
-
-        let body = read_full_body(session).await?;
-        match serde_json::from_slice::<CentralePingInput>(&body) {
-            Ok(ping) => {
-                let ip_and_port = ip.for_logging().to_string();
-                let ip_only = ip_and_port
-                    .split(':')
-                    .next()
-                    .unwrap_or(&ip_and_port)
-                    .to_string();
-
-                let ping2 = CentralePing::new(ping.counter, &ping.url, ip_only, host);
-
-                load_balancer.writer.send_ping(ping2);
-            }
-            Err(e) => {
-                eprintln!("bad JSON for ping: {e}");
-            }
-        }
-
-        // RETURN PING IMMEDIATELY
-        let mut response = ResponseHeader::build(200, Some(2))?;
-        //  response.insert_header("Location", location)?;
-        response.insert_header("Content-Length", "0")?;
-        response.insert_header("Cache-Control", "no-store")?;
-
-        session
-            .write_response_header(Box::new(response), true)
-            .await?;
+    if handle_ping(
+        load_balancer,
+        session,
+        ctx,
+        &path_and_query,
+        &ip,
+        host.clone(),
+    )
+    .await?
+    {
         return Ok(true);
-    } else {
-        // SEND CheckIn
-        let request_bytes = session.downstream_session.to_h1_raw().to_vec();
-        let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host.clone());
-        load_balancer.writer.send_checkin(checkin);
     }
+
+    let request_bytes = session.downstream_session.to_h1_raw().to_vec();
+    let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host);
+    load_balancer.writer.send_checkin(checkin);
 
     Ok(false)
 }
