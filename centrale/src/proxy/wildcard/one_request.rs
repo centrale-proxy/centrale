@@ -2,12 +2,13 @@ use crate::{
     error::CentraleError,
     proxy::{
         websocket::{is_ws::is_streaming_request, proxy_ws::ws_proxy},
-        wildcard::{is_front::is_front, serve_front::serve_front_end},
+        wildcard::serve_front::serve_front_end,
     },
     server::auth::CentraleUser,
 };
 use actix_http::StatusCode;
 use actix_web::{HttpRequest, HttpResponse, error::ErrorBadGateway, http::header::HeaderName, web};
+use common::is_front::is_front;
 use futures_util::StreamExt;
 use reqwest::{Method, header};
 use std::str::FromStr;

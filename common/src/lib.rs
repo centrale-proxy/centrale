@@ -4,6 +4,8 @@ pub mod error;
 pub mod names;
 pub mod payload;
 pub mod random;
+pub mod is_front;
+
 
 pub fn truncate(s: &str, max_len: usize) -> String {
     match s.char_indices().nth(max_len) {

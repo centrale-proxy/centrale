@@ -1,5 +1,4 @@
 pub mod create_client;
-pub mod is_front;
 pub mod one_request;
 pub mod one_request_with_payload;
 pub mod serve_front;

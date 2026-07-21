@@ -798,6 +798,7 @@ name = "common"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "config",
  "rand 0.8.6",
  "serde",
  "serde_derive",
