@@ -351,3 +351,4 @@ curl -H 'Authorization: Bearer test' https://test.domain.local/api/user/
 + add auth methods - SMART ID, log in link, email, gmail.
 + Central key storage?
 + basic HTML to login... should be in "app"?
++
