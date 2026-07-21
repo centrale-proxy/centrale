@@ -172,7 +172,6 @@ pre.small {
 }
 
 #main {
-  overflow: hidden;
 }
 
 </style>
