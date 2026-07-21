@@ -86,8 +86,8 @@
           </a>
         </td>
         <td style="">
-          <span v-if="touch.user">
-            {{ touch.user }}
+          <span v-if="touch.anon_name">
+            {{ touch.anon_name }}
           </span>
           <span v-else-if="touch.isAdmin" style="color: #000;">
             <div >

@@ -28,6 +28,8 @@
             try {
               let data = JSON.parse(event.data)
 
+              console.log(data)
+
               t.$store.inputFeed.push(data);
               /*
               // DON'T PRING PINGS

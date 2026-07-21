@@ -14,11 +14,14 @@ pub fn start_server(pool: DbPool, bytes_pool: DbPool) -> Result<(), Box<dyn Erro
     init_bytes_db(&bytes_db)?;
 
     let actix_feed_tx = feed_tx.clone();
+    let p = pool.clone();
     std::thread::spawn(move || {
-        if let Err(err) = actix_web::rt::System::new().block_on(start_server_actix(actix_feed_tx)) {
+        if let Err(err) =
+            actix_web::rt::System::new().block_on(start_server_actix(actix_feed_tx, p))
+        {
             eprintln!("Actix server error: {err}");
         }
     });
 
-    start_server_mio(pool, bytes_pool, feed_tx)
+    start_server_mio(pool.clone(), bytes_pool, feed_tx)
 }

@@ -329,3 +329,54 @@ pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResu
 
     Ok(entry)
 }
+
+pub fn get_last_entries(
+    db: &DbConnection,
+    limit: i64,
+) -> Result<Vec<FullEntryResult>, WriterError> {
+    let mut stmt = db.prepare(
+        "SELECT id, x_id, forwarded, x_forwarded_for, x_real_ip, client_addr,
+                client_ip, client_port, url, query, ua, method, referrer, host,
+                os, browser, is_bot, lead, campaign, checkin, checkout, error,
+                status, anon_name, timer, subdomain, counter
+         FROM writer
+         ORDER BY id DESC
+         LIMIT ?1",
+    )?;
+
+    let entries = stmt
+        .query_map(params![limit], |row| {
+            Ok(FullEntryResult {
+                id: row.get(0)?,
+                x_id: row.get(1)?,
+                forwarded: row.get(2)?,
+                x_forwarded_for: row.get(3)?,
+                x_real_ip: row.get(4)?,
+                client_addr: row.get(5)?,
+                client_ip: row.get(6)?,
+                client_port: row.get(7)?,
+                url: row.get(8)?,
+                query: row.get(9)?,
+                ua: row.get(10)?,
+                method: row.get(11)?,
+                referrer: row.get(12)?,
+                host: row.get(13)?,
+                os: row.get(14)?,
+                browser: row.get(15)?,
+                is_bot: row.get(16)?,
+                lead: row.get(17)?,
+                campaign: row.get(18)?,
+                checkin: row.get(19)?,
+                checkout: row.get(20)?,
+                error: row.get(21)?,
+                status: row.get(22)?,
+                anon_name: row.get(23)?,
+                timer: row.get(24)?,
+                subdomain: row.get(25)?,
+                counter: row.get(26)?,
+            })
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
+
+    Ok(entries)
+}

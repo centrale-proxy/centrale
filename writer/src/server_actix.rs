@@ -5,6 +5,7 @@ use actix_files::Files;
 //use actix_files::Files;
 use actix_web::{App, HttpServer, web};
 use config::CentraleConfig;
+use dir_and_db_pool::db::DbPool;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 //use std::collections::HashMap;
 //use std::sync::Arc;
@@ -13,6 +14,7 @@ use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 pub async fn start_server_actix(
     feed_tx: tokio::sync::broadcast::Sender<String>,
+    pool: DbPool,
 ) -> Result<(), WriterError> {
     // SET HTTPS
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
@@ -23,8 +25,6 @@ pub async fn start_server_actix(
         .set_certificate_chain_file(CentraleConfig::cert_pub_key())
         .unwrap();
     // CREATE REGISTRY //
-    // let pools = HashMap::new();
-    // let registry = Arc::new(RwLock::new(DbPoolRegistry { pools }));
 
     // TEST IF ALL VARS ARE THERE
     // BudgetConfig::test();
@@ -40,7 +40,7 @@ pub async fn start_server_actix(
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(feed_tx.clone()))
-            //  .app_data(web::Data::new(registry.clone()))
+            .app_data(web::Data::new(pool.clone()))
             //  .wrap(DbMiddleware::new(pool.clone())) // SINGLE PLAUYER
             //.wrap(from_fn(log_url))
             //  .app_data(web::Data::new(client.clone()))
