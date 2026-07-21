@@ -190,6 +190,22 @@ pub struct EntryResult {
     pub host: Option<String>,
 }
 
+pub fn get_bytes(db: &DbConnection, x_id: &str) -> Result<Option<Vec<u8>>, WriterError> {
+    let bytes = db
+        .query_row(
+            "SELECT bytes
+             FROM bytes
+             WHERE x_id = ?1
+             ORDER BY id DESC
+             LIMIT 1",
+            params![x_id],
+            |row| row.get(0),
+        )
+        .optional()?;
+
+    Ok(bytes)
+}
+
 pub fn get_one_entry(db: &DbConnection, x_id: &str) -> Result<Option<EntryResult>, WriterError> {
     let entry = db
         .query_row(
@@ -395,7 +411,9 @@ pub fn get_last_entries(
 
 #[cfg(test)]
 mod tests {
-    use super::{get_full_entry, init_bytes_db, init_writer_db, save_checkout, save_packet};
+    use super::{
+        get_bytes, get_full_entry, init_bytes_db, init_writer_db, save_checkout, save_packet,
+    };
     use common::{
         client_ip::ClientIP,
         payload::{CheckIn, CheckOut},
@@ -451,5 +469,10 @@ mod tests {
         assert_eq!(entry.status, Some(204));
         assert_eq!(entry.timer, Some(500));
         assert_eq!(entry.client_addr.as_deref(), Some("127.0.0.1:1234"));
+        assert_eq!(
+            get_bytes(&bytes_db, "out-of-order").unwrap(),
+            Some(b"GET / HTTP/1.1\r\n\r\n".to_vec())
+        );
+        assert_eq!(get_bytes(&bytes_db, "missing").unwrap(), None);
     }
 }

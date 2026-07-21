@@ -12,9 +12,13 @@ use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 //use std::sync::RwLock;
 //use prompt_client::PromptClient;
 
+#[derive(Clone)]
+pub struct BytesDbPool(pub DbPool);
+
 pub async fn start_server_actix(
     feed_tx: tokio::sync::broadcast::Sender<String>,
     pool: DbPool,
+    bytes_pool: DbPool,
 ) -> Result<(), WriterError> {
     // SET HTTPS
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
@@ -41,6 +45,7 @@ pub async fn start_server_actix(
         App::new()
             .app_data(web::Data::new(feed_tx.clone()))
             .app_data(web::Data::new(pool.clone()))
+            .app_data(web::Data::new(BytesDbPool(bytes_pool.clone())))
             //  .wrap(DbMiddleware::new(pool.clone())) // SINGLE PLAUYER
             //.wrap(from_fn(log_url))
             //  .app_data(web::Data::new(client.clone()))
