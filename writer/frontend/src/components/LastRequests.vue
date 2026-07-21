@@ -26,7 +26,7 @@
     </button>
 
     <br><br>
-    <table style="  border: 1px solid #999; display: block;">
+    <table style="border: 1px solid #999; display: block;">
       <tr>
         <td>
           time
@@ -106,12 +106,10 @@
 
       </tr>
 
-      <tr v-for="touch in filtered" v-if="touch && touch.url">
+      <tr v-for="touch in filtered" v-if="touch && touch.url" @click="showJson(touch)" style="cursor: pointer;">
         <td>
           <span v-if="touch.id">
-            <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #000; text-decoration: none;">
               {{ touch.id }}
-            </a>
           </span>
           <span v-else>
             {{ touch.id }}
@@ -124,10 +122,10 @@
             {{ touch.host }}
         </td>
         <td style="width: 200px; max-width: 200px; ">
-          <a v-if="touch.status === 404" v-bind:href="touch.path" target="_blank" style="color: #900; text-decoration: none;">
+          <a v-if="touch.status === 404" v-bind:href="touch.path" target="_blank" style="color: #900; text-decoration: none;" @click.stop>
             {{ touch.url }}
           </a>
-          <a v-else v-bind:href="touch.path" target="_blank" style="color: #000; text-decoration: none;">
+          <a v-else v-bind:href="touch.path" target="_blank" style="color: #000; text-decoration: none;" @click.stop>
             {{ touch.url }}
           </a>
         </td>
@@ -177,15 +175,15 @@
           </span>
         </td>
         <td>
-          <a v-if="touch.status === 404" v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #900; text-decoration: none;">
+          <a v-if="touch.status === 404" v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #900; text-decoration: none;" @click.stop>
             {{ touch.status }}
           </a>
-          <a v-else v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;">
+          <a v-else v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;" @click.stop>
             {{ touch.status }}
           </a>
         </td>
         <td>
-          <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;">
+          <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;" @click.stop>
             {{ touch.timer }}
           </a>
         </td>
@@ -253,6 +251,15 @@
       </tr>
     </table>
     <button v-if="limit" style="margin-left: auto; margin-right: auto; margin-top: 10px; width: 100%;" @click="showMore()">Show more</button>
+
+    <!-- JSON overlay -->
+    <div v-if="selected" class="json-overlay" @click.self="selected = null">
+      <div class="json-box">
+        <button class="json-close" @click="selected = null">×</button>
+        <pre>{{ selectedJson }}</pre>
+      </div>
+    </div>
+
   </div>
 </template>
 <script>
@@ -264,35 +271,25 @@
       return {
         e404: [],
         limit: true,
-        filterName: 'actual'
+        filterName: 'actual',
+        selected: null
       }
     },
     components: {
 //      'footerelement': footer,
     },
     mounted: function () {
-
+      const t = this
+      document.addEventListener('keydown', this.onKeydown)
+    },
+    beforeDestroy: function () {
+      document.removeEventListener('keydown', this.onKeydown)
     },
    // props: ['tracker'],
     computed: {
       sorted: function () {
         let t = this
         const sorted = _.orderBy(this.$store.inputFeed, ['id'], ['desc'])
-        //const sorted = t.$store.inputFeed;
-        /*
-        let all = []
-        let i = 0
-        _.each(sorted, function (one) {
-          if (t.limit) {
-            if (i < 10) {
-              all.push(one)
-              i++
-            }
-          } else {
-            all.push(one)
-          }
-        })
-        */
         return sorted
       },
       filtered: function () {
@@ -333,6 +330,12 @@
         })
 
         return all
+      },
+      selectedJson: function () {
+        if (!this.selected) {
+          return ''
+        }
+        return JSON.stringify(this.selected, null, 2)
       },
       userNames: function () {
 
@@ -376,11 +379,59 @@
       showMore: function () {
         this.limit = false
       },
+      showJson: function (touch) {
+        this.selected = touch
+      },
+      onKeydown: function (e) {
+        if (e.key === 'Escape') {
+          this.selected = null
+        }
+      }
     }
   }
 </script>
 <style scoped="">
   table td:hover {
      background-color: #eee;
+  }
+  .json-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .json-box {
+    position: relative;
+    background: #fff;
+    border: 1px solid #999;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
+    padding: 20px;
+  }
+  .json-box pre {
+    margin: 0;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .json-close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #999;
+  }
+  .json-close:hover {
+    color: #000;
   }
 </style>
