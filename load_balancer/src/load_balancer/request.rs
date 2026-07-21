@@ -19,7 +19,7 @@ pub async fn request_filter(
     session: &mut Session,
     ctx: &mut RequestCtx,
 ) -> Result<bool> {
-
+    // GET HOST, PATH AND QUERY
     let (host, path_and_query) = {
         let req = session.req_header();
 
@@ -49,6 +49,7 @@ pub async fn request_filter(
             .await?;
         return Ok(true);
     }
+
     // REDIRECT HTTP TO HTTPS
     if load_balancer.force_https_redirect && is_plain_http_request(session) {
         if let Some(location) = build_https_redirect_location(host.as_deref(), &path_and_query) {
@@ -64,6 +65,7 @@ pub async fn request_filter(
         }
     }
 
+    // GET IP
     let ip = client_ip(session);
 
     // SEND PING OR CHECKIN

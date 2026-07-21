@@ -175,8 +175,8 @@
     computed: {
       sorted: function () {
         let t = this
-        //const sorted = _.orderBy(this.tracker, ['checkin'], ['desc'])
-        const sorted = t.$store.inputFeed;
+        const sorted = _.orderBy(this.$store.inputFeed, ['id'], ['desc'])
+        //const sorted = t.$store.inputFeed;
         /*
         let all = []
         let i = 0
