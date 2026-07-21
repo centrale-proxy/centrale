@@ -1,5 +1,8 @@
 use common::client_ip::ClientIP;
-use pingora::prelude::Session;
+use pingora::{
+    http::ResponseHeader,
+    prelude::{Result, Session},
+};
 use std::net::IpAddr;
 
 pub fn client_ip(session: &Session) -> ClientIP {
@@ -66,7 +69,64 @@ fn extract_all_forwarded_for(forwarded_header: &str) -> Vec<String> {
     result
 }
 
-pub fn is_plain_http_request(session: &Session) -> bool {
+pub fn request_host_and_path(session: &Session) -> (Option<String>, String) {
+    let req = session.req_header();
+    let host = req
+        .uri
+        .authority()
+        .map(|authority| authority.as_str().to_string())
+        .or_else(|| {
+            req.headers
+                .get("host")
+                .and_then(|value| value.to_str().ok())
+                .map(str::to_string)
+        });
+    let path_and_query = request_path_and_query(req.uri.path(), req.uri.query());
+
+    (host, path_and_query)
+}
+
+pub async fn reject_ip_literal_host(session: &mut Session, host: Option<&str>) -> Result<bool> {
+    if !host.is_some_and(is_ip_literal_host) {
+        return Ok(false);
+    }
+
+    let mut response = ResponseHeader::build(421, Some(3))?;
+    response.insert_header("Content-Length", "0")?;
+    response.insert_header("Cache-Control", "no-store")?;
+    session
+        .write_response_header(Box::new(response), true)
+        .await?;
+
+    Ok(true)
+}
+
+pub async fn redirect_http_to_https(
+    session: &mut Session,
+    force_https_redirect: bool,
+    host: Option<&str>,
+    path_and_query: &str,
+) -> Result<bool> {
+    if !force_https_redirect || !is_plain_http_request(session) {
+        return Ok(false);
+    }
+
+    let Some(location) = build_https_redirect_location(host, path_and_query) else {
+        return Ok(false);
+    };
+
+    let mut response = ResponseHeader::build(308, Some(3))?;
+    response.insert_header("Location", location)?;
+    response.insert_header("Content-Length", "0")?;
+    response.insert_header("Cache-Control", "no-store")?;
+    session
+        .write_response_header(Box::new(response), true)
+        .await?;
+
+    Ok(true)
+}
+
+fn is_plain_http_request(session: &Session) -> bool {
     session
         .downstream_session
         .server_addr()

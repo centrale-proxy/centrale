@@ -1,5 +1,9 @@
 mod helpers;
 
+use self::helpers::{
+    client_ip, redirect_http_to_https, reject_ip_literal_host, request_host, request_host_and_path,
+    should_route_to_www,
+};
 use crate::{
     load_balancer::{LoadBalancer, RequestCtx},
     read_full_body::read_full_body,
@@ -9,60 +13,28 @@ use pingora::{
     http::ResponseHeader,
     prelude::{HttpPeer, Result, Session},
 };
-use self::helpers::{
-    build_https_redirect_location, client_ip, is_ip_literal_host, is_plain_http_request,
-    request_host, request_path_and_query, should_route_to_www,
-};
 
 pub async fn request_filter(
     load_balancer: &LoadBalancer,
     session: &mut Session,
     ctx: &mut RequestCtx,
 ) -> Result<bool> {
-    // GET HOST, PATH AND QUERY
-    let (host, path_and_query) = {
-        let req = session.req_header();
-
-        let host = req
-            .uri
-            .authority()
-            .map(|a| a.as_str().to_string())
-            .or_else(|| {
-                req.headers
-                    .get("host")
-                    .and_then(|v| v.to_str().ok())
-                    .map(str::to_string)
-            });
-
-        let path_and_query = request_path_and_query(req.uri.path(), req.uri.query());
-        (host, path_and_query)
-    };
-
-    // Do not proxy requests addressed to an IP literal.
-    if host.as_deref().is_some_and(is_ip_literal_host) {
-        let mut response = ResponseHeader::build(421, Some(3))?;
-        response.insert_header("Content-Length", "0")?;
-        response.insert_header("Cache-Control", "no-store")?;
-
-        session
-            .write_response_header(Box::new(response), true)
-            .await?;
+    // GET BASIC DATA
+    let (host, path_and_query) = request_host_and_path(session);
+    // NO DIRECT IP ACCESS
+    if reject_ip_literal_host(session, host.as_deref()).await? {
         return Ok(true);
     }
-
     // REDIRECT HTTP TO HTTPS
-    if load_balancer.force_https_redirect && is_plain_http_request(session) {
-        if let Some(location) = build_https_redirect_location(host.as_deref(), &path_and_query) {
-            let mut response = ResponseHeader::build(308, Some(3))?;
-            response.insert_header("Location", location)?;
-            response.insert_header("Content-Length", "0")?;
-            response.insert_header("Cache-Control", "no-store")?;
-
-            session
-                .write_response_header(Box::new(response), true)
-                .await?;
-            return Ok(true);
-        }
+    if redirect_http_to_https(
+        session,
+        load_balancer.force_https_redirect,
+        host.as_deref(),
+        &path_and_query,
+    )
+    .await?
+    {
+        return Ok(true);
     }
 
     // GET IP
