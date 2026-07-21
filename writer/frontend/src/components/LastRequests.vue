@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 100%; max-width: 2000px; margin-left: auto; margin-right: auto;">
+  <div style="width: 100%; margin-left: auto; margin-right: auto;">
 
     <br>
     <button v-if="filterName === 'actual'" style="color: #000;" @click="filterName = 'actual'">
@@ -30,6 +30,12 @@
       <tr>
         <td>
           time
+        </td>
+        <td>
+            method
+        </td>
+        <td>
+            host
         </td>
         <td>
           url
@@ -64,9 +70,43 @@
         <td>
           Referrer
         </td>
+        <td>
+            error
+        </td>
+        <td>
+            forwarded
+        </td>
+        <td>
+            x_forwarded_for
+        </td>
+        <td>
+            x_real_ip
+        </td>
+        <td>
+            client_addr
+        </td>
+        <td>
+            client_ip
+        </td>
+        <td>
+            client_port
+        </td>
+        <td>
+            query
+        </td>
+        <td>
+            is_bot
+        </td>
+        <td>
+            subdomain
+        </td>
+        <td>
+            ua
+        </td>
+
       </tr>
 
-       <tr v-for="touch in filtered" v-if="touch && touch.url">
+      <tr v-for="touch in filtered" v-if="touch && touch.url">
         <td>
           <span v-if="touch.id">
             <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #000; text-decoration: none;">
@@ -76,6 +116,12 @@
           <span v-else>
             {{ touch.id }}
           </span>
+        </td>
+        <td style="">
+            {{ touch.method }}
+        </td>
+        <td style="">
+            {{ touch.host }}
         </td>
         <td style="width: 200px; max-width: 200px; ">
           <a v-if="touch.status === 404" v-bind:href="touch.path" target="_blank" style="color: #900; text-decoration: none;">
@@ -148,6 +194,62 @@
             {{ touch.referrer }}
           </span>
         </td>
+        <td>
+            <span>
+              {{ touch.error }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.forwarded }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.x_forwarded_for }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.x_real_ip }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.client_addr }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.client_ip }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.client_port }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.query }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.is_bot }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.subdomain }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.ua }}
+            </span>
+        </td>
+
       </tr>
     </table>
     <button v-if="limit" style="margin-left: auto; margin-right: auto; margin-top: 10px; width: 100%;" @click="showMore()">Show more</button>
