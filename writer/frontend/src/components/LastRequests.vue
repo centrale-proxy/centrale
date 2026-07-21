@@ -311,7 +311,7 @@
             if (one.url === '/api/visitor') {
               return one
             } else {
-              return one.ping && one.ping > -1
+              return one.counter && one.counter > -1
             }
           })
         } else {
