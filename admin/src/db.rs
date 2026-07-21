@@ -381,7 +381,7 @@ pub fn get_last_entries(
         "SELECT id, x_id, forwarded, x_forwarded_for, x_real_ip, client_addr,
                 client_ip, client_port, url, query, method, referrer, host,
                 os, browser, is_bot, lead, campaign, checkin, checkout, error,
-                status, anon_name, timer, subdomain, counter
+                status, anon_name, timer, subdomain, counter, year, month, day, time
          FROM writer
          ORDER BY id DESC
          LIMIT ?1",
