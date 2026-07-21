@@ -97,6 +97,9 @@
         <td>
             client_port
         </td>
+        <td>
+            x_id
+        </td>
 
       </tr>
 
@@ -230,6 +233,11 @@
               {{ touch.client_port }}
             </span>
         </td>
+        <td>
+            <span>
+              {{ touch.x_id }}
+            </span>
+        </td>
 
       </tr>
     </table>
@@ -240,6 +248,7 @@
       <div class="json-box">
         <button class="json-close" @click="selected = null">×</button>
         <pre>{{ selectedJson }}</pre>
+        <pre v-if="bytes" class="bytes-pre">{{ bytes }}</pre>
       </div>
     </div>
 
@@ -255,7 +264,8 @@
         e404: [],
         limit: true,
         filterName: 'actual',
-        selected: null
+        selected: null,
+        bytes: null
       }
     },
     components: {
@@ -363,7 +373,19 @@
         this.limit = false
       },
       showJson: function (touch) {
-        this.selected = touch
+        const t = this
+        t.selected = touch
+        t.bytes = null
+        fetch('/api/bytes/' + touch.x_id)
+          .then(function (res) { return res.json() })
+          .then(function (json) {
+            // only accept a plain string, ignore anything else
+            t.bytes = (json && typeof json.ascii === 'string') ? json.ascii : ''
+          })
+          .catch(function (err) {
+            console.log('bytes fetch failed', err)
+            t.bytes = ''
+          })
       },
       onKeydown: function (e) {
         if (e.key === 'Escape') {
@@ -416,5 +438,14 @@
   }
   .json-close:hover {
     color: #000;
+  }
+  .bytes-pre {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ccc;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #333;
   }
 </style>

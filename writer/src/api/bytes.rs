@@ -14,9 +14,17 @@ pub async fn bytes_by_x_id(
                 .json(serde_json::json!({ "error": "database_unavailable" }));
         }
     };
-
     match get_bytes(&db, &x_id) {
-        Ok(Some(bytes)) => HttpResponse::Ok().json(serde_json::json!({ "bytes": bytes })),
+        Ok(Some(bytes)) => {
+            if !bytes.is_ascii() {
+                eprintln!("Bytes for x_id '{}' contain non-ASCII data", x_id.as_str());
+                return HttpResponse::InternalServerError()
+                    .json(serde_json::json!({ "error": "invalid_ascii_data" }));
+            }
+            // Safe: all bytes are ASCII, therefore valid UTF-8
+            let ascii = String::from_utf8(bytes).expect("ASCII bytes are always valid UTF-8");
+            HttpResponse::Ok().json(serde_json::json!({ "ascii": ascii }))
+        }
         Ok(None) => HttpResponse::NotFound().json(serde_json::json!({
             "error": "bytes_not_found",
             "x_id": x_id.into_inner(),
