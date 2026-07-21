@@ -26,6 +26,7 @@ pub struct ParsedCheckIn {
     pub year: i32,
     pub month: u8,
     pub day: u8,
+    pub time: String,
 }
 
 impl ParsedCheckIn {
@@ -122,6 +123,7 @@ impl ParsedCheckIn {
         let year = now.year();
         let month = now.month() as u8;
         let day = now.day() as u8;
+        let time = now.format("%H:%M:%S").to_string();
 
         ParsedCheckIn {
             url,
@@ -142,6 +144,7 @@ impl ParsedCheckIn {
             year,
             month,
             day,
+            time,
         }
     }
 }

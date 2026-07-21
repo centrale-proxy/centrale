@@ -33,9 +33,10 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             timer INTEGER,
             subdomain TEXT,
             counter INTEGER,
-            year INTEGER,
-            month INTEGER,
-            day INTEGER
+            year NOT NULL INTEGER,
+            month NOT NULL INTEGER,
+            day NOT NULL INTEGER,
+            time NOT NULL TEXT
         )",
         [],
     )?;
@@ -133,9 +134,10 @@ pub fn save_parsed_checkin(
             client_port = ?14,
             year = ?15,
             month = ?16,
-            day = ?17
+            day = ?17,
+            time = ?18
 
-        WHERE id = ?18",
+        WHERE id = ?19",
         params![
             checkin.url,
             checkin.query,
@@ -154,6 +156,7 @@ pub fn save_parsed_checkin(
             checkin.year,
             checkin.month,
             checkin.day,
+            checkin.time,
             id,
         ],
     )?;
@@ -314,6 +317,10 @@ pub struct FullEntryResult {
     pub timer: Option<i64>,
     pub subdomain: Option<String>,
     pub counter: Option<i64>,
+    pub year: Option<i32>,
+    pub month: Option<u8>,
+    pub day: Option<u8>,
+    pub time: Option<String>,
 }
 
 pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResult>, WriterError> {
@@ -322,7 +329,7 @@ pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResu
             "SELECT id, x_id, forwarded, x_forwarded_for, x_real_ip, client_addr,
                     client_ip, client_port, url, query, method, referrer, host,
                     os, browser, is_bot, lead, campaign, checkin, checkout, error,
-                    status, anon_name, timer, subdomain, counter
+                    status, anon_name, timer, subdomain, counter, year, month, day, time
              FROM writer
              WHERE id = ?1",
             params![id],
@@ -354,6 +361,10 @@ pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResu
                     timer: row.get(23)?,
                     subdomain: row.get(24)?,
                     counter: row.get(25)?,
+                    year: row.get(26)?,
+                    month: row.get(27)?,
+                    day: row.get(28)?,
+                    time: row.get(29)?,
                 })
             },
         )
@@ -405,6 +416,10 @@ pub fn get_last_entries(
                 timer: row.get(23)?,
                 subdomain: row.get(24)?,
                 counter: row.get(25)?,
+                year: row.get(26)?,
+                month: row.get(27)?,
+                day: row.get(28)?,
+                time: row.get(29)?,
             })
         })?
         .collect::<Result<Vec<_>, _>>()?;

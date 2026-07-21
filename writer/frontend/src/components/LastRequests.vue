@@ -106,7 +106,7 @@
       <tr v-for="touch in filtered" v-if="touch && touch.url && touch.url !=='/api/feed'" @click="showJson(touch)" style="cursor: pointer;">
         <td>
           <span v-if="touch.id">
-              {{ touch.id }}
+              {{ touch.time }}
           </span>
           <span v-else>
             {{ touch.id }}
