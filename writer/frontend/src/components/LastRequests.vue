@@ -35,7 +35,7 @@
             method
         </td>
         <td>
-            host
+            subdomain
         </td>
         <td>
           url
@@ -44,16 +44,22 @@
           user
         </td>
         <td>
-          seconds
+          <span>status</span>
         </td>
         <td>
-          event
+          <span>timer</span>
+        </td>
+        <td>
+            secs
+        </td>
+        <td>
+         bot
         </td>
         <td>
           lead
         </td>
         <td>
-          Campaign
+          campaign
         </td>
         <td>
           Browser
@@ -62,10 +68,10 @@
           OS
         </td>
         <td>
-          <span>status</span>
+            query
         </td>
         <td>
-          <span>timer</span>
+            host
         </td>
         <td>
           Referrer
@@ -91,18 +97,6 @@
         <td>
             client_port
         </td>
-        <td>
-            query
-        </td>
-        <td>
-            is_bot
-        </td>
-        <td>
-            subdomain
-        </td>
-        <td>
-            ua
-        </td>
 
       </tr>
 
@@ -118,8 +112,10 @@
         <td style="">
             {{ touch.method }}
         </td>
-        <td style="">
-            {{ touch.host }}
+        <td>
+            <span>
+              {{ touch.subdomain }}
+            </span>
         </td>
         <td style="width: 200px; max-width: 200px; ">
           <a v-if="touch.status === 404" v-bind:href="touch.path" target="_blank" style="color: #900; text-decoration: none;" @click.stop>
@@ -139,20 +135,32 @@
             </div>
           </span>
           <span v-else style="color: #999;">
-            <div v-if="touch.ip && userNames[touch.ip]">
-              {{ userNames[touch.ip] }}
-            </div>
+              {{touch.ip}}
           </span>
         </td>
+        <td>
+          <a v-if="touch.status === 404" v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #900; text-decoration: none;" @click.stop>
+            {{ touch.status }}
+          </a>
+          <a v-else v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;" @click.stop>
+            {{ touch.status }}
+          </a>
+        </td>
+        <td>
+          <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;" @click.stop>
+            {{ touch.timer }}
+          </a>
+        </td>
+
         <td style="">
           <span v-if="touch.counter">
             {{ touch.counter }}
           </span>
         </td>
-        <td style="width: 40px;">
-          <span v-if="touch.body && touch.body.event">
-            <span :title="touch.body.event">!!!</span>
-          </span>
+        <td>
+            <span v-if="touch.is_bot">
+                🤖
+            </span>
         </td>
         <td style="width: 40px;">
           <span v-if="touch.lead">
@@ -175,17 +183,12 @@
           </span>
         </td>
         <td>
-          <a v-if="touch.status === 404" v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #900; text-decoration: none;" @click.stop>
-            {{ touch.status }}
-          </a>
-          <a v-else v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;" @click.stop>
-            {{ touch.status }}
-          </a>
+            <span>
+              {{ touch.query }}
+            </span>
         </td>
-        <td>
-          <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;" @click.stop>
-            {{ touch.timer }}
-          </a>
+        <td style="">
+            {{ touch.host }}
         </td>
         <td style="width: 40px;">
           <span>
@@ -225,26 +228,6 @@
         <td>
             <span>
               {{ touch.client_port }}
-            </span>
-        </td>
-        <td>
-            <span>
-              {{ touch.query }}
-            </span>
-        </td>
-        <td>
-            <span>
-              {{ touch.is_bot }}
-            </span>
-        </td>
-        <td>
-            <span>
-              {{ touch.subdomain }}
-            </span>
-        </td>
-        <td>
-            <span>
-              {{ touch.ua }}
             </span>
         </td>
 
