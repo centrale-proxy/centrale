@@ -1,9 +1,8 @@
-use std::collections::HashMap;
-
+use crate::subdomain::{extract_subdomain, host_from_referrer, host_only};
+use chrono::{Datelike, Utc};
 use common::{names::RandomName, payload::CheckIn};
 use serde_derive::{Deserialize, Serialize};
-
-use crate::subdomain::{extract_subdomain, host_from_referrer, host_only};
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ParsedCheckIn {
@@ -24,6 +23,9 @@ pub struct ParsedCheckIn {
     pub client_ip: String,
     /// Client port from client_addr.
     pub client_port: u16,
+    pub year: i32,
+    pub month: u8,
+    pub day: u8,
 }
 
 impl ParsedCheckIn {
@@ -116,6 +118,11 @@ impl ParsedCheckIn {
                 .unwrap_or_default()
         };
 
+        let now = Utc::now();
+        let year = now.year();
+        let month = now.month() as u8;
+        let day = now.day() as u8;
+
         ParsedCheckIn {
             url,
             query,
@@ -132,6 +139,9 @@ impl ParsedCheckIn {
             subdomain,
             client_ip: client_ip.to_string(),
             client_port,
+            year,
+            month,
+            day,
         }
     }
 }
