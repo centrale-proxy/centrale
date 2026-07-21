@@ -33,10 +33,10 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             timer INTEGER,
             subdomain TEXT,
             counter INTEGER,
-            year INTEGER NOT NULL,
-            month INTEGER NOT NULL,
-            day INTEGER NOT NULL,
-            time TEXT NOT NULL
+            year INTEGER,
+            month INTEGER,
+            day INTEGER,
+            time TEXT
         )",
         [],
     )?;
