@@ -4,7 +4,8 @@
   </div>
 </template>
 <script>
-  import axios from 'axios'
+  //import axios from 'axios'
+  import _ from 'lodash'
 
   export default {
     name: "AppContainer",
@@ -28,9 +29,18 @@
             try {
               let data = JSON.parse(event.data)
 
-              console.log(data)
+              let i = -1;
+              _.each(t.$store.inputFeed, function (one, index) {
+                if (one.id === data.id) {
+                  i = index;
+                }
+              })
+              if (i > -1) {
+                t.$set(t.$store.inputFeed, i,  data)
+              } else {
+                t.$store.inputFeed.push(data);
+              }
 
-              t.$store.inputFeed.push(data);
               /*
               // DON'T PRING PINGS
               if (data.url === '/api/ping') {

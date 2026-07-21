@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 100%; max-width: 1000px; margin-left: auto; margin-right: auto;">
+  <div style="width: 100%; max-width: 2000px; margin-left: auto; margin-right: auto;">
 
     <br>
     <button v-if="filterName === 'actual'" style="color: #000;" @click="filterName = 'actual'">
@@ -26,7 +26,7 @@
     </button>
 
     <br><br>
-    <table style=" overflow: hidden; border: 1px solid #999; display: block;">
+    <table style="  border: 1px solid #999; display: block;">
       <tr>
         <td>
           time
@@ -70,14 +70,14 @@
         <td>
           <span v-if="touch.id">
             <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #000; text-decoration: none;">
-              {{ touch.checkin }}
+              {{ touch.id }}
             </a>
           </span>
           <span v-else>
-            {{ touch.checkin }}
+            {{ touch.id }}
           </span>
         </td>
-        <td style="width: 200px; max-width: 200px; overflow: hidden;">
+        <td style="width: 200px; max-width: 200px; ">
           <a v-if="touch.status === 404" v-bind:href="touch.path" target="_blank" style="color: #900; text-decoration: none;">
             {{ touch.url }}
           </a>
@@ -101,8 +101,8 @@
           </span>
         </td>
         <td style="">
-          <span v-if="touch.ping">
-            {{ touch.ping }}
+          <span v-if="touch.counter">
+            {{ touch.counter }}
           </span>
         </td>
         <td style="width: 40px;">
