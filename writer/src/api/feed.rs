@@ -11,7 +11,7 @@ pub async fn feed(
     let initial_entries = db_pool
         .get()
         .ok()
-        .and_then(|db_pool| get_last_entries(&db_pool, 20).ok())
+        .and_then(|db_pool| get_last_entries(&db_pool, 300).ok())
         .unwrap_or_default();
 
     // One stream item (= one flushed chunk) per entry
