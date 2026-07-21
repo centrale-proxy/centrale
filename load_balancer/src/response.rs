@@ -1,5 +1,44 @@
-use crate::load_balancer::RequestCtx;
+use crate::load_balancer::{LoadBalancer, RequestCtx};
+use bytes::Bytes;
 use common::payload::CheckOut;
+use pingora::prelude::{Result, Session};
+
+const MAX_LOGGED_RESPONSE_BODY_BYTES: usize = 8 * 1024;
+
+pub fn response_body_filter(
+    body: &mut Option<Bytes>,
+    ctx: &mut RequestCtx,
+) -> Result<Option<std::time::Duration>> {
+    if let Some(chunk) = body.as_ref() {
+        let remaining = MAX_LOGGED_RESPONSE_BODY_BYTES.saturating_sub(ctx.response_body.len());
+
+        if remaining > 0 {
+            let bytes_to_copy = remaining.min(chunk.len());
+            ctx.response_body.extend_from_slice(&chunk[..bytes_to_copy]);
+        }
+
+        if chunk.len() > remaining {
+            ctx.response_body_truncated = true;
+        }
+    }
+
+    Ok(None)
+}
+
+pub fn logging(
+    load_balancer: &LoadBalancer,
+    session: &mut Session,
+    e: Option<&pingora::Error>,
+    ctx: &mut RequestCtx,
+) {
+    // NO CHECKOUT FOR PING
+    if !ctx.is_ping {
+        // CHECKOUT
+        let status = session.response_written().map_or(0, |r| r.status.as_u16());
+        let checkout = build_checkout(status, e, ctx);
+        load_balancer.writer.send_checkout(checkout);
+    }
+}
 
 pub fn build_checkout(status: u16, e: Option<&pingora::Error>, ctx: &RequestCtx) -> CheckOut {
     match e {
