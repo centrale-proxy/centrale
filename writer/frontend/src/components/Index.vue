@@ -3,9 +3,14 @@
 <template>
     <div class="medium push">
         Centrale admin!
+        <br><br>
+        <lastrequests>
+        </lastrequests>
     </div>
 </template>
 <script>
+
+import lastrequests from './lastrequests.vue'
 
 export default {
     name: 'Index',
@@ -15,7 +20,7 @@ export default {
         }
     },
     components: {
-        //    mainmenu,
+      lastrequests,
     },
     mounted() {
 

@@ -13,28 +13,57 @@
         admin: false
       }
     },
-    mounted() {
-//      this.getAndSetUser()
-//      this.getAndSetCompany()
- //     this.getProducts()
+  mounted() {
+      this.getFeed();
     },
     components: {
     },
     methods: {
-      getAndSetUser: function () {
-        let t = this
-        axios
-          .get('/api/user')
-          .then(({data}) => {
-            this.$set(this.$store, 'user', data.user || {})
-            if (data.user && data.user.roles && data.user.roles.indexOf('admin') > -1) {
-              t.admin = true
+      getFeed: function () {
+        const t = this
+        if (!!window.EventSource) {
+          var source = new EventSource('/api/feed')
+
+          source.onmessage = function(event) {
+            try {
+              let data = JSON.parse(event.data)
+
+              t.$store.inputFeed.push(data);
+              /*
+              // DON'T PRING PINGS
+              if (data.url === '/api/ping') {
+                return
+              }
+
+              if (data.checkin && data.id) {
+                // THIS IS CHECKIN
+                if (!t.tracker[data.id]) {
+                  t.$set(t.tracker, data.id, {})
+                }
+                t.$set(t.tracker, data.id, data)
+
+              } else if (data.ping && data.id && t.tracker[data.id]) {
+                // THIS IS PING
+                t.$set(t.tracker[data.id], 'ping',  data.ping )
+              } else {
+                // THIS IS CHECKOUT
+                if (!t.tracker[data.id]) {
+                  t.$set(t.tracker, data.id, {})
+                }
+                t.$set(t.tracker[data.id], 'status', data.status)
+                t.$set(t.tracker[data.id], 'checkoutFormated', data.checkoutFormated)
+                t.$set(t.tracker[data.id], 'timer', data.timer)
+                t.$set(t.tracker[data.id], 'user', data.user)
+              }
+ */
+            } catch (e) {
+              console.log(e)
             }
-          })
-          .catch((error) => {
-            t.$router.push('/login')
-            console.log(error)
-          })
+          }
+
+        } else {
+          console.log("Your browser doesn't support SSE")
+        }
       },
     }
   }

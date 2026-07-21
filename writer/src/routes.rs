@@ -8,7 +8,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .route(web::get().to(respond_test))
             .route(web::head().to(|| HttpResponse::Ok())),
     )
-    .service(web::resource("/feed").route(web::get().to(feed)));
+    .service(web::resource("/api/feed").route(web::get().to(feed)));
 }
 
 pub async fn respond_test() -> HttpResponse {

@@ -31,16 +31,7 @@ new Vue({
   router,
   data: {
     store: {
-      user: {},
-      halfBase: false,
-      halfBaseNeedsWood: false,
-      base: false,
-      inventory: {
-        axe: false,
-        pickaxe: false,
-        dagger: false,
-        medKit: false
-      }
+      inputFeed: [],
     }
   },
   render: h => h(Wrapper)
