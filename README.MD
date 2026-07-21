@@ -20,7 +20,7 @@ Assumes DNS A *.domain.com being directed to load_balancer.
 + IP based rate limiter(s) (actix-governor)   
 + proxies request (https + websocket) to destination server  
 + + adds user_id, password and role to request (to destination server db) headers  
-+ Forwards request data to Writer (logging service)  
++ Forwards request data to Admin (logging service)  
 + Enables user adding / user management, subdomain adding.  
 + Serves same front end for all subdomains (optionally)  
 + User management + user subdomain access management
@@ -31,7 +31,7 @@ Assumes DNS A *.domain.com being directed to load_balancer.
 + id, password (and role) from request header opens db connection  
 + Active destination server is set with DESTINATION_SERVER_ADDRESS  
   
-## Writer (logging service)  
+## Admin (logging service)  
 + Logs request header bytes in a separate db.
 + Parses bytes + stores url, query, method, browser, refferer, host, os, etc to db.  
 + If response status is > 400, error body is logged  
@@ -66,13 +66,13 @@ pub struct ParsedCheckIn {
 Q: User registration gives an immediate cookie (instead of requiring log in).  
 A: I've been in the position of asking for this feature "later" (when the auth was built already).  
 
-Q: If client errors then the message body is logged to Writer.  
+Q: If client errors then the message body is logged to Admin.  
 A: Previously customer support had to ask devops to find what customer error was.  
 
 Q: Why is backend doing subodmains not DNS?  
 A: in DNS all customer subdomains would be visible with a DNS query.  
 
-A: logging system Writer uses UDP connection, which is unreliable compared to TCP.  
+A: logging system Admin uses UDP connection, which is unreliable compared to TCP.  
 A: it could be easily swapped to TCP, at the moment I like UDP more, as it puts a bit less work to Centrale. Wouldn't want the authentication to break because logging needs resources.
   
 Q: Token and cookie are both allowed for same endpoints  
@@ -236,15 +236,15 @@ setcap 'cap_net_bind_service=+ep' /home/www/centrale/target/release/load_balance
 
 ---
 
-sudo nano /etc/systemd/system/writer.service
+sudo nano /etc/systemd/system/centrale_admin.service
 
 [Unit]
-Description=Writer
-After=network.target writer.service
+Description=Centrale Admin
+After=network.target centrale_admin.service
 
 [Service]
 User=www
-ExecStart=/home/www/centrale/target/release/writer
+ExecStart=/home/www/centrale/target/release/centrale_admin
 EnvironmentFile=/home/www/centrale/.env
 Restart=on-failure
 
@@ -268,14 +268,14 @@ sudo journalctl -u centrale.service -f
 sudo journalctl -u load_balancer.service
 sudo journalctl -u load_balancer.service -f
 
-sudo journalctl -u writer.service
-sudo journalctl -u writer.service -f
+sudo journalctl -u centrale_admin.service
+sudo journalctl -u centrale_admin.service -f
 
 sudo systemctl enable destination_server
 sudo systemctl start destination_server
 
-sudo systemctl enable writer
-sudo systemctl start writer
+sudo systemctl enable centrale_admin
+sudo systemctl start centrale_admin
 
 ```
 

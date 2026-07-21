@@ -9,6 +9,6 @@ service centrale stop
 service centrale start
 service load_balancer stop
 service load_balancer start
-service writer stop
-service writer start
-journalctl -u writer.service -f --no-hostnameme
+service centrale_admin stop
+service centrale_admin start
+journalctl -u centrale_admin.service -f --no-hostnameme

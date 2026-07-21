@@ -4,7 +4,7 @@
        "dir_and_db_pool",
        "config",
        "test_suite",
-       "writer",
+       "admin",
        "common",
        "destination_server",
        "load_balancer"
