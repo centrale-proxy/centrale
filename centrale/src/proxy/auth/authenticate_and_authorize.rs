@@ -1,7 +1,6 @@
 use crate::{
     api::subdomain::post::{
-        get_pass_and_address::get_subdomain_pass_and_address,
-        get_subdomain_user::get_subdomain_user_role,
+        get_pass_and_address::get_subdomain_data, get_subdomain_user::get_subdomain_user_role,
     },
     error::CentraleError,
     proxy::auth::{get_user_id::get_user_id, subdomain::get_subdomain},
@@ -13,7 +12,7 @@ pub fn authenticate_and_authorize(
     pool: web::Data<DbPool>,
     req: &HttpRequest,
     host: &str,
-) -> Result<(i64, String, String, String, String, String, String), CentraleError> {
+) -> Result<(i64, String, String, String, String, String, String, bool), CentraleError> {
     // println!("req {:?}", &req);
     let headers = req.headers();
     // VALIDATE SUBDOMAIN
@@ -24,19 +23,20 @@ pub fn authenticate_and_authorize(
     let subdomain_user_role = get_subdomain_user_role(&pool, &subdomain, user_id)?;
     // GET PASS AND ADDRESS
     //
-    let pass_and_address = get_subdomain_pass_and_address(&pool, &subdomain)?;
+    let subdomain_data = get_subdomain_data(&pool, &subdomain)?;
     // PREPARE TO PROXY
     let path = req.path().to_string();
-    let domain = format!("{}", pass_and_address.address);
+    let domain = format!("{}", subdomain_data.address);
     let url = format!("{}{}", domain, path);
 
     Ok((
         user_id,
         subdomain,
         subdomain_user_role,
-        pass_and_address.password,
+        subdomain_data.password,
         url,
-        pass_and_address.destination_bearer,
-        pass_and_address.name,
+        subdomain_data.destination_bearer,
+        subdomain_data.name,
+        subdomain_data.serve_front,
     ))
 }

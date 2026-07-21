@@ -12,6 +12,7 @@ pub struct CentraleUser {
     pub url: String,
     pub destination_bearer: String,
     pub subdomain_name: String,
+    pub serve_front: bool,
 }
 
 // Implement FromRequest for CentraleUser

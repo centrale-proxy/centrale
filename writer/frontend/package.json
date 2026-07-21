@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "parcel serve index.html",
+    "build": "parcel build index.html",
+    "start": "serve --single dist"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.7.0",
+    "axios": "^0.19.2",
+    "billboard.js": "^1.12.12",
+    "core-js": "^2.6.12",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "regenerator-runtime": "^0.13.11",
+    "vue": "^2.7.14",
+    "vue-hot-reload-api": "^2.3.0",
+    "vue-router": "^3.6.5",
+    "vue-stash": "^2.0.1-beta"
+  },
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.1.0",
+    "parcel-bundler": "^1.9.7",
+    "vue-template-compiler": "^2.7.14"
+  }
+}

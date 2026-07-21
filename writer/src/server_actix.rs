@@ -1,5 +1,6 @@
 use crate::error::WriterError;
 use crate::routes::routes;
+use actix_files::Files;
 //use crate::standalone::{DbMiddleware, init_pool};
 //use actix_files::Files;
 use actix_web::{App, HttpServer, web};
@@ -45,9 +46,9 @@ pub async fn start_server_actix(
             //  .app_data(web::Data::new(client.clone()))
             //   .app_data(web::Data::new(prompt_client.clone()))
             .configure(routes)
-        //.service(
-        //      Files::new("/", CentraleConfig::get("ADMIN_WEB_FILES")).index_file("index.html"),
-        //  )
+            .service(
+                Files::new("/", CentraleConfig::get("ADMIN_WEB_FILES")).index_file("index.html"),
+            )
     })
     .workers(1)
     // .bind(CentraleConfig::ADMIN_SERVER_ADDRESS)?

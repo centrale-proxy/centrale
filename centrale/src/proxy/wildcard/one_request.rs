@@ -25,7 +25,7 @@ pub async fn process_one_request(
         Ok(socket)
     } else {
         // IS FRONT
-        if is_front(&user.url) {
+        if is_front(&user.url) && user.serve_front {
             // serve front
             let front = serve_front_end(req).await;
             return Ok(front);
