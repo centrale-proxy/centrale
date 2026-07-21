@@ -19,7 +19,6 @@ pub async fn request_filter(
     session: &mut Session,
     ctx: &mut RequestCtx,
 ) -> Result<bool> {
-    let request_bytes = session.downstream_session.to_h1_raw().to_vec();
 
     let (host, path_and_query) = {
         let req = session.req_header();
@@ -39,10 +38,37 @@ pub async fn request_filter(
         (host, path_and_query)
     };
 
+    // Do not proxy requests addressed to an IP literal.
+    if host.as_deref().is_some_and(is_ip_literal_host) {
+        let mut response = ResponseHeader::build(421, Some(3))?;
+        response.insert_header("Content-Length", "0")?;
+        response.insert_header("Cache-Control", "no-store")?;
+
+        session
+            .write_response_header(Box::new(response), true)
+            .await?;
+        return Ok(true);
+    }
+    // REDIRECT HTTP TO HTTPS
+    if load_balancer.force_https_redirect && is_plain_http_request(session) {
+        if let Some(location) = build_https_redirect_location(host.as_deref(), &path_and_query) {
+            let mut response = ResponseHeader::build(308, Some(3))?;
+            response.insert_header("Location", location)?;
+            response.insert_header("Content-Length", "0")?;
+            response.insert_header("Cache-Control", "no-store")?;
+
+            session
+                .write_response_header(Box::new(response), true)
+                .await?;
+            return Ok(true);
+        }
+    }
+
     let ip = client_ip(session);
 
     // SEND PING OR CHECKIN
     if path_and_query == "/api/ping" {
+        // IT'S PING
         // tbd extract url and counter
         ctx.is_ping = true;
 
@@ -61,10 +87,7 @@ pub async fn request_filter(
                 load_balancer.writer.send_ping(ping2);
             }
             Err(e) => {
-                // respond 400 and short-circuit the proxy
-                //session.respond_error(400).await?;
-                eprintln!("bad JSON: {e}");
-                //return Ok(true); // true = response already sent, stop processing
+                eprintln!("bad JSON for ping: {e}");
             }
         }
 
@@ -79,34 +102,10 @@ pub async fn request_filter(
             .await?;
         return Ok(true);
     } else {
+        // SEND CheckIn
+        let request_bytes = session.downstream_session.to_h1_raw().to_vec();
         let checkin = CheckIn::new(ip, request_bytes, ctx.x_id.clone(), host.clone());
         load_balancer.writer.send_checkin(checkin);
-    }
-
-    // Do not proxy requests addressed to an IP literal.
-    if host.as_deref().is_some_and(is_ip_literal_host) {
-        let mut response = ResponseHeader::build(421, Some(3))?;
-        response.insert_header("Content-Length", "0")?;
-        response.insert_header("Cache-Control", "no-store")?;
-
-        session
-            .write_response_header(Box::new(response), true)
-            .await?;
-        return Ok(true);
-    }
-
-    if load_balancer.force_https_redirect && is_plain_http_request(session) {
-        if let Some(location) = build_https_redirect_location(host.as_deref(), &path_and_query) {
-            let mut response = ResponseHeader::build(308, Some(3))?;
-            response.insert_header("Location", location)?;
-            response.insert_header("Content-Length", "0")?;
-            response.insert_header("Cache-Control", "no-store")?;
-
-            session
-                .write_response_header(Box::new(response), true)
-                .await?;
-            return Ok(true);
-        }
     }
 
     Ok(false)
