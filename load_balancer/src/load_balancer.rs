@@ -1,3 +1,6 @@
+pub mod request;
+pub mod response;
+
 use crate::connect_to_writer::WriterClient;
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -33,7 +36,7 @@ impl ProxyHttp for LoadBalancer {
     }
 
     async fn request_filter(&self, session: &mut Session, ctx: &mut Self::CTX) -> Result<bool> {
-        crate::request::request_filter(self, session, ctx).await
+        crate::load_balancer::request::request_filter(self, session, ctx).await
     }
 
     async fn upstream_peer(
@@ -41,7 +44,7 @@ impl ProxyHttp for LoadBalancer {
         session: &mut Session,
         _ctx: &mut Self::CTX,
     ) -> Result<Box<HttpPeer>> {
-        crate::request::upstream_peer(self, session).await
+        crate::load_balancer::request::upstream_peer(self, session).await
     }
 
     fn response_body_filter(
@@ -54,7 +57,7 @@ impl ProxyHttp for LoadBalancer {
     where
         Self::CTX: Send + Sync,
     {
-        crate::response::response_body_filter(body, ctx)
+        crate::load_balancer::response::response_body_filter(body, ctx)
     }
 
     async fn logging(
@@ -63,6 +66,6 @@ impl ProxyHttp for LoadBalancer {
         e: Option<&pingora::Error>,
         ctx: &mut Self::CTX,
     ) {
-        crate::response::logging(self, session, e, ctx);
+        crate::load_balancer::response::logging(self, session, e, ctx);
     }
 }
