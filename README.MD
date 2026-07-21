@@ -262,6 +262,9 @@ sudo systemctl start centrale
 sudo systemctl enable load_balancer
 sudo systemctl start load_balancer
 
+sudo systemctl enable centrale_admin
+sudo systemctl start centrale_admin
+
 sudo journalctl -u centrale.service
 sudo journalctl -u centrale.service -f
 

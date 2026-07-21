@@ -88,10 +88,10 @@ pre.small {
 
 #main {
 }
-table td[data-v-89f0aa]:hover {
+table td[data-v-33a4f2]:hover {
    background-color: #eee;
 }
-.json-overlay[data-v-89f0aa] {
+.json-overlay[data-v-33a4f2] {
   position: fixed;
   top: 0;
   left: 0;
@@ -103,7 +103,7 @@ table td[data-v-89f0aa]:hover {
   align-items: center;
   justify-content: center;
 }
-.json-box[data-v-89f0aa] {
+.json-box[data-v-33a4f2] {
   position: relative;
   background: #fff;
   border: 1px solid #999;
@@ -112,13 +112,13 @@ table td[data-v-89f0aa]:hover {
   overflow: auto;
   padding: 20px;
 }
-.json-box pre[data-v-89f0aa] {
+.json-box pre[data-v-33a4f2] {
   margin: 0;
   font-size: 12px;
   white-space: pre-wrap;
   word-break: break-all;
 }
-.json-close[data-v-89f0aa] {
+.json-close[data-v-33a4f2] {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -128,10 +128,10 @@ table td[data-v-89f0aa]:hover {
   cursor: pointer;
   color: #999;
 }
-.json-close[data-v-89f0aa]:hover {
+.json-close[data-v-33a4f2]:hover {
   color: #000;
 }
-.bytes-pre[data-v-89f0aa] {
+.bytes-pre[data-v-33a4f2] {
   margin-top: 15px;
   padding-top: 15px;
   border-top: 1px solid #ccc;

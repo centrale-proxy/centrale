@@ -3,82 +3,99 @@
     <router-view></router-view>
   </div>
 </template>
-<script>
-  //import axios from 'axios'
-  import _ from 'lodash'
 
-  export default {
-    name: "AppContainer",
-    data () {
-      return {
-        admin: false
+<script>
+const MAX_FEED = 500
+const TRIM_THRESHOLD = 600 // trim in batches, not on every message
+
+export default {
+  name: 'AppContainer',
+
+  data() {
+    return {
+      admin: false
+    }
+  },
+
+  created() {
+    // Non-reactive helpers: declared here (not in data) so Vue doesn't
+    // waste memory making them reactive.
+    this.source = null
+    this.feedIndex = new Map() // id -> array index
+  },
+
+  mounted() {
+    this.getFeed()
+  },
+
+  beforeDestroy() {
+    this.closeFeed()
+  },
+
+  methods: {
+    getFeed() {
+      if (!window.EventSource) {
+        console.warn("Your browser doesn't support SSE")
+        return
+      }
+
+      this.closeFeed() // guard against duplicate connections
+
+      this.source = new EventSource('/api/feed')
+      this.source.onmessage = this.onFeedMessage
+      this.source.onerror = (e) => console.error('SSE error:', e)
+    },
+
+    closeFeed() {
+      if (this.source) {
+        this.source.close()
+        this.source = null
       }
     },
-  mounted() {
-      this.getFeed();
+
+    onFeedMessage(event) {
+      let data
+      try {
+        data = JSON.parse(event.data)
+      } catch (e) {
+        console.error('Bad feed payload:', e)
+        return
+      }
+
+      const feed = this.$store.inputFeed
+      const existing = this.feedIndex.get(data.id)
+
+      // Freeze display-only items so Vue skips deep reactivity on them —
+      // roughly halves per-item memory. Remove if you mutate items in place.
+      const item = Object.freeze(data)
+
+      if (existing !== undefined) {
+        this.$set(feed, existing, item)
+        return
+      }
+
+      feed.push(item)
+      this.feedIndex.set(item.id, feed.length - 1)
+
+      if (feed.length > TRIM_THRESHOLD) {
+        this.trimFeed(feed)
+      }
     },
-    components: {
-    },
-    methods: {
-      getFeed: function () {
-        const t = this
-        if (!!window.EventSource) {
-          var source = new EventSource('/api/feed')
 
-          source.onmessage = function(event) {
-            try {
-              let data = JSON.parse(event.data)
+    trimFeed(feed) {
+      // splice mutates in place instead of allocating a new array
+      // (slice(-500) copied all 500 items on every message)
+      feed.splice(0, feed.length - MAX_FEED)
 
-              let i = -1;
-              _.each(t.$store.inputFeed, function (one, index) {
-                if (one.id === data.id) {
-                  i = index;
-                }
-              })
-              if (i > -1) {
-                t.$set(t.$store.inputFeed, i,  data)
-              } else {
-                t.$store.inputFeed.push(data);
-              }
-
-              /*
-              // DON'T PRING PINGS
-              if (data.url === '/api/ping') {
-                return
-              }
-
-              if (data.checkin && data.id) {
-                // THIS IS CHECKIN
-                if (!t.tracker[data.id]) {
-                  t.$set(t.tracker, data.id, {})
-                }
-                t.$set(t.tracker, data.id, data)
-
-              } else if (data.ping && data.id && t.tracker[data.id]) {
-                // THIS IS PING
-                t.$set(t.tracker[data.id], 'ping',  data.ping )
-              } else {
-                // THIS IS CHECKOUT
-                if (!t.tracker[data.id]) {
-                  t.$set(t.tracker, data.id, {})
-                }
-                t.$set(t.tracker[data.id], 'status', data.status)
-                t.$set(t.tracker[data.id], 'checkoutFormated', data.checkoutFormated)
-                t.$set(t.tracker[data.id], 'timer', data.timer)
-                t.$set(t.tracker[data.id], 'user', data.user)
-              }
- */
-            } catch (e) {
-              console.log(e)
-            }
-          }
-
-        } else {
-          console.log("Your browser doesn't support SSE")
-        }
-      },
+      // Indices shifted, rebuild the map. Happens once per ~100 messages
+      // instead of scanning 500 items on every single message.
+      this.feedIndex.clear()
+      for (let i = 0; i < feed.length; i++) {
+        this.feedIndex.set(feed[i].id, i)
+      }
     }
   }
+}
 </script>
 
 <style>
