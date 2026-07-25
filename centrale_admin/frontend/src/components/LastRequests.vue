@@ -56,6 +56,12 @@
          bot
         </td>
         <td>
+         bot type
+        </td>
+        <td>
+         bot kind
+        </td>
+        <td>
           lead
         </td>
         <td>
@@ -165,6 +171,17 @@
           </a>
         </td>
 
+        <td>
+            <span v-if="touch.is_bot">
+                🤖
+            </span>
+        </td>
+        <td>
+           {{ touch.bot_type}}
+        </td>
+        <td>
+           {{ touch.bot_kind}}
+        </td>
         <td>
             <span v-if="touch.is_bot">
                 🤖
