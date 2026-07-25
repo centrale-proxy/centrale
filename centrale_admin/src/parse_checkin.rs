@@ -1,5 +1,5 @@
 use crate::subdomain::{extract_subdomain, host_from_referrer, host_only};
-use chrono::{Datelike, Utc};
+use chrono::{Datelike, Local};
 use common::{names::RandomName, payload::CheckIn};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -128,7 +128,7 @@ impl ParsedCheckIn {
                 .unwrap_or_default()
         };
 
-        let now = Utc::now();
+        let now = Local::now();
         let year = now.year();
         let month = now.month() as u8;
         let day = now.day() as u8;
