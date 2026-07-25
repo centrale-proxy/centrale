@@ -121,8 +121,8 @@ pre {
   width: auto;
   padding: 5px;
   background-color: #eee;
-  width: 650px!ie7;
-  padding-bottom: 20px!ie7;
+  width: 650px!;
+  padding-bottom: 20px!;
   max-height: 600px;
   font-size: 15px;
 }

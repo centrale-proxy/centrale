@@ -47,10 +47,10 @@
           <span>status</span>
         </td>
         <td>
-          <span>timer</span>
+            secs
         </td>
         <td>
-            secs
+          <span>timer</span>
         </td>
         <td>
          bot
@@ -80,6 +80,15 @@
             error
         </td>
         <td>
+            client_ip
+        </td>
+        <td>
+            client_port
+        </td>
+        <td>
+            cf_connecting_ip
+        </td>
+        <td>
             forwarded
         </td>
         <td>
@@ -90,12 +99,6 @@
         </td>
         <td>
             client_addr
-        </td>
-        <td>
-            client_ip
-        </td>
-        <td>
-            client_port
         </td>
         <td>
             x_id
@@ -149,17 +152,19 @@
             {{ touch.status }}
           </a>
         </td>
-        <td>
-          <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;" @click.stop>
-            {{ touch.timer }}
-          </a>
-        </td>
 
         <td style="">
           <span v-if="touch.counter">
             {{ touch.counter }}
           </span>
         </td>
+
+        <td>
+          <a v-bind:href="'/admin/touch/' + touch._id " target="_blank" style="color: #999; text-decoration: none;" @click.stop>
+            {{ touch.timer }}
+          </a>
+        </td>
+
         <td>
             <span v-if="touch.is_bot">
                 🤖
@@ -205,6 +210,21 @@
         </td>
         <td>
             <span>
+              {{ touch.client_ip }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.client_port }}
+            </span>
+        </td>
+        <td>
+            <span>
+              {{ touch.cf_connecting_ip }}
+            </span>
+        </td>
+        <td>
+            <span>
               {{ touch.forwarded }}
             </span>
         </td>
@@ -221,16 +241,6 @@
         <td>
             <span>
               {{ touch.client_addr }}
-            </span>
-        </td>
-        <td>
-            <span>
-              {{ touch.client_ip }}
-            </span>
-        </td>
-        <td>
-            <span>
-              {{ touch.client_port }}
             </span>
         </td>
         <td>
