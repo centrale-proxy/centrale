@@ -13,16 +13,26 @@ pub struct ClientIP {
     pub x_real_ip: Option<String>,
     /// The direct peer address of the TCP connection.
     pub client_addr: Option<String>,
+    /// Value of `CF-Connecting-IP`, set by Cloudflare with the original client IP.
+    /// Only trustworthy if the request actually came from Cloudflare's network.
+    pub cf_connecting_ip: Option<String>,
+    /// Cloudflare country
+    pub cf_ipcountry: Option<String>,
+    /// http vs https
+    pub x_forwarded_proto: Option<String>,
 }
-///
+
 impl ClientIP {
     /// Best single value for logging, in order of preference.
-    /// Prefers the direct TCP peer (`client_addr`), falling back to the
-    /// forwarded headers. Those headers are client-supplied and can be
-    /// spoofed unless a trusted proxy overwrites them.
+    /// Prefers `CF-Connecting-IP` (the original client as reported by
+    /// Cloudflare), then the standardized/legacy forwarding headers, and
+    /// finally the direct TCP peer (`client_addr`). Note that all headers
+    /// are client-supplied and can be spoofed unless the request verifiably
+    /// arrived via a trusted proxy (e.g. Cloudflare's IP ranges).
     pub fn for_logging(&self) -> &str {
-        self.client_addr
+        self.cf_connecting_ip
             .as_deref()
+            .or(self.client_addr.as_deref())
             .or(self.forwarded.as_deref())
             .or(self.x_forwarded_for.as_deref())
             .or(self.x_real_ip.as_deref())

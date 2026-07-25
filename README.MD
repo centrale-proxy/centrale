@@ -36,6 +36,9 @@ Assumes DNS A *.domain.com being directed to load_balancer.
 + Parses bytes + stores url, query, method, browser, refferer, host, os, etc to db.  
 + If response status is > 400, error body is logged  
 + If /api/ping is used shows aproox how long visitor stays on website
++ Optimized to distinguish client_address inside Cloudflare. 
+
+
 ```
 pub struct ParsedCheckIn {
     pub url: Option<String>,
@@ -63,6 +66,7 @@ pub struct ParsedCheckIn {
 + Same (or different) backend can be used for all subdomains  
   
 # Oppinionated parts:
+  
 Q: User registration gives an immediate cookie (instead of requiring log in).  
 A: I've been in the position of asking for this feature "later" (when the auth was built already).  
 

@@ -89,6 +89,27 @@ pub fn client_ip(session: &Session) -> ClientIP {
         .filter(|value| !value.is_empty())
         .map(str::to_string);
 
+    let cf_connecting_ip = headers
+        .get("cf-connecting-ip")
+        .and_then(|value| value.to_str().ok())
+        .map(|value| value.trim())
+        .filter(|value| !value.is_empty())
+        .map(str::to_string);
+
+    let cf_ipcountry = headers
+        .get("cf-ipcountry")
+        .and_then(|value| value.to_str().ok())
+        .map(|value| value.trim())
+        .filter(|value| !value.is_empty())
+        .map(str::to_string);
+
+    let x_forwarded_proto = headers
+        .get("x-forwarded-proto")
+        .and_then(|value| value.to_str().ok())
+        .map(|value| value.trim())
+        .filter(|value| !value.is_empty())
+        .map(str::to_string);
+
     let client_addr = session.client_addr().map(|addr| addr.to_string());
 
     ClientIP {
@@ -96,6 +117,9 @@ pub fn client_ip(session: &Session) -> ClientIP {
         x_forwarded_for,
         x_real_ip,
         client_addr,
+        cf_connecting_ip,
+        cf_ipcountry,
+        x_forwarded_proto,
     }
 }
 

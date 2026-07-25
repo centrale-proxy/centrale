@@ -12,6 +12,9 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             forwarded TEXT,
             x_forwarded_for TEXT,
             x_real_ip TEXT,
+            cf_connecting_ip TEXT,
+            country TEXT,
+            protocol TEXT,
             client_addr TEXT,
             client_ip TEXT,
             client_port INTEGER,
@@ -85,14 +88,15 @@ pub fn save_packet(
     )?;
 
     let id = db.query_row(
-        "INSERT INTO writer (x_id, checkin, forwarded, x_forwarded_for, x_real_ip, client_addr)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+        "INSERT INTO writer (x_id, checkin, forwarded, x_forwarded_for, x_real_ip, client_addr, cf_connecting_ip)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
          ON CONFLICT(x_id) DO UPDATE SET
              checkin = excluded.checkin,
              forwarded = excluded.forwarded,
              x_forwarded_for = excluded.x_forwarded_for,
              x_real_ip = excluded.x_real_ip,
              client_addr = excluded.client_addr,
+             cf_connecting_ip = excluded.cf_connecting_ip,
              timer = CASE
                  WHEN writer.checkout IS NULL THEN NULL
                  ELSE writer.checkout - excluded.checkin
@@ -105,6 +109,7 @@ pub fn save_packet(
             checkin.ip.x_forwarded_for,
             checkin.ip.x_real_ip,
             checkin.ip.client_addr,
+            checkin.ip.cf_connecting_ip,
         ],
         |row| row.get(0),
     )?;
@@ -135,9 +140,11 @@ pub fn save_parsed_checkin(
             year = ?15,
             month = ?16,
             day = ?17,
-            time = ?18
+            time = ?18,
+            protocol = ?19,
+            country = ?20
 
-        WHERE id = ?19",
+        WHERE id = ?21",
         params![
             checkin.url,
             checkin.query,
@@ -157,6 +164,8 @@ pub fn save_parsed_checkin(
             checkin.month,
             checkin.day,
             checkin.time,
+            checkin.protocol,
+            checkin.country,
             id,
         ],
     )?;
