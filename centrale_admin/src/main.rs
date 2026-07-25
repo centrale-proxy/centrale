@@ -1,4 +1,5 @@
 mod api;
+mod bot_type;
 mod db;
 mod error;
 mod handle_payload;

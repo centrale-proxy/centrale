@@ -26,6 +26,8 @@ pub fn init_writer_db(conn: &DbConnection) -> Result<(), WriterError> {
             os TEXT,
             browser TEXT,
             is_bot BOOLEAN NOT NULL DEFAULT 0,
+            bot_type TEXT,
+            bot_kind TEXT,
             lead TEXT,
             campaign TEXT,
             checkin INTEGER NOT NULL,
@@ -316,6 +318,8 @@ pub struct FullEntryResult {
     pub os: Option<String>,
     pub browser: Option<String>,
     pub is_bot: bool,
+    pub bot_type: Option<String>,
+    pub bot_kind: Option<String>,
     pub lead: Option<String>,
     pub campaign: Option<String>,
     pub checkin: i64,
@@ -338,7 +342,7 @@ pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResu
             "SELECT id, x_id, forwarded, x_forwarded_for, x_real_ip, client_addr,
                     client_ip, client_port, url, query, method, referrer, host,
                     os, browser, is_bot, lead, campaign, checkin, checkout, error,
-                    status, anon_name, timer, subdomain, counter, year, month, day, time
+                    status, anon_name, timer, subdomain, counter, year, month, day, time, bot_type, bot_kind
              FROM writer
              WHERE id = ?1",
             params![id],
@@ -374,6 +378,8 @@ pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResu
                     month: row.get(27)?,
                     day: row.get(28)?,
                     time: row.get(29)?,
+                    bot_type: row.get(30)?,
+                    bot_kind: row.get(31)?,
                 })
             },
         )
@@ -390,7 +396,7 @@ pub fn get_last_entries(
         "SELECT id, x_id, forwarded, x_forwarded_for, x_real_ip, client_addr,
                 client_ip, client_port, url, query, method, referrer, host,
                 os, browser, is_bot, lead, campaign, checkin, checkout, error,
-                status, anon_name, timer, subdomain, counter, year, month, day, time
+                status, anon_name, timer, subdomain, counter, year, month, day, time, bot_type, bot_kind
          FROM writer
          ORDER BY id DESC
          LIMIT ?1",
@@ -429,6 +435,8 @@ pub fn get_last_entries(
                 month: row.get(27)?,
                 day: row.get(28)?,
                 time: row.get(29)?,
+                bot_type: row.get(30)?,
+                bot_kind: row.get(31)?,
             })
         })?
         .collect::<Result<Vec<_>, _>>()?;

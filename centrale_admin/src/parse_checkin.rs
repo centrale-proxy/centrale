@@ -1,4 +1,7 @@
-use crate::subdomain::{extract_subdomain, host_from_referrer, host_only};
+use crate::{
+    bot_type::{self, BotKind, BotType, get_bot_type},
+    subdomain::{extract_subdomain, host_from_referrer, host_only},
+};
 use chrono::{Datelike, Local};
 use common::{names::RandomName, payload::CheckIn};
 use serde_derive::{Deserialize, Serialize};
@@ -13,10 +16,12 @@ pub struct ParsedCheckIn {
     pub host: Option<String>,
     pub os: Option<String>,
     pub ua: Option<String>,
-    pub browser: Option<String>,  // PARSED UA
-    pub is_bot: bool,             // GOOGLE OR FB CRAWLER
-    pub lead: Option<String>,     // GOOGLE BING OR FB
-    pub campaign: Option<String>, // utm_campaign
+    pub browser: Option<String>,   // PARSED UA
+    pub is_bot: bool,              // GOOGLE OR FB CRAWLER
+    pub bot_type: Option<BotType>, // GUESS BOT TYPE
+    pub bot_kind: Option<BotKind>, // GUESS BOT CATEGORY
+    pub lead: Option<String>,      // GOOGLE BING OR FB
+    pub campaign: Option<String>,  // utm_campaign
     pub anon_name: String,
     pub subdomain: String,
     /// Client ip from client_addr.
@@ -106,6 +111,7 @@ impl ParsedCheckIn {
         let os = ua.as_deref().and_then(infer_os);
         let browser = ua.as_deref().and_then(infer_browser);
         let is_bot = ua.as_deref().map(is_bot_user_agent).unwrap_or(false);
+        let bot_type = ua.as_deref().map(get_bot_type).unwrap_or(None);
 
         let lead = query
             .as_deref()
@@ -133,6 +139,10 @@ impl ParsedCheckIn {
         let month = now.month() as u8;
         let day = now.day() as u8;
         let time = now.format("%H:%M:%S").to_string();
+        let bot_kind = match bot_type {
+            Some(bot_type) => Some(bot_type.get_kind()),
+            None => None,
+        };
 
         ParsedCheckIn {
             url,
@@ -144,6 +154,8 @@ impl ParsedCheckIn {
             os,
             browser,
             is_bot,
+            bot_type,
+            bot_kind,
             lead,
             campaign,
             anon_name,
