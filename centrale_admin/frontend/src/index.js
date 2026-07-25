@@ -5,6 +5,7 @@ import VueRouter from "vue-router"
 import VueStash from 'vue-stash'
 import axios from "axios"
 
+
 import Wrapper from "./Wrapper"
 import routes from "./routes"
 
