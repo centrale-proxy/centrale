@@ -1,3 +1,5 @@
+use std::net::IpAddr;
+
 use serde_derive::{Deserialize, Serialize};
 
 /// All the different representations of the client address, each as its own
@@ -24,15 +26,23 @@ pub struct ClientIP {
 
 impl ClientIP {
     /// Best single value for logging, in order of preference.
-    /// Prefers `CF-Connecting-IP` (the original client as reported by
-    /// Cloudflare), then the standardized/legacy forwarding headers, and
-    /// finally the direct TCP peer (`client_addr`). Note that all headers
-    /// are client-supplied and can be spoofed unless the request verifiably
-    /// arrived via a trusted proxy (e.g. Cloudflare's IP ranges).
+    /// Prefers `CF-Connecting-IP`, unless it's an IPv6 address — in that
+    /// case the direct TCP peer (`client_addr`) is preferred if present.
+    /// Falls back to the forwarding headers and finally `client_addr`.
     pub fn for_logging(&self) -> &str {
-        self.cf_connecting_ip
+        // If CF-Connecting-IP is IPv6, prefer client_addr when available.
+        if let Some(cf) = self.cf_connecting_ip.as_deref() {
+            let is_ipv6 = cf.parse::<IpAddr>().map(|ip| ip.is_ipv6()).unwrap_or(false);
+            if is_ipv6 {
+                if let Some(addr) = self.client_addr.as_deref() {
+                    return addr;
+                }
+            }
+            return cf;
+        }
+
+        self.client_addr
             .as_deref()
-            .or(self.client_addr.as_deref())
             .or(self.forwarded.as_deref())
             .or(self.x_forwarded_for.as_deref())
             .or(self.x_real_ip.as_deref())
