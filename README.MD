@@ -65,8 +65,11 @@ pub struct ParsedCheckIn {
 + Serves same front end for all subdomains (optionally)  
 + Same (or different) backend can be used for all subdomains  
   
-# Oppinionated parts:
-  
+# Compromises
+
+Q: Admin component is called centrale_admin, not admin.
+A: admin was too pretentious as a linux process name and it essentially was confusing to have separate process name and separate binary name.
+
 Q: User registration gives an immediate cookie (instead of requiring log in).  
 A: I've been in the position of asking for this feature "later" (when the auth was built already).  
 

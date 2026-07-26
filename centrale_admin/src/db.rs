@@ -311,6 +311,7 @@ pub struct FullEntryResult {
     pub forwarded: Option<String>,
     pub x_forwarded_for: Option<String>,
     pub x_real_ip: Option<String>,
+    pub cf_connecting_ip: Option<String>,
     pub client_addr: Option<String>,
     pub client_ip: Option<String>,
     pub client_port: Option<i64>,
@@ -346,7 +347,7 @@ pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResu
             "SELECT id, x_id, forwarded, x_forwarded_for, x_real_ip, client_addr,
                     client_ip, client_port, url, query, method, referrer, host,
                     os, browser, is_bot, lead, campaign, checkin, checkout, error,
-                    status, anon_name, timer, subdomain, counter, year, month, day, time, bot_type, bot_kind
+                    status, anon_name, timer, subdomain, counter, year, month, day, time, bot_type, bot_kind, cf_connecting_ip
              FROM writer
              WHERE id = ?1",
             params![id],
@@ -384,6 +385,7 @@ pub fn get_full_entry(db: &DbConnection, id: i64) -> Result<Option<FullEntryResu
                     time: row.get(29)?,
                     bot_type: row.get(30)?,
                     bot_kind: row.get(31)?,
+                    cf_connecting_ip: row.get(32)?
                 })
             },
         )
@@ -400,7 +402,7 @@ pub fn get_last_entries(
         "SELECT id, x_id, forwarded, x_forwarded_for, x_real_ip, client_addr,
                 client_ip, client_port, url, query, method, referrer, host,
                 os, browser, is_bot, lead, campaign, checkin, checkout, error,
-                status, anon_name, timer, subdomain, counter, year, month, day, time, bot_type, bot_kind
+                status, anon_name, timer, subdomain, counter, year, month, day, time, bot_type, bot_kind, cf_connecting_ip
          FROM writer
          ORDER BY id DESC
          LIMIT ?1",
@@ -441,6 +443,7 @@ pub fn get_last_entries(
                 time: row.get(29)?,
                 bot_type: row.get(30)?,
                 bot_kind: row.get(31)?,
+                cf_connecting_ip: row.get(32)?,
             })
         })?
         .collect::<Result<Vec<_>, _>>()?;
