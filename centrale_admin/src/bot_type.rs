@@ -1,3 +1,7 @@
+use r2d2_sqlite::rusqlite::{
+    self, ToSql,
+    types::{FromSql, FromSqlError, FromSqlResult, ToSqlOutput, ValueRef},
+};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
@@ -306,10 +310,121 @@ impl BotType {
         }
     }
 
-    pub fn is_ai(&self) -> bool {
+    pub fn _is_ai(&self) -> bool {
         !matches!(
             self.get_kind(),
             BotKind::LinkPreview | BotKind::SearchEngine | BotKind::Generic
         )
+    }
+}
+
+impl BotKind {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            BotKind::LinkPreview => "link preview",
+            BotKind::SearchEngine => "search engine",
+            BotKind::AiTraining => "ai training",
+            BotKind::AiSearch => "ai search",
+            BotKind::AiAgent => "ai agent",
+            BotKind::Generic => "generic",
+        }
+    }
+}
+
+impl ToSql for BotKind {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
+        Ok(ToSqlOutput::from(self.as_str()))
+    }
+}
+
+impl FromSql for BotKind {
+    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+        match value.as_str()? {
+            "link_preview" => Ok(BotKind::LinkPreview),
+            "search_engine" => Ok(BotKind::SearchEngine),
+            "ai_training" => Ok(BotKind::AiTraining),
+            "ai_search" => Ok(BotKind::AiSearch),
+            "ai_agent" => Ok(BotKind::AiAgent),
+            "generic" => Ok(BotKind::Generic),
+            other => Err(FromSqlError::Other(
+                format!("unknown BotKind: {other}").into(),
+            )),
+        }
+    }
+}
+
+impl ToSql for BotType {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
+        Ok(ToSqlOutput::from(self.as_str()))
+    }
+}
+
+impl FromSql for BotType {
+    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+        BotType::from_str_name(value.as_str()?)
+            .ok_or_else(|| FromSqlError::Other("unknown BotType".into()))
+    }
+}
+
+impl BotType {
+    pub fn from_str_name(s: &str) -> Option<Self> {
+        Some(match s {
+            "iMessage" => Self::IMessage,
+            "Facebook" => Self::FB,
+            "Twitter/X" => Self::Twitter,
+            "Google" => Self::Google,
+            "Bing" => Self::Bing,
+            "DuckDuckGo" => Self::DuckDuckGo,
+            "Yandex" => Self::Yandex,
+            "Baidu" => Self::Baidu,
+            "Slack" => Self::Slack,
+            "Discord" => Self::Discord,
+            "Telegram" => Self::Telegram,
+            "WhatsApp" => Self::WhatsApp,
+            "LinkedIn" => Self::LinkedIn,
+            "Pinterest" => Self::Pinterest,
+            "Reddit" => Self::Reddit,
+            "Applebot" => Self::Apple,
+            "Crawler" => Self::Crawler,
+            "Spider" => Self::Spider,
+            "GPTBot" => Self::Gptbot,
+            "OAI-SearchBot" => Self::OaiSearchBot,
+            "ChatGPT-User" => Self::ChatGptUser,
+            "ClaudeBot" => Self::ClaudeBot,
+            "Claude-SearchBot" => Self::ClaudeSearchBot,
+            "Claude-User" => Self::ClaudeUser,
+            "anthropic-ai" => Self::AnthropicAi,
+            "PerplexityBot" => Self::PerplexityBot,
+            "Perplexity-User" => Self::PerplexityUser,
+            "Google-Extended" => Self::GoogleExtended,
+            "GoogleOther" => Self::GoogleOther,
+            "Applebot-Extended" => Self::ApplebotExtended,
+            "Amazonbot" => Self::Amazonbot,
+            "Meta-ExternalAgent" => Self::MetaExternalAgent,
+            "FacebookBot" => Self::FacebookBot,
+            "Bytespider" => Self::Bytespider,
+            "CCBot" => Self::CCBot,
+            "DuckAssistBot" => Self::DuckAssistBot,
+            "cohere-ai" => Self::CohereAi,
+            "Diffbot" => Self::Diffbot,
+            "Bot" => Self::Other,
+            _ => return None,
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn classifies_claudebot_ua() {
+        let ua = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)";
+
+        let bot = get_bot_type(ua).expect("should be detected as a bot");
+        assert_eq!(bot, BotType::ClaudeBot);
+        assert_eq!(bot.as_str(), "ClaudeBot");
+        assert_eq!(bot.get_kind(), BotKind::AiTraining);
+        assert!(bot._is_ai());
     }
 }

@@ -182,11 +182,6 @@
         <td>
            {{ touch.bot_kind}}
         </td>
-        <td>
-            <span v-if="touch.is_bot">
-                🤖
-            </span>
-        </td>
         <td style="width: 40px;">
           <span v-if="touch.lead">
             <span>{{ touch.lead }}</span>

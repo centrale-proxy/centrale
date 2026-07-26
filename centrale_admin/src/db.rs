@@ -144,9 +144,11 @@ pub fn save_parsed_checkin(
             day = ?17,
             time = ?18,
             protocol = ?19,
-            country = ?20
+            country = ?20,
+            bot_type = ?21,
+            bot_kind = ?22
 
-        WHERE id = ?21",
+        WHERE id = ?23",
         params![
             checkin.url,
             checkin.query,
@@ -168,6 +170,8 @@ pub fn save_parsed_checkin(
             checkin.time,
             checkin.protocol,
             checkin.country,
+            checkin.bot_type,
+            checkin.bot_kind,
             id,
         ],
     )?;
